@@ -3,44 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DetailGest - Panel Admin</title>
+    <title>DetailGest - Súper Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        .midnight-carbon { background-color: #111827; color: #F9FAFB; }
-        .card-carbon { background-color: #1F2937; border: 1px solid #374151; }
-        .accent-yellow { color: #EAB308; }
-        .bg-yellow-neon { background-color: #EAB308; }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-gray-900 font-sans text-white">
+<body class="bg-gray-900 text-gray-100 font-sans">
 
-    <div id="login-screen" class="min-h-screen flex items-center justify-center px-4">
-        <div class="max-w-md w-full card-carbon p-8 rounded-2xl shadow-2xl">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold accent-yellow">DetailGest</h1>
-                <p class="text-gray-400 mt-2">Ingreso Administrador</p>
-            </div>
-            <form id="login-form" class="space-y-6">
-                <input type="text" id="user" placeholder="Usuario" required class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white outline-none">
-                <input type="password" id="pass" placeholder="Contraseña" required class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white outline-none">
-                <button type="submit" class="w-full bg-yellow-neon text-gray-900 font-bold py-3 rounded-lg">INGRESAR</button>
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700">
+            <h1 class="text-3xl font-bold text-yellow-500 text-center mb-8">DetailGest</h1>
+            <form id="login-form" class="space-y-4">
+                <input type="text" id="user" placeholder="Usuario" class="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg outline-none focus:border-yellow-500">
+                <input type="password" id="pass" placeholder="Contraseña" class="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg outline-none focus:border-yellow-500">
+                <button type="submit" class="w-full bg-yellow-500 text-gray-900 font-bold py-3 rounded-lg hover:bg-yellow-400">INGRESAR</button>
             </form>
         </div>
     </div>
 
     <div id="dashboard" class="hidden min-h-screen flex flex-col">
-        <header class="h-16 card-carbon flex items-center px-8 border-b border-gray-800">
-            <h2 class="text-xl font-semibold">Panel DetailGest Activo</h2>
+        <header class="bg-gray-800 p-4 border-b border-gray-700 flex justify-between items-center shadow-md">
+            <h2 class="text-xl font-bold text-yellow-500">Panel Central DetailGest</h2>
+            <button onclick="location.reload()" class="text-sm text-gray-400 hover:text-white">Cerrar Sesión</button>
         </header>
-        <main class="p-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="card-carbon p-6 rounded-xl">
-                    <p class="text-gray-400 text-sm">Empresas</p>
-                    <h3 class="text-3xl font-bold mt-2">Conectado ✅</h3>
+
+        <main class="p-4 md:p-8 space-y-6 max-w-6xl mx-auto w-full">
+            <section class="bg-gray-800 p-6 rounded-xl border border-gray-700">
+                <h3 class="text-lg font-semibold mb-4 text-yellow-500">Registrar Nueva Empresa / Detailing</h3>
+                <form id="company-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" id="comp-name" placeholder="Nombre del Local" required class="p-2 bg-gray-900 border border-gray-700 rounded outline-none">
+                    <input type="number" id="due-day" placeholder="Día de Vencimiento (1-31)" required class="p-2 bg-gray-900 border border-gray-700 rounded outline-none">
+                    <button type="submit" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-4 rounded transition">
+                        + ACTIVAR EMPRESA
+                    </button>
+                </form>
+            </section>
+
+            <section class="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+                <div class="p-4 border-b border-gray-700 bg-gray-750">
+                    <h3 class="font-bold">Listado de Empresas Activas</h3>
                 </div>
-            </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-900 text-gray-400 text-xs uppercase">
+                            <tr>
+                                <th class="p-4 text-center">Nombre</th>
+                                <th class="p-4 text-center">Estado</th>
+                                <th class="p-4 text-center">Vence el Día</th>
+                                <th class="p-4 text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="companies-list" class="divide-y divide-gray-700">
+                            </tbody>
+                    </table>
+                </div>
+            </section>
         </main>
     </div>
 
@@ -50,36 +67,69 @@
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0YWh0eXdoaGFlY2pha2d0bnp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMjYyODIsImV4cCI6MjA4NTkwMjI4Mn0.ARQ9W_Rpj8rp_xo88TbTjbdwT6o75J7sCPlConcoshw';
         // ----------------------------
 
-        const { createClient } = supabase;
-        const _supabase = createClient(SB_URL, SB_KEY);
+        const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        const loginForm = document.getElementById('login-form');
-
-        loginForm.addEventListener('submit', async (e) => {
+        // LOGIN
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const u = document.getElementById('user').value.trim();
-            const p = document.getElementById('pass').value.trim();
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
 
-            try {
-                const { data, error } = await _supabase
-                    .from('users')
-                    .select('*')
-                    .eq('username', u)
-                    .eq('password_hash', p)
-                    .maybeSingle();
+            const { data } = await _supabase.from('users').select('*').eq('username', u).eq('password_hash', p).maybeSingle();
 
-                if (error) throw error;
-
-                if (data) {
-                    document.getElementById('login-screen').classList.add('hidden');
-                    document.getElementById('dashboard').classList.remove('hidden');
-                } else {
-                    alert('Acceso denegado: Usuario o clave no coinciden en Supabase.');
-                }
-            } catch (err) {
-                alert('Error de conexión: ' + err.message);
+            if (data) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                loadCompanies();
+            } else {
+                alert('Usuario o clave incorrectos');
             }
         });
+
+        // CARGAR EMPRESAS
+        async function loadCompanies() {
+            const { data, error } = await _supabase.from('companies').select('*').order('name', { ascending: true });
+            const list = document.getElementById('companies-list');
+            list.innerHTML = '';
+
+            data.forEach(comp => {
+                list.innerHTML += `
+                    <tr>
+                        <td class="p-4 font-bold text-center">${comp.name}</td>
+                        <td class="p-4 text-center"><span class="bg-green-900 text-green-400 px-2 py-1 rounded-full text-xs">${comp.status}</span></td>
+                        <td class="p-4 text-center">Día ${comp.due_day}</td>
+                        <td class="p-4 text-center">
+                            <button class="text-blue-400 hover:text-blue-300 mr-3">Cobrar</button>
+                            <button onclick="deleteCompany('${comp.id}')" class="text-red-500 hover:text-red-400"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        // GUARDAR NUEVA EMPRESA
+        document.getElementById('company-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('comp-name').value;
+            const due = document.getElementById('due-day').value;
+
+            const { error } = await _supabase.from('companies').insert([{ name: name, due_day: due, status: 'active' }]);
+
+            if (!error) {
+                alert('¡Empresa Activada!');
+                document.getElementById('company-form').reset();
+                loadCompanies();
+            } else {
+                alert('Error al guardar: ' + error.message);
+            }
+        });
+
+        // ELIMINAR EMPRESA
+        async function deleteCompany(id) {
+            if(confirm('¿Seguro que quieres eliminar esta empresa?')) {
+                await _supabase.from('companies').delete().eq('id', id);
+                loadCompanies();
+            }
+        }
     </script>
 </body>
 </html>
