@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DetailGest Pro v6.1 - Reparado</title>
+    <title>DetailGest Pro v6.2 - Caja con Descuento</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -38,11 +38,8 @@
     </div>
 
     <div id="dashboard" class="hidden min-h-screen flex flex-col md:flex-row">
-        
         <aside class="md:w-64 glass border-r border-slate-800 flex flex-col z-50">
-            <div class="p-6">
-                <h2 class="text-2xl font-black text-yellow-500 italic">DETAILGEST</h2>
-            </div>
+            <div class="p-6"><h2 class="text-2xl font-black text-yellow-500 italic">DETAILGEST</h2></div>
             <nav id="nav-menu" class="flex-1 px-4 space-y-1 overflow-y-auto custom-scroll"></nav>
             <div class="p-4 border-t border-slate-800">
                 <button onclick="logout()" class="w-full p-3 text-red-400 font-bold text-xs flex items-center gap-3"><i class="fas fa-power-off"></i> CERRAR SESIÓN</button>
@@ -57,18 +54,43 @@
                         <input type="text" id="pos-search" oninput="filterServices()" placeholder="Buscar servicio..." class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl mb-4 outline-none focus:ring-1 ring-yellow-500">
                         <div id="pos-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
                     </div>
+
                     <div class="w-full lg:w-96 glass p-6 rounded-[2.5rem] h-fit">
-                        <h3 class="font-black text-yellow-500 mb-4 uppercase italic">Nuevo Registro</h3>
-                        <select id="pos-client-select" class="w-full bg-slate-800 rounded-xl p-3 text-xs mb-3 text-white outline-none"></select>
+                        <h3 class="font-black text-yellow-500 mb-4 uppercase italic">Cobro y Agenda</h3>
+                        
+                        <select id="pos-client-select" class="w-full bg-slate-800 rounded-xl p-3 text-xs mb-3 text-white outline-none border border-white/5"></select>
+                        
                         <div class="grid grid-cols-2 gap-2 mb-4">
-                            <input type="date" id="pos-date" class="bg-slate-800 rounded-xl p-3 text-[10px] text-white outline-none">
-                            <input type="time" id="pos-time" class="bg-slate-800 rounded-xl p-3 text-[10px] text-white outline-none">
+                            <input type="date" id="pos-date" class="bg-slate-800 rounded-xl p-3 text-[10px] text-white outline-none border border-white/5">
+                            <input type="time" id="pos-time" class="bg-slate-800 rounded-xl p-3 text-[10px] text-white outline-none border border-white/5">
                         </div>
-                        <div id="pos-cart" class="max-h-40 overflow-y-auto mb-4 border-b border-slate-800 pb-2 custom-scroll"></div>
-                        <div class="flex justify-between text-xl font-black text-yellow-500 mb-4">
-                            <span>TOTAL:</span><span id="pos-total">0 Gs</span>
+
+                        <div id="pos-cart" class="max-h-32 overflow-y-auto mb-4 border-b border-slate-800 pb-2 custom-scroll"></div>
+
+                        <div class="bg-slate-900/50 p-4 rounded-2xl mb-4 border border-white/5">
+                            <label class="text-[9px] font-black text-slate-500 uppercase block mb-2">Aplicar Descuento</label>
+                            <div class="flex gap-2">
+                                <input type="number" id="pos-disc-val" oninput="updatePOSCalc()" placeholder="0" class="flex-1 bg-slate-800 border-none rounded-xl p-2 text-xs text-white outline-none">
+                                <select id="pos-disc-type" onchange="updatePOSCalc()" class="bg-slate-800 border-none rounded-xl p-2 text-xs text-yellow-500 font-bold outline-none">
+                                    <option value="fijo">Gs</option>
+                                    <option value="porc">%</option>
+                                </select>
+                            </div>
                         </div>
-                        <button onclick="finalizeSale()" class="w-full bg-yellow-500 text-slate-950 font-black py-4 rounded-2xl uppercase text-xs shadow-lg hover:bg-yellow-400 transition-all">Agendar Servicio</button>
+
+                        <div class="space-y-1 mb-6 px-1">
+                            <div class="flex justify-between text-[10px] text-slate-400">
+                                <span>Subtotal:</span><span id="res-sub">0 Gs</span>
+                            </div>
+                            <div class="flex justify-between text-[10px] text-red-400">
+                                <span>Descuento:</span><span id="res-disc">0 Gs</span>
+                            </div>
+                            <div class="flex justify-between text-2xl font-black text-yellow-500 pt-2 border-t border-slate-800 mt-2">
+                                <span>TOTAL:</span><span id="pos-total">0 Gs</span>
+                            </div>
+                        </div>
+
+                        <button onclick="finalizeSale()" class="w-full bg-yellow-500 text-slate-950 font-black py-4 rounded-2xl uppercase text-xs shadow-lg hover:scale-[1.02] transition-all">Confirmar y Agendar</button>
                     </div>
                 </div>
             </section>
@@ -77,24 +99,23 @@
                 <div class="flex justify-between items-end">
                     <div>
                         <h2 class="text-3xl font-black uppercase italic text-yellow-500">Agenda Maestra</h2>
-                        <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Cronograma de servicios</p>
+                        <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Servicios Programados</p>
                     </div>
-                    <button onclick="loadAgenda()" class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-yellow-500"><i class="fas fa-sync"></i></button>
+                    <button onclick="loadAgenda()" class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-yellow-500 hover:rotate-180 transition-all duration-500"><i class="fas fa-sync"></i></button>
                 </div>
                 <div id="agenda-timeline" class="space-y-8"></div>
             </section>
 
-            <section id="sec-inicio" class="content-sec hidden"><h2 class="text-2xl font-black">Reportes Próximamente</h2></section>
-            <section id="sec-clientes" class="content-sec hidden"><h2 class="text-2xl font-black">Módulo Clientes</h2></section>
-            <section id="sec-gastos" class="content-sec hidden"><h2 class="text-2xl font-black">Módulo Gastos</h2></section>
-            <section id="sec-servicios" class="content-sec hidden"><h2 class="text-2xl font-black">Módulo Servicios</h2></section>
-            <section id="sec-empleados" class="content-sec hidden"><h2 class="text-2xl font-black">Módulo Staff</h2></section>
+            <section id="sec-inicio" class="content-sec hidden"></section>
+            <section id="sec-clientes" class="content-sec hidden"></section>
+            <section id="sec-gastos" class="content-sec hidden"></section>
+            <section id="sec-servicios" class="content-sec hidden"></section>
+            <section id="sec-empleados" class="content-sec hidden"></section>
 
         </main>
     </div>
 
     <script>
-        // CONFIGURACIÓN SUPABASE - Reemplaza con tus datos reales
         const SB_URL = 'https://itahtywhhaecjakgtnzu.supabase.co';
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0YWh0eXdoaGFlY2pha2d0bnp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMjYyODIsImV4cCI6MjA4NTkwMjI4Mn0.ARQ9W_Rpj8rp_xo88TbTjbdwT6o75J7sCPlConcoshw'; 
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
@@ -103,33 +124,20 @@
         let servicesList = [];
         let cart = [];
 
-        // Al Cargar
         window.onload = () => {
             const saved = localStorage.getItem('dg_session');
-            if(saved) { 
-                currentUser = JSON.parse(saved); 
-                initApp(); 
-            }
-            // Valores por defecto para fecha/hora
+            if(saved) { currentUser = JSON.parse(saved); initApp(); }
             const now = new Date();
             document.getElementById('pos-date').value = now.toISOString().split('T')[0];
             document.getElementById('pos-time').value = now.toTimeString().slice(0,5);
         };
 
-        // Login
         document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault();
             const u = document.getElementById('user').value;
             const p = document.getElementById('pass').value;
-            const { data, error } = await _supabase.from('users').select('*, companies(*)').eq('username', u).eq('password_hash', p).maybeSingle();
-            
-            if(data) { 
-                currentUser = data; 
-                localStorage.setItem('dg_session', JSON.stringify(data)); 
-                initApp(); 
-            } else { 
-                alert("Usuario o clave incorrecta"); 
-            }
+            const { data } = await _supabase.from('users').select('*, companies(*)').eq('username', u).eq('password_hash', p).maybeSingle();
+            if(data) { currentUser = data; localStorage.setItem('dg_session', JSON.stringify(data)); initApp(); } else { alert("Error"); }
         };
 
         function logout() { localStorage.removeItem('dg_session'); location.reload(); }
@@ -137,10 +145,9 @@
         function initApp() {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
-
             const menu = document.getElementById('nav-menu');
             const navItems = [
-                { id: 'caja', label: 'CAJA', icon: 'fa-cash-register' },
+                { id: 'caja', label: 'CAJA (POS)', icon: 'fa-cash-register' },
                 { id: 'agenda', label: 'AGENDA', icon: 'fa-calendar-alt' },
                 { id: 'inicio', label: 'REPORTES', icon: 'fa-chart-pie' },
                 { id: 'clientes', label: 'CLIENTES', icon: 'fa-address-book' },
@@ -148,10 +155,7 @@
                 { id: 'servicios', label: 'SERVICIOS', icon: 'fa-tags' },
                 { id: 'empleados', label: 'STAFF', icon: 'fa-user-cog' }
             ];
-            menu.innerHTML = navItems.map(i => `
-                <div onclick="switchSec('${i.id}')" id="nav-${i.id}" class="sidebar-item p-4 text-[10px] font-black flex items-center gap-3">
-                    <i class="fas ${i.icon} w-5"></i> ${i.label}
-                </div>`).join('');
+            menu.innerHTML = navItems.map(i => `<div onclick="switchSec('${i.id}')" id="nav-${i.id}" class="sidebar-item p-4 text-[10px] font-black flex items-center gap-3"><i class="fas ${i.icon} w-5"></i> ${i.label}</div>`).join('');
             switchSec('caja');
         }
 
@@ -164,20 +168,17 @@
             if(id === 'agenda') loadAgenda();
         }
 
-        // Lógica de Caja
         async function loadCaja() {
             const resS = await _supabase.from('services_list').select('*').eq('company_id', currentUser.company_id);
             const resC = await _supabase.from('clients').select('*').eq('company_id', currentUser.company_id);
             servicesList = resS.data || [];
-            document.getElementById('pos-client-select').innerHTML = '<option value="">Consumidor Final</option>' + 
-                (resC.data || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            document.getElementById('pos-client-select').innerHTML = '<option value="">Consumidor Final</option>' + (resC.data || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
             filterServices();
         }
 
         function filterServices() {
             const q = document.getElementById('pos-search').value.toLowerCase();
-            const grid = document.getElementById('pos-grid');
-            grid.innerHTML = servicesList.filter(s => s.name.toLowerCase().includes(q)).map(s => `
+            document.getElementById('pos-grid').innerHTML = servicesList.filter(s => s.name.toLowerCase().includes(q)).map(s => `
                 <div onclick="addToCart('${s.id}')" class="glass p-4 rounded-2xl cursor-pointer hover:border-yellow-500 border border-transparent transition-all">
                     <p class="text-[9px] font-black text-slate-500 uppercase">${s.name}</p>
                     <p class="text-yellow-500 font-bold">${Number(s.price).toLocaleString()} Gs</p>
@@ -185,25 +186,34 @@
         }
 
         function addToCart(id) {
-            const s = servicesList.find(x => x.id == id);
-            cart.push(s);
+            cart.push(servicesList.find(x => x.id == id));
             updateCartUI();
         }
 
         function updateCartUI() {
             const container = document.getElementById('pos-cart');
             container.innerHTML = cart.map((item, i) => `
-                <div class="flex justify-between items-center py-2 text-[10px] font-bold uppercase">
+                <div class="flex justify-between items-center py-2 text-[10px] font-bold uppercase border-b border-white/5">
                     <span>${item.name}</span>
-                    <button onclick="cart.splice(${i},1); updateCartUI();" class="text-red-500 px-2">X</button>
+                    <button onclick="cart.splice(${i},1); updateCartUI();" class="text-red-500 px-2 font-black">X</button>
                 </div>`).join('');
-            const total = cart.reduce((a, b) => a + Number(b.price), 0);
-            document.getElementById('pos-total').innerText = total.toLocaleString() + ' Gs';
+            updatePOSCalc();
+        }
+
+        function updatePOSCalc() {
+            const sub = cart.reduce((a, b) => a + Number(b.price), 0);
+            const dVal = Number(document.getElementById('pos-disc-val').value) || 0;
+            const dType = document.getElementById('pos-disc-type').value;
+            let disc = dType === 'fijo' ? dVal : (sub * dVal / 100);
+            
+            document.getElementById('res-sub').innerText = sub.toLocaleString() + ' Gs';
+            document.getElementById('res-disc').innerText = '-' + disc.toLocaleString() + ' Gs';
+            document.getElementById('pos-total').innerText = (sub - disc).toLocaleString() + ' Gs';
         }
 
         async function finalizeSale() {
             if(!cart.length) return alert("Carrito vacío");
-            const total = cart.reduce((a, b) => a + Number(b.price), 0);
+            const total = parseInt(document.getElementById('pos-total').innerText.replace(/\D/g,''));
             const dateS = document.getElementById('pos-date').value;
             const timeS = document.getElementById('pos-time').value;
             
@@ -219,20 +229,16 @@
             const { error } = await _supabase.from('sales').insert([saleData]);
             if(!error) {
                 alert("Servicio Agendado!");
-                cart = []; updateCartUI();
-            } else {
-                alert("Error: " + error.message);
+                cart = []; 
+                document.getElementById('pos-disc-val').value = '';
+                updateCartUI();
             }
         }
 
-        // Lógica de Agenda
         async function loadAgenda() {
             const container = document.getElementById('agenda-timeline');
-            container.innerHTML = '<p class="text-center text-slate-500 py-10">Cargando...</p>';
-
-            const { data, error } = await _supabase.from('sales').select('*, clients(name)')
-                .eq('company_id', currentUser.company_id).order('created_at', { ascending: true });
-
+            container.innerHTML = '<p class="text-center text-slate-500 py-10">Cargando cronograma...</p>';
+            const { data, error } = await _supabase.from('sales').select('*, clients(name)').eq('company_id', currentUser.company_id).order('created_at', { ascending: true });
             if(error) return;
 
             const groups = data.reduce((acc, item) => {
@@ -244,37 +250,26 @@
 
             container.innerHTML = '';
             Object.keys(groups).forEach(date => {
-                let html = `<div class="space-y-4">
-                    <div class="agenda-group-title"><span class="bg-yellow-500 text-black px-4 py-1 rounded-full text-[10px] font-black uppercase">${date}</span></div>`;
-                
+                let html = `<div class="space-y-4"><div class="agenda-group-title"><span class="bg-yellow-500 text-black px-4 py-1 rounded-full text-[10px] font-black uppercase">${date}</span></div>`;
                 groups[date].forEach(item => {
                     const time = new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    const sClass = `status-${item.status?.toLowerCase() || 'pendiente'}`;
-                    html += `
-                        <div class="glass p-5 rounded-3xl border-l-4 border-yellow-500 flex flex-col md:flex-row justify-between items-center gap-4">
-                            <div class="flex items-center gap-4">
-                                <span class="text-xl font-black">${time}</span>
-                                <div>
-                                    <h4 class="font-black text-yellow-500 uppercase">${item.clients?.name || 'C. Final'}</h4>
-                                    <p class="text-[10px] text-slate-400">${item.details}</p>
-                                </div>
-                            </div>
-                            <select onchange="updateStatus('${item.id}', this.value)" class="${sClass} text-[10px] font-black rounded-full px-4 py-2 outline-none">
-                                <option value="Pendiente" ${item.status === 'Pendiente' ? 'selected' : ''}>PENDIENTE</option>
-                                <option value="Proceso" ${item.status === 'Proceso' ? 'selected' : ''}>EN PROCESO</option>
-                                <option value="Terminado" ${item.status === 'Terminado' ? 'selected' : ''}>TERMINADO</option>
-                            </select>
-                        </div>`;
+                    html += `<div class="glass p-5 rounded-3xl border-l-4 border-yellow-500 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div class="flex items-center gap-4">
+                            <span class="text-xl font-black">${time}</span>
+                            <div><h4 class="font-black text-yellow-500 uppercase">${item.clients?.name || 'C. Final'}</h4><p class="text-[10px] text-slate-400">${item.details}</p></div>
+                        </div>
+                        <select onchange="updateStatus('${item.id}', this.value)" class="status-${item.status?.toLowerCase()} text-[10px] font-black rounded-full px-4 py-2 outline-none">
+                            <option value="Pendiente" ${item.status === 'Pendiente' ? 'selected' : ''}>PENDIENTE</option>
+                            <option value="Proceso" ${item.status === 'Proceso' ? 'selected' : ''}>EN PROCESO</option>
+                            <option value="Terminado" ${item.status === 'Terminado' ? 'selected' : ''}>TERMINADO</option>
+                        </select>
+                    </div>`;
                 });
-                html += `</div>`;
-                container.innerHTML += html;
+                container.innerHTML += html + '</div>';
             });
         }
 
-        async function updateStatus(id, s) {
-            await _supabase.from('sales').update({ status: s }).eq('id', id);
-            loadAgenda();
-        }
+        async function updateStatus(id, s) { await _supabase.from('sales').update({ status: s }).eq('id', id); loadAgenda(); }
     </script>
 </body>
 </html>
