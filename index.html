@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DetailGest Pro v4.7 - Full System</title>
+    <title>DetailGest Pro v4.8 - Sistema Integral Taller</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -24,11 +24,11 @@
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
         <div class="max-w-md w-full glass p-10 rounded-[2.5rem] shadow-2xl border-t-4 border-yellow-500 text-center">
             <h1 class="text-6xl font-black text-yellow-500 mb-2 italic tracking-tighter">DG PRO</h1>
-            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-10">Sistema Integral</p>
+            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-10">Acceso Administrativo</p>
             <form id="login-form" class="space-y-4 text-left">
-                <input type="text" id="user" placeholder="Usuario" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none text-white">
-                <input type="password" id="pass" placeholder="Contraseña" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none text-white">
-                <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-4 rounded-2xl transition-all uppercase text-sm">Entrar al Taller</button>
+                <input type="text" id="user" placeholder="Usuario" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none text-white focus:ring-1 ring-yellow-500">
+                <input type="password" id="pass" placeholder="Contraseña" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none text-white focus:ring-1 ring-yellow-500">
+                <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-4 rounded-2xl transition-all uppercase text-sm tracking-widest">Entrar</button>
             </form>
         </div>
     </div>
@@ -38,7 +38,7 @@
         <aside class="md:w-64 glass border-r border-slate-800 flex flex-col z-50">
             <div class="p-6">
                 <h2 class="text-2xl font-black text-yellow-500 italic">DETAILGEST</h2>
-                <p id="client-name-tag" class="text-[10px] font-bold text-slate-500 uppercase mt-1"></p>
+                <p id="client-name-tag" class="text-[10px] font-bold text-slate-500 uppercase mt-1 tracking-wider"></p>
             </div>
             <nav id="nav-menu" class="flex-1 px-4 space-y-1 overflow-y-auto custom-scroll">
                 </nav>
@@ -56,25 +56,25 @@
                     <div class="flex-1 space-y-4">
                         <div class="relative">
                             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                            <input type="text" id="pos-search" oninput="filterServices()" placeholder="Buscar servicio..." class="w-full p-4 pl-12 bg-slate-900 border border-slate-800 rounded-2xl outline-none focus:border-yellow-500">
+                            <input type="text" id="pos-search" oninput="filterServices()" placeholder="Buscar servicio en catálogo..." class="w-full p-4 pl-12 bg-slate-900 border border-slate-800 rounded-2xl outline-none focus:border-yellow-500 transition-all">
                         </div>
-                        <div id="pos-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 overflow-y-auto max-h-[60vh] pr-2 custom-scroll"></div>
+                        <div id="pos-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 overflow-y-auto max-h-[65vh] pr-2 custom-scroll"></div>
                     </div>
 
-                    <div class="w-full lg:w-96 glass rounded-[2.5rem] flex flex-col border border-yellow-500/10 p-6">
-                        <h3 class="font-black text-yellow-500 uppercase italic mb-4">Ticket de Venta</h3>
+                    <div class="w-full lg:w-96 glass rounded-[2.5rem] flex flex-col border border-yellow-500/10 p-6 shadow-2xl">
+                        <h3 class="font-black text-yellow-500 uppercase italic mb-4">Nueva Venta</h3>
                         <div class="mb-4">
-                            <label class="text-[9px] font-black text-slate-500 uppercase">Cliente</label>
-                            <select id="pos-client-select" class="w-full bg-slate-800 border-none rounded-xl p-3 text-xs text-white outline-none mt-1"></select>
+                            <label class="text-[9px] font-black text-slate-500 uppercase">Cliente Vinculado</label>
+                            <select id="pos-client-select" class="w-full bg-slate-800 border-none rounded-xl p-3 text-xs text-white outline-none mt-1 focus:ring-1 ring-yellow-500"></select>
                         </div>
-                        <div id="pos-cart" class="flex-1 space-y-3 overflow-y-auto max-h-[35vh] custom-scroll mb-4">
+                        <div id="pos-cart" class="flex-1 space-y-3 overflow-y-auto max-h-[35vh] custom-scroll mb-4 pr-1">
                             </div>
                         <div class="pt-4 border-t border-slate-700 space-y-3">
                             <div class="flex justify-between text-2xl font-black text-yellow-500">
-                                <span>TOTAL</span>
+                                <span class="text-sm text-slate-400 self-center">TOTAL</span>
                                 <span id="pos-total">0 Gs</span>
                             </div>
-                            <button onclick="finalizeSale()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl uppercase shadow-xl transition-all">Registrar Venta</button>
+                            <button onclick="finalizeSale()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl uppercase shadow-xl transition-all tracking-widest">Cobrar</button>
                         </div>
                     </div>
                 </div>
@@ -83,59 +83,67 @@
             <section id="sec-inicio" class="content-sec hidden space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="glass p-6 rounded-3xl border-b-4 border-emerald-500">
-                        <p class="text-slate-500 text-[10px] font-black uppercase">Ingresos Totales</p>
+                        <p class="text-slate-500 text-[10px] font-black uppercase tracking-tighter">Ventas Brutas</p>
                         <h4 id="stat-sales" class="text-3xl font-black text-emerald-400">0 Gs</h4>
                     </div>
                     <div class="glass p-6 rounded-3xl border-b-4 border-red-500">
-                        <p class="text-slate-500 text-[10px] font-black uppercase">Gastos Totales</p>
+                        <p class="text-slate-500 text-[10px] font-black uppercase tracking-tighter">Egresos/Gastos</p>
                         <h4 id="stat-expenses" class="text-3xl font-black text-red-400">0 Gs</h4>
                     </div>
                     <div class="glass p-6 rounded-3xl border-b-4 border-blue-500">
-                        <p class="text-slate-500 text-[10px] font-black uppercase">Utilidad Neta</p>
+                        <p class="text-slate-500 text-[10px] font-black uppercase tracking-tighter">Rentabilidad</p>
                         <h4 id="stat-net" class="text-3xl font-black text-blue-400">0 Gs</h4>
                     </div>
                 </div>
-                <div class="glass p-6 rounded-[2.5rem]">
-                    <h3 class="text-xs font-black uppercase text-slate-500 mb-6 italic">Flujo de Caja Semanal</h3>
+                <div class="glass p-8 rounded-[2.5rem]">
+                    <h3 class="text-xs font-black uppercase text-slate-500 mb-6 italic tracking-widest">Desempeño del Negocio</h3>
                     <canvas id="mainChart" height="100"></canvas>
                 </div>
             </section>
 
             <section id="sec-clientes" class="content-sec hidden space-y-6">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-black uppercase italic">Base de Clientes</h2>
-                    <button onclick="openGenericModal('cliente')" class="bg-blue-600 text-white px-6 py-2 rounded-full font-black text-xs hover:bg-blue-500">+ NUEVO CLIENTE</button>
+                    <h2 class="text-2xl font-black uppercase italic tracking-tighter text-yellow-500">Clientes</h2>
+                    <button onclick="openGenericModal('cliente')" class="bg-blue-600 text-white px-6 py-2 rounded-full font-black text-[10px] tracking-widest hover:bg-blue-500 transition-all">+ AGREGAR</button>
                 </div>
                 <div id="list-clientes" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </section>
 
             <section id="sec-gastos" class="content-sec hidden space-y-6">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-black uppercase italic">Registro de Gastos</h2>
-                    <button onclick="openGenericModal('gasto')" class="bg-red-600 text-white px-6 py-2 rounded-full font-black text-xs hover:bg-red-500">+ AGREGAR GASTO</button>
+                    <h2 class="text-2xl font-black uppercase italic tracking-tighter text-yellow-500">Gastos</h2>
+                    <button onclick="openGenericModal('gasto')" class="bg-red-600 text-white px-6 py-2 rounded-full font-black text-[10px] tracking-widest hover:bg-red-500 transition-all">+ AGREGAR</button>
                 </div>
                 <div id="list-gastos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </section>
 
             <section id="sec-servicios" class="content-sec hidden space-y-6">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-black uppercase italic">Catálogo de Servicios</h2>
-                    <button onclick="openGenericModal('servicio')" class="bg-yellow-500 text-slate-950 px-6 py-2 rounded-full font-black text-xs hover:bg-yellow-400">+ NUEVO SERVICIO</button>
+                    <h2 class="text-2xl font-black uppercase italic tracking-tighter text-yellow-500">Catálogo</h2>
+                    <button onclick="openGenericModal('servicio')" class="bg-yellow-500 text-slate-950 px-6 py-2 rounded-full font-black text-[10px] tracking-widest hover:bg-yellow-400 transition-all">+ AGREGAR</button>
                 </div>
                 <div id="list-servicios" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </section>
+
+            <section id="sec-empleados" class="content-sec hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-black uppercase italic tracking-tighter text-yellow-500">Staff del Taller</h2>
+                    <button onclick="openGenericModal('empleado')" class="bg-indigo-600 text-white px-6 py-2 rounded-full font-black text-[10px] tracking-widest hover:bg-indigo-500 transition-all">+ AGREGAR STAFF</button>
+                </div>
+                <div id="list-empleados" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </section>
+
         </main>
     </div>
 
     <div id="modal-container" class="hidden fixed inset-0 bg-slate-950/95 flex items-center justify-center p-4 z-[100]">
-        <div class="glass p-8 rounded-[2.5rem] w-full max-w-md border border-yellow-500/20">
+        <div class="glass p-8 rounded-[2.5rem] w-full max-w-md border border-yellow-500/20 shadow-2xl">
             <h3 id="modal-title" class="text-2xl font-black text-yellow-500 mb-6 uppercase italic">Registro</h3>
             <form id="generic-form" class="space-y-4">
-                <input type="hidden" id="entry-id">
                 <div id="modal-fields" class="space-y-4"></div>
                 <div class="flex gap-4 pt-4">
-                    <button type="button" onclick="closeModal()" class="flex-1 text-slate-500 font-black text-[10px] tracking-widest">CANCELAR</button>
-                    <button type="submit" class="flex-[2] bg-yellow-500 text-slate-950 font-black py-4 rounded-2xl uppercase text-xs shadow-lg shadow-yellow-500/20">Guardar Cambios</button>
+                    <button type="button" onclick="closeModal()" class="flex-1 text-slate-500 font-black text-[10px] tracking-widest uppercase">Cancelar</button>
+                    <button type="submit" class="flex-[2] bg-yellow-500 text-slate-950 font-black py-4 rounded-2xl uppercase text-xs shadow-lg shadow-yellow-500/20 tracking-widest">Confirmar</button>
                 </div>
             </form>
         </div>
@@ -152,48 +160,35 @@
         let mainChart = null;
         let currentModalType = '';
 
-        // --- SISTEMA DE SESIÓN PERSISTENTE ---
+        // --- SESIÓN PERSISTENTE ---
         window.onload = () => {
             const saved = localStorage.getItem('dg_session');
-            if(saved) {
-                currentUser = JSON.parse(saved);
-                initApp();
-            }
+            if(saved) { currentUser = JSON.parse(saved); initApp(); }
         };
 
         document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault();
-            const user = document.getElementById('user').value;
-            const pass = document.getElementById('pass').value;
-            const { data, error } = await _supabase.from('users').select('*, companies(*)').eq('username', user).eq('password_hash', pass).maybeSingle();
-            
-            if(data) {
-                currentUser = data;
-                localStorage.setItem('dg_session', JSON.stringify(data));
-                initApp();
-            } else {
-                alert("Credenciales incorrectas");
-            }
+            const { data } = await _supabase.from('users').select('*, companies(*)').eq('username', document.getElementById('user').value).eq('password_hash', document.getElementById('pass').value).maybeSingle();
+            if(data) { currentUser = data; localStorage.setItem('dg_session', JSON.stringify(data)); initApp(); }
+            else { alert("Credenciales incorrectas"); }
         };
 
-        function logout() {
-            localStorage.removeItem('dg_session');
-            location.reload();
-        }
+        function logout() { localStorage.removeItem('dg_session'); location.reload(); }
 
-        // --- INICIALIZACIÓN ---
+        // --- INICIO APP ---
         function initApp() {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
-            document.getElementById('client-name-tag').innerText = currentUser.companies?.name || "STAFF";
+            document.getElementById('client-name-tag').innerText = currentUser.companies?.name || "STAFF VISTA";
 
             const menu = document.getElementById('nav-menu');
             const navItems = [
-                { id: 'caja', label: 'CAJA (POS)', icon: 'fa-cash-register' },
+                { id: 'caja', label: 'CAJA', icon: 'fa-cash-register' },
                 { id: 'inicio', label: 'REPORTES', icon: 'fa-chart-pie' },
                 { id: 'clientes', label: 'CLIENTES', icon: 'fa-address-book' },
                 { id: 'gastos', label: 'GASTOS', icon: 'fa-wallet' },
-                { id: 'servicios', label: 'SERVICIOS', icon: 'fa-tags' }
+                { id: 'servicios', label: 'SERVICIOS', icon: 'fa-tags' },
+                { id: 'empleados', label: 'STAFF', icon: 'fa-user-cog' }
             ];
 
             menu.innerHTML = navItems.map(i => `
@@ -208,7 +203,6 @@
         async function switchSec(id) {
             document.querySelectorAll('.content-sec').forEach(s => s.classList.add('hidden'));
             document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active-tab'));
-            
             document.getElementById('sec-' + id).classList.remove('hidden');
             document.getElementById('nav-' + id).classList.add('active-tab');
 
@@ -217,37 +211,28 @@
             if(id === 'clientes') loadClientes();
             if(id === 'gastos') loadGastos();
             if(id === 'servicios') loadServicios();
+            if(id === 'empleados') loadEmpleados();
         }
 
-        // --- FUNCIONES DE CAJA (POS) ---
+        // --- CAJA ---
         async function loadCaja() {
             const resS = await _supabase.from('services_list').select('*').eq('company_id', currentUser.company_id);
             const resC = await _supabase.from('clients').select('*').eq('company_id', currentUser.company_id);
-            
             servicesList = resS.data || [];
-            
-            const sel = document.getElementById('pos-client-select');
-            sel.innerHTML = '<option value="">Consumidor Final</option>' + (resC.data || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-            
+            document.getElementById('pos-client-select').innerHTML = '<option value="">Consumidor Final</option>' + (resC.data || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
             filterServices();
         }
 
         function filterServices() {
-            const query = document.getElementById('pos-search').value.toLowerCase();
-            const grid = document.getElementById('pos-grid');
-            grid.innerHTML = servicesList.filter(s => s.name.toLowerCase().includes(query)).map(s => `
+            const q = document.getElementById('pos-search').value.toLowerCase();
+            document.getElementById('pos-grid').innerHTML = servicesList.filter(s => s.name.toLowerCase().includes(q)).map(s => `
                 <div onclick="addToCart('${s.id}')" class="service-card glass p-4 rounded-2xl">
-                    <p class="text-[10px] font-black text-slate-500 uppercase truncate">${s.name}</p>
-                    <p class="text-yellow-500 font-bold">${Number(s.price).toLocaleString()} Gs</p>
-                </div>
-            `).join('');
+                    <p class="text-[9px] font-black text-slate-500 uppercase truncate">${s.name}</p>
+                    <p class="text-yellow-500 font-bold text-sm">${Number(s.price).toLocaleString()} Gs</p>
+                </div>`).join('');
         }
 
-        function addToCart(id) {
-            const s = servicesList.find(x => x.id == id);
-            cart.push(s);
-            updateCartUI();
-        }
+        function addToCart(id) { cart.push(servicesList.find(x => x.id == id)); updateCartUI(); }
 
         function updateCartUI() {
             const container = document.getElementById('pos-cart');
@@ -255,14 +240,13 @@
                 <div class="flex justify-between items-center bg-slate-800/40 p-3 rounded-xl border border-slate-700">
                     <p class="text-[9px] font-bold uppercase truncate">${item.name}</p>
                     <button onclick="cart.splice(${i},1); updateCartUI();" class="text-red-500"><i class="fas fa-times"></i></button>
-                </div>
-            `).join('');
+                </div>`).join('');
             const total = cart.reduce((a, b) => a + Number(b.price), 0);
             document.getElementById('pos-total').innerText = total.toLocaleString() + ' Gs';
         }
 
         async function finalizeSale() {
-            if(!cart.length) return alert("Ticket vacío");
+            if(!cart.length) return;
             const total = cart.reduce((a, b) => a + Number(b.price), 0);
             const { error } = await _supabase.from('sales').insert([{
                 company_id: currentUser.company_id,
@@ -270,122 +254,81 @@
                 client_id: document.getElementById('pos-client-select').value || null,
                 details: cart.map(i => i.name).join(', ')
             }]);
-            if(!error) { alert("¡Venta registrada!"); cart = []; updateCartUI(); }
+            if(!error) { alert("¡Venta Exitosa!"); cart = []; updateCartUI(); }
         }
 
-        // --- GESTIÓN DE MODALES Y CRUD ---
+        // --- CRUD GENERAL (CLIENTES, GASTOS, SERVICIOS, STAFF) ---
         function openGenericModal(type) {
             currentModalType = type;
-            const fields = document.getElementById('modal-fields');
-            const title = document.getElementById('modal-title');
+            const f = document.getElementById('modal-fields');
+            const t = document.getElementById('modal-title');
             document.getElementById('generic-form').reset();
-            document.getElementById('entry-id').value = '';
 
-            if(type === 'cliente') {
-                title.innerText = "Nuevo Cliente";
-                fields.innerHTML = `
-                    <input id="f1" placeholder="Nombre del Cliente" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">
-                    <input id="f2" placeholder="Teléfono / WhatsApp" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">
-                `;
-            } else if(type === 'gasto') {
-                title.innerText = "Registrar Gasto";
-                fields.innerHTML = `
-                    <input id="f1" placeholder="Descripción del Gasto" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">
-                    <input id="f2" type="number" placeholder="Monto (Gs)" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">
-                `;
-            } else if(type === 'servicio') {
-                title.innerText = "Nuevo Servicio";
-                fields.innerHTML = `
-                    <input id="f1" placeholder="Nombre del Servicio" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">
-                    <input id="f2" type="number" placeholder="Precio (Gs)" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">
-                `;
-            }
+            if(type === 'cliente') { t.innerText = "Registrar Cliente"; f.innerHTML = `<input id="v1" placeholder="Nombre Completo" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none"><input id="v2" placeholder="Teléfono" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">`; }
+            else if(type === 'gasto') { t.innerText = "Nuevo Egreso"; f.innerHTML = `<input id="v1" placeholder="Concepto" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none"><input id="v2" type="number" placeholder="Monto Gs" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">`; }
+            else if(type === 'servicio') { t.innerText = "Añadir a Catálogo"; f.innerHTML = `<input id="v1" placeholder="Servicio" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none"><input id="v2" type="number" placeholder="Precio Venta" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">`; }
+            else if(type === 'empleado') { t.innerText = "Ficha de Staff"; f.innerHTML = `<input id="v1" placeholder="Nombre y Apellido" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none"><input id="v2" placeholder="Cargo / Especialidad" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">`; }
+            
             document.getElementById('modal-container').classList.remove('hidden');
         }
 
         document.getElementById('generic-form').onsubmit = async (e) => {
             e.preventDefault();
-            const val1 = document.getElementById('f1').value;
-            const val2 = document.getElementById('f2').value;
-            let table = '';
-            let payload = { company_id: currentUser.company_id };
+            const val1 = document.getElementById('v1').value;
+            const val2 = document.getElementById('v2').value;
+            let table = '', payload = { company_id: currentUser.company_id };
 
             if(currentModalType === 'cliente') { table = 'clients'; payload.name = val1; payload.phone = val2; }
             if(currentModalType === 'gasto') { table = 'gastos'; payload.descripcion = val1; payload.monto = val2; }
             if(currentModalType === 'servicio') { table = 'services_list'; payload.name = val1; payload.price = val2; }
+            if(currentModalType === 'empleado') { table = 'users'; payload.username = val1.toLowerCase().replace(" ",""); payload.role = 'empleado'; payload.password_hash = '1234'; /* Pass temporal */ }
 
             const { error } = await _supabase.from(table).insert([payload]);
-            if(!error) { closeModal(); switchSec(currentModalType === 'servicio' ? 'servicios' : currentModalType + 's'); }
-            else { alert("Error: " + error.message); }
+            if(!error) { closeModal(); switchSec(currentModalType + 's'); } else { alert(error.message); }
         };
 
-        // --- CARGA DE LISTADOS ---
+        // --- CARGA DE LISTAS ---
         async function loadClientes() {
             const { data } = await _supabase.from('clients').select('*').eq('company_id', currentUser.company_id);
-            document.getElementById('list-clientes').innerHTML = data.map(c => `
-                <div class="glass p-5 rounded-3xl border-l-4 border-blue-500 flex justify-between items-center">
-                    <div><p class="font-black text-xs uppercase">${c.name}</p><p class="text-[10px] text-slate-500">${c.phone || '-'}</p></div>
-                    <button onclick="deleteEntry('clients', '${c.id}', 'clientes')" class="text-red-500 opacity-40 hover:opacity-100"><i class="fas fa-trash"></i></button>
-                </div>`).join('');
+            document.getElementById('list-clientes').innerHTML = data.map(c => `<div class="glass p-5 rounded-3xl border-l-4 border-blue-500 flex justify-between items-center"><div><p class="font-black text-xs uppercase">${c.name}</p><p class="text-[10px] text-slate-500">${c.phone || '-'}</p></div><button onclick="deleteRow('clients','${c.id}','clientes')" class="text-red-500 opacity-30 hover:opacity-100"><i class="fas fa-trash"></i></button></div>`).join('');
         }
 
         async function loadGastos() {
             const { data } = await _supabase.from('gastos').select('*').eq('company_id', currentUser.company_id);
-            document.getElementById('list-gastos').innerHTML = data.map(g => `
-                <div class="glass p-5 rounded-3xl border-l-4 border-red-500 flex justify-between items-center">
-                    <div><p class="font-black text-xs uppercase">${g.descripcion}</p><p class="text-red-400 font-bold text-sm">${Number(g.monto).toLocaleString()} Gs</p></div>
-                    <button onclick="deleteEntry('gastos', '${g.id}', 'gastos')" class="text-red-500 opacity-40 hover:opacity-100"><i class="fas fa-trash"></i></button>
-                </div>`).join('');
+            document.getElementById('list-gastos').innerHTML = data.map(g => `<div class="glass p-5 rounded-3xl border-l-4 border-red-500 flex justify-between items-center"><div><p class="font-black text-xs uppercase">${g.descripcion}</p><p class="text-red-400 font-bold text-sm">${Number(g.monto).toLocaleString()} Gs</p></div><button onclick="deleteRow('gastos','${g.id}','gastos')" class="text-red-500 opacity-30 hover:opacity-100"><i class="fas fa-trash"></i></button></div>`).join('');
         }
 
         async function loadServicios() {
             const { data } = await _supabase.from('services_list').select('*').eq('company_id', currentUser.company_id);
-            document.getElementById('list-servicios').innerHTML = data.map(s => `
-                <div class="glass p-5 rounded-3xl border-l-4 border-yellow-500 flex justify-between items-center">
-                    <div><p class="font-black text-xs uppercase">${s.name}</p><p class="text-yellow-500 font-bold text-sm">${Number(s.price).toLocaleString()} Gs</p></div>
-                    <button onclick="deleteEntry('services_list', '${s.id}', 'servicios')" class="text-red-500 opacity-40 hover:opacity-100"><i class="fas fa-trash"></i></button>
+            document.getElementById('list-servicios').innerHTML = data.map(s => `<div class="glass p-5 rounded-3xl border-l-4 border-yellow-500 flex justify-between items-center"><div><p class="font-black text-xs uppercase">${s.name}</p><p class="text-yellow-500 font-bold text-sm">${Number(s.price).toLocaleString()} Gs</p></div><button onclick="deleteRow('services_list','${s.id}','servicios')" class="text-red-500 opacity-30 hover:opacity-100"><i class="fas fa-trash"></i></button></div>`).join('');
+        }
+
+        async function loadEmpleados() {
+            const { data } = await _supabase.from('users').select('*').eq('company_id', currentUser.company_id).eq('role', 'empleado');
+            document.getElementById('list-empleados').innerHTML = data.map(e => `
+                <div class="glass p-5 rounded-3xl border-l-4 border-indigo-500 flex justify-between items-center">
+                    <div><p class="font-black text-xs uppercase">${e.username}</p><p class="text-[10px] text-slate-500">Miembro del Equipo</p></div>
+                    <button onclick="deleteRow('users','${e.id}','empleados')" class="text-red-500 opacity-30 hover:opacity-100"><i class="fas fa-user-minus"></i></button>
                 </div>`).join('');
         }
 
-        async function deleteEntry(table, id, sec) {
-            if(confirm('¿Seguro que desea eliminar?')) {
-                await _supabase.from(table).delete().eq('id', id);
-                switchSec(sec);
-            }
-        }
-
+        async function deleteRow(table, id, sec) { if(confirm('¿Confirmar eliminación?')) { await _supabase.from(table).delete().eq('id', id); switchSec(sec); } }
         function closeModal() { document.getElementById('modal-container').classList.add('hidden'); }
 
         // --- REPORTES ---
         async function loadStats() {
             const { data: s } = await _supabase.from('sales').select('total_final').eq('company_id', currentUser.company_id);
             const { data: g } = await _supabase.from('gastos').select('monto').eq('company_id', currentUser.company_id);
-            
-            const totalS = s?.reduce((a, b) => a + Number(b.total_final), 0) || 0;
-            const totalG = g?.reduce((a, b) => a + Number(b.monto), 0) || 0;
+            const ts = s?.reduce((a,b) => a + Number(b.total_final), 0) || 0;
+            const tg = g?.reduce((a,b) => a + Number(b.monto), 0) || 0;
 
-            document.getElementById('stat-sales').innerText = totalS.toLocaleString() + ' Gs';
-            document.getElementById('stat-expenses').innerText = totalG.toLocaleString() + ' Gs';
-            document.getElementById('stat-net').innerText = (totalS - totalG).toLocaleString() + ' Gs';
+            document.getElementById('stat-sales').innerText = ts.toLocaleString() + ' Gs';
+            document.getElementById('stat-expenses').innerText = tg.toLocaleString() + ' Gs';
+            document.getElementById('stat-net').innerText = (ts - tg).toLocaleString() + ' Gs';
             
-            initChart(totalS, totalG);
-        }
-
-        function initChart(sales, expenses) {
             const ctx = document.getElementById('mainChart').getContext('2d');
             if(mainChart) mainChart.destroy();
-            mainChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Ingresos', 'Gastos'],
-                    datasets: [{
-                        data: [sales, expenses],
-                        backgroundColor: ['#10b981', '#ef4444'],
-                        borderRadius: 12
-                    }]
-                },
-                options: { plugins: { legend: { display: false } }, scales: { y: { display: false } } }
-            });
+            mainChart = new Chart(ctx, { type: 'bar', data: { labels: ['Ventas', 'Gastos'], datasets: [{ data: [ts, tg], backgroundColor: ['#10b981', '#ef4444'], borderRadius: 10 }] }, options: { plugins: { legend: { display: false } }, scales: { y: { display: false } } } });
         }
     </script>
 </body>
