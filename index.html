@@ -3,73 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DetailGest Pro - Gestión Automática</title>
+    <title>DetailGest Pro - Gestión y Cobros</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #0f172a; color: #f1f5f9; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        body { background: #0f172a; color: #f1f5f9; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
     </style>
 </head>
 <body>
 
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
         <div class="max-w-md w-full glass p-8 rounded-3xl shadow-2xl">
-            <h1 class="text-4xl font-black text-yellow-500 text-center mb-8">DETAILGEST</h1>
+            <h1 class="text-4xl font-black text-yellow-500 text-center mb-8 italic">DG PRO</h1>
             <form id="login-form" class="space-y-4">
-                <input type="text" id="user" placeholder="Usuario" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl outline-none focus:border-yellow-500">
-                <input type="password" id="pass" placeholder="Contraseña" required class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl focus:border-yellow-500">
-                <button type="submit" class="w-full bg-yellow-500 text-slate-900 font-black py-4 rounded-xl hover:bg-yellow-400 transition-all">INGRESAR</button>
+                <input type="text" id="user" placeholder="Usuario" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none">
+                <input type="password" id="pass" placeholder="Contraseña" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none">
+                <button type="submit" class="w-full bg-yellow-500 text-slate-900 font-black py-4 rounded-2xl">INGRESAR</button>
             </form>
         </div>
     </div>
 
     <div id="dashboard" class="hidden min-h-screen flex flex-col">
         <header class="glass p-4 border-b border-slate-800 flex justify-between items-center">
-            <h2 id="panel-title" class="font-bold text-yellow-500">Panel</h2>
-            <button onclick="location.reload()" class="bg-red-500/20 text-red-500 px-4 py-2 rounded-lg font-bold">SALIR</button>
+            <h2 id="panel-title" class="font-bold text-yellow-500 uppercase tracking-tighter">Panel</h2>
+            <button onclick="location.reload()" class="bg-red-500/20 text-red-500 px-4 py-2 rounded-lg text-xs font-bold">CERRAR SESIÓN</button>
         </header>
 
-        <main class="p-4 md:p-8 max-w-6xl mx-auto w-full">
-            
+        <main class="p-6 max-w-6xl mx-auto w-full">
             <div id="view-superadmin" class="hidden space-y-6">
-                <div class="glass p-6 rounded-2xl">
-                    <h3 class="text-xl font-bold text-yellow-500 mb-4 italic">REGISTRAR NUEVO CLIENTE (Taller)</h3>
+                <div class="glass p-6 rounded-3xl">
+                    <h3 class="text-yellow-500 font-black mb-4 uppercase text-sm">Registrar Nuevo Taller</h3>
                     <form id="auto-register-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input type="text" id="new-comp-name" placeholder="Nombre del Taller" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl">
-                        <input type="number" id="new-due-day" placeholder="Día de Cobro" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl">
-                        <input type="text" id="new-user" placeholder="Crear Usuario Cliente" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl">
-                        <input type="text" id="new-pass" placeholder="Crear Contraseña Cliente" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl">
-                        <button type="submit" class="md:col-span-2 bg-emerald-600 font-bold py-3 rounded-xl hover:bg-emerald-500 transition-all">CREAR EMPRESA Y ACCESO AUTOMÁTICAMENTE</button>
+                        <input type="number" id="new-due-day" placeholder="Día de Cobro (1-31)" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl">
+                        <input type="text" id="new-user" placeholder="Usuario Cliente" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl">
+                        <input type="text" id="new-pass" placeholder="Clave Cliente" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl">
+                        <button type="submit" class="md:col-span-2 bg-emerald-600 font-black py-4 rounded-xl">ACTIVAR TALLER</button>
                     </form>
                 </div>
-                <div class="glass rounded-2xl overflow-hidden">
+                <div class="glass rounded-3xl overflow-hidden">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-900 text-slate-500 text-xs uppercase">
-                            <tr><th class="p-4">Empresa</th><th class="p-4">Día Cobro</th><th class="p-4">Estado</th></tr>
+                        <thead class="bg-slate-900 text-slate-500 text-[10px] uppercase">
+                            <tr><th class="p-4">Empresa</th><th class="p-4">Pago</th><th class="p-4">Estado</th><th class="p-4">Acción</th></tr>
                         </thead>
                         <tbody id="companies-list" class="divide-y divide-slate-800"></tbody>
                     </table>
                 </div>
             </div>
 
-            <div id="view-client" class="hidden space-y-6 text-center">
+            <div id="view-client" class="hidden space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <button onclick="openModal()" class="glass p-10 rounded-3xl border-blue-500 hover:scale-105 transition-transform">
-                        <i class="fas fa-plus-circle text-4xl text-blue-500 mb-4"></i>
-                        <span class="block text-xl font-bold">REGISTRAR TRABAJO</span>
+                    <button onclick="openModal()" class="glass p-10 rounded-3xl border-2 border-dashed border-blue-500/50 hover:bg-blue-500/10 transition-all">
+                        <i class="fas fa-plus-circle text-3xl text-blue-500 mb-2"></i>
+                        <span class="block font-bold">NUEVA ORDEN DE TRABAJO</span>
                     </button>
-                    <div class="glass p-10 rounded-3xl border-emerald-500">
-                        <i class="fas fa-dollar-sign text-4xl text-emerald-500 mb-4"></i>
-                        <span id="total-ventas" class="block text-xl font-bold">0 Gs</span>
-                        <span class="text-xs text-slate-500">Total Hoy</span>
+                    <div class="glass p-10 rounded-3xl border border-emerald-500/30">
+                        <span class="text-xs text-slate-500 uppercase font-bold">Ventas de Hoy</span>
+                        <h4 id="total-cash" class="text-3xl font-black text-emerald-400">0 Gs</h4>
                     </div>
                 </div>
-                <div class="glass rounded-2xl overflow-hidden">
+                <div class="glass rounded-3xl overflow-hidden">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-900 text-slate-500 text-xs">
-                            <tr><th class="p-4 text-center">SERVICIO</th><th class="p-4 text-center">MONTO</th></tr>
+                        <thead class="bg-slate-900 text-slate-500 text-[10px] uppercase">
+                            <tr><th class="p-4">Cliente/Auto</th><th class="p-4 text-center">Monto</th><th class="p-4 text-right">Notificar</th></tr>
                         </thead>
                         <tbody id="sales-list" class="divide-y divide-slate-800"></tbody>
                     </table>
@@ -78,31 +76,50 @@
         </main>
     </div>
 
-    <div id="service-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-4">
+    <div id="service-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50">
         <div class="glass p-8 rounded-3xl w-full max-w-md">
-            <h3 class="text-2xl font-bold mb-6">Nuevo Lavado/Detalle</h3>
+            <h3 class="text-xl font-bold mb-6 text-yellow-500 italic">DATOS DEL TRABAJO</h3>
             <form id="service-form" class="space-y-4">
-                <input type="text" id="serv-name" placeholder="Descripción" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-xl">
-                <input type="number" id="serv-price" placeholder="Monto Gs" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-xl">
-                <button type="submit" class="w-full bg-blue-600 font-bold py-4 rounded-xl">GUARDAR</button>
-                <button type="button" onclick="closeModal()" class="w-full text-slate-500">Cerrar</button>
+                <input type="text" id="c-info" placeholder="Nombre y Vehículo (Ej: Juan - Hilux)" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-xl">
+                <input type="text" id="c-phone" placeholder="WhatsApp del Cliente (Ej: 0981...)" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-xl">
+                <input type="text" id="s-type" placeholder="Servicio (Ej: Lavado Full)" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-xl">
+                <input type="number" id="s-price" placeholder="Precio Gs" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-xl">
+                <button type="submit" class="w-full bg-blue-600 font-bold py-4 rounded-xl">GUARDAR E IMPRIMIR</button>
+                <button type="button" onclick="closeModal()" class="w-full mt-2 text-slate-500">Cerrar</button>
             </form>
         </div>
     </div>
 
     <script>
-        // --- CAMBIA ESTO CON TUS DATOS ---
         const SB_URL = 'https://itahtywhhaecjakgtnzu.supabase.co';
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0YWh0eXdoaGFlY2pha2d0bnp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMjYyODIsImV4cCI6MjA4NTkwMjI4Mn0.ARQ9W_Rpj8rp_xo88TbTjbdwT6o75J7sCPlConcoshw';
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         let currentUser = null;
 
-        // LOGIN
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const { data } = await _supabase.from('users').select('*').eq('username', document.getElementById('user').value).eq('password_hash', document.getElementById('pass').value).maybeSingle();
-            if (data) { currentUser = data; showPanel(data.role); } else { alert('Error de acceso'); }
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            
+            // Verificamos usuario y el estado de su empresa
+            const { data, error } = await _supabase
+                .from('users')
+                .select('*, companies(is_active)')
+                .eq('username', u)
+                .eq('password_hash', p)
+                .maybeSingle();
+
+            if (data) {
+                if (data.role !== 'superadmin' && data.companies && !data.companies.is_active) {
+                    alert('🚨 CUENTA SUSPENDIDA POR FALTA DE PAGO. Contacte al administrador.');
+                    return;
+                }
+                currentUser = data;
+                showPanel(data.role);
+            } else {
+                alert('Credenciales incorrectas');
+            }
         });
 
         function showPanel(role) {
@@ -117,49 +134,86 @@
             }
         }
 
-        // --- AUTOMATIZACIÓN SÚPER ADMIN ---
+        // LÓGICA SÚPER ADMIN (GESTIÓN DE TALLERES)
         document.getElementById('auto-register-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const name = document.getElementById('new-comp-name').value;
-            const due = document.getElementById('new-due-day').value;
-            const user = document.getElementById('new-user').value;
-            const pass = document.getElementById('new-pass').value;
+            const n = document.getElementById('new-comp-name').value;
+            const d = document.getElementById('new-due-day').value;
+            const u = document.getElementById('new-user').value;
+            const p = document.getElementById('new-pass').value;
 
-            // 1. Crear la Empresa
-            const { data: comp, error: e1 } = await _supabase.from('companies').insert([{ name, due_day: due }]).select().single();
-            
+            const { data: comp } = await _supabase.from('companies').insert([{ name: n, due_day: d }]).select().single();
             if (comp) {
-                // 2. Crear el Usuario Automáticamente vinculado a esa Empresa
-                const { error: e2 } = await _supabase.from('users').insert([
-                    { username: user, password_hash: pass, role: 'admin_empresa', company_id: comp.id }
-                ]);
-                if (!e2) { alert('🚀 ÉXITO: Empresa y Usuario creados. Ya puede entrar el cliente.'); loadCompanies(); }
+                await _supabase.from('users').insert([{ username: u, password_hash: p, role: 'admin_empresa', company_id: comp.id }]);
+                alert('Taller creado con éxito');
+                loadCompanies();
+                document.getElementById('auto-register-form').reset();
             }
         });
 
         async function loadCompanies() {
-            const { data } = await _supabase.from('companies').select('*');
-            document.getElementById('companies-list').innerHTML = data.map(c => `<tr><td class="p-4 font-bold text-yellow-500">${c.name}</td><td class="p-4">Día ${c.due_day}</td><td class="p-4 text-emerald-400">Activo</td></tr>`).join('');
+            const { data } = await _supabase.from('companies').select('*').order('created_at', {ascending: false});
+            document.getElementById('companies-list').innerHTML = data.map(c => `
+                <tr>
+                    <td class="p-4 font-bold text-yellow-500">${c.name}</td>
+                    <td class="p-4">Día ${c.due_day}</td>
+                    <td class="p-4">
+                        <span class="${c.is_active ? 'text-emerald-400' : 'text-red-500'} font-bold">
+                            ${c.is_active ? 'ACTIVO' : 'SUSPENDIDO'}
+                        </span>
+                    </td>
+                    <td class="p-4">
+                        <button onclick="toggleCompany('${c.id}', ${c.is_active})" class="text-[10px] bg-slate-800 p-2 rounded border border-slate-700 uppercase font-black">
+                            ${c.is_active ? 'Bloquear' : 'Habilitar'}
+                        </button>
+                    </td>
+                </tr>`).join('');
         }
 
-        // --- VISTA TALLER ---
+        async function toggleCompany(id, status) {
+            const { error } = await _supabase.from('companies').update({ is_active: !status }).eq('id', id);
+            if (!error) loadCompanies();
+        }
+
+        // LÓGICA TALLER (VENTAS Y WHATSAPP)
         function openModal() { document.getElementById('service-modal').classList.remove('hidden'); }
         function closeModal() { document.getElementById('service-modal').classList.add('hidden'); }
 
         document.getElementById('service-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            await _supabase.from('sales').insert([{ company_id: currentUser.company_id, total_final: document.getElementById('serv-price').value }]);
+            const cInfo = document.getElementById('c-info').value;
+            const cPhone = document.getElementById('c-phone').value;
+            const sType = document.getElementById('s-type').value;
+            const sPrice = document.getElementById('s-price').value;
+
+            await _supabase.from('sales').insert([{ 
+                company_id: currentUser.company_id, 
+                client_info: cInfo,
+                client_phone: cPhone,
+                service_type: sType,
+                total_final: sPrice 
+            }]);
             closeModal(); loadSales();
         });
 
         async function loadSales() {
-            const { data } = await _supabase.from('sales').select('*').eq('company_id', currentUser.company_id);
+            const { data } = await _supabase.from('sales').select('*').eq('company_id', currentUser.company_id).order('created_at', {ascending: false});
             let total = 0;
             document.getElementById('sales-list').innerHTML = data.map(s => {
                 total += Number(s.total_final);
-                return `<tr><td class="p-4 text-center">Servicio</td><td class="p-4 text-center font-bold text-emerald-400">${s.total_final} Gs</td></tr>`;
+                const msg = window.encodeURIComponent(`¡Hola! Tu vehículo (${s.client_info}) está listo en el taller. Total: ${Number(s.total_final).toLocaleString()} Gs.`);
+                return `
+                <tr>
+                    <td class="p-4"><b>${s.client_info}</b><br><small class="text-slate-500">${s.service_type}</small></td>
+                    <td class="p-4 text-center text-emerald-400 font-bold">${Number(s.total_final).toLocaleString()} Gs</td>
+                    <td class="p-4 text-right">
+                        <a href="https://wa.me/${s.client_phone}?text=${msg}" target="_blank" class="text-emerald-500 bg-emerald-500/10 p-2 rounded-full">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </td>
+                </tr>`;
             }).join('');
-            document.getElementById('total-ventas').innerText = total.toLocaleString() + ' Gs';
+            document.getElementById('total-cash').innerText = total.toLocaleString() + ' Gs';
         }
     </script>
 </body>
