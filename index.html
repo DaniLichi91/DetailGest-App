@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DetailGest Pro v6.2 - Caja con Descuento</title>
+    <title>DetailGest Pro v7.0 - Agenda Completa</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap');
         body { background: #0b0f1a; color: #f1f5f9; font-family: 'Inter', sans-serif; margin: 0; }
         .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
         .active-tab { background: #eab308 !important; color: #0f172a !important; font-weight: 900; }
@@ -15,12 +16,16 @@
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
         
-        /* Estados de Agenda */
+        /* Estados */
         .status-pendiente { color: #f87171; background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.2); }
         .status-proceso { color: #fbbf24; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2); }
         .status-terminado { color: #34d399; background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.2); }
         
-        .agenda-group-title { position: sticky; top: 0; z-index: 10; background: #0b0f1a; padding: 10px 0; }
+        .agenda-group-title { position: sticky; top: 0; z-index: 10; background: #0b0f1a; padding: 12px 0; }
+        .card-service { transition: all 0.2s; border: 1px solid transparent; }
+        .card-service:hover { border-color: #eab308; transform: translateY(-2px); }
+        
+        .btn-action { width: 32px; height: 32px; display: flex; items-center; justify-content: center; border-radius: 8px; transition: all 0.2s; }
     </style>
 </head>
 <body>
@@ -28,21 +33,25 @@
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
         <div class="max-w-md w-full glass p-10 rounded-[2.5rem] shadow-2xl border-t-4 border-yellow-500 text-center">
             <h1 class="text-6xl font-black text-yellow-500 mb-2 italic tracking-tighter">DG PRO</h1>
-            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-10">Punto de Venta Profesional</p>
+            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-10">Punto de Venta & Agenda</p>
             <form id="login-form" class="space-y-4 text-left">
                 <input type="text" id="user" placeholder="Usuario" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none text-white focus:ring-1 ring-yellow-500">
                 <input type="password" id="pass" placeholder="Contraseña" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none text-white focus:ring-1 ring-yellow-500">
-                <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-4 rounded-2xl transition-all uppercase text-sm">Entrar</button>
+                <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-4 rounded-2xl transition-all uppercase text-sm">Entrar al Taller</button>
             </form>
         </div>
     </div>
 
     <div id="dashboard" class="hidden min-h-screen flex flex-col md:flex-row">
+        
         <aside class="md:w-64 glass border-r border-slate-800 flex flex-col z-50">
-            <div class="p-6"><h2 class="text-2xl font-black text-yellow-500 italic">DETAILGEST</h2></div>
+            <div class="p-6">
+                <h2 class="text-2xl font-black text-yellow-500 italic leading-none">DETAILGEST</h2>
+                <span class="text-[8px] font-bold text-slate-500 tracking-[0.3em]">PRO v7.0</span>
+            </div>
             <nav id="nav-menu" class="flex-1 px-4 space-y-1 overflow-y-auto custom-scroll"></nav>
             <div class="p-4 border-t border-slate-800">
-                <button onclick="logout()" class="w-full p-3 text-red-400 font-bold text-xs flex items-center gap-3"><i class="fas fa-power-off"></i> CERRAR SESIÓN</button>
+                <button onclick="logout()" class="w-full p-3 text-red-400 font-bold text-xs flex items-center gap-3 hover:bg-red-500/10 rounded-xl transition-all"><i class="fas fa-power-off"></i> CERRAR SESIÓN</button>
             </div>
         </aside>
 
@@ -51,66 +60,68 @@
             <section id="sec-caja" class="content-sec hidden">
                 <div class="flex flex-col lg:flex-row gap-6">
                     <div class="flex-1">
-                        <input type="text" id="pos-search" oninput="filterServices()" placeholder="Buscar servicio..." class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl mb-4 outline-none focus:ring-1 ring-yellow-500">
+                        <div class="relative mb-6">
+                            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                            <input type="text" id="pos-search" oninput="filterServices()" placeholder="Buscar servicios..." class="w-full p-4 pl-12 bg-slate-900 border border-slate-800 rounded-2xl outline-none focus:ring-1 ring-yellow-500 transition-all">
+                        </div>
                         <div id="pos-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
                     </div>
 
-                    <div class="w-full lg:w-96 glass p-6 rounded-[2.5rem] h-fit">
-                        <h3 class="font-black text-yellow-500 mb-4 uppercase italic">Cobro y Agenda</h3>
+                    <div class="w-full lg:w-96 glass p-6 rounded-[2.5rem] h-fit border border-yellow-500/10">
+                        <h3 id="caja-title" class="font-black text-yellow-500 mb-6 uppercase italic text-center tracking-tighter text-xl">Ticket de Servicio</h3>
+                        <input type="hidden" id="edit-id" value="">
                         
-                        <select id="pos-client-select" class="w-full bg-slate-800 rounded-xl p-3 text-xs mb-3 text-white outline-none border border-white/5"></select>
-                        
-                        <div class="grid grid-cols-2 gap-2 mb-4">
-                            <input type="date" id="pos-date" class="bg-slate-800 rounded-xl p-3 text-[10px] text-white outline-none border border-white/5">
-                            <input type="time" id="pos-time" class="bg-slate-800 rounded-xl p-3 text-[10px] text-white outline-none border border-white/5">
+                        <div class="space-y-4 mb-6">
+                            <div>
+                                <label class="text-[9px] font-black text-slate-500 uppercase ml-2">Cliente</label>
+                                <select id="pos-client-select" class="w-full bg-slate-900 rounded-xl p-3 text-xs text-white outline-none border border-slate-800"></select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[9px] font-black text-slate-500 uppercase ml-2">Fecha</label>
+                                    <input type="date" id="pos-date" class="w-full bg-slate-900 rounded-xl p-3 text-[10px] text-white outline-none border border-slate-800">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] font-black text-slate-500 uppercase ml-2">Hora</label>
+                                    <input type="time" id="pos-time" class="w-full bg-slate-900 rounded-xl p-3 text-[10px] text-white outline-none border border-slate-800">
+                                </div>
+                            </div>
                         </div>
 
-                        <div id="pos-cart" class="max-h-32 overflow-y-auto mb-4 border-b border-slate-800 pb-2 custom-scroll"></div>
+                        <div id="pos-cart" class="max-h-40 overflow-y-auto mb-4 border-y border-slate-800 py-2 custom-scroll"></div>
 
-                        <div class="bg-slate-900/50 p-4 rounded-2xl mb-4 border border-white/5">
-                            <label class="text-[9px] font-black text-slate-500 uppercase block mb-2">Aplicar Descuento</label>
+                        <div class="bg-slate-900/50 p-4 rounded-2xl mb-6">
                             <div class="flex gap-2">
-                                <input type="number" id="pos-disc-val" oninput="updatePOSCalc()" placeholder="0" class="flex-1 bg-slate-800 border-none rounded-xl p-2 text-xs text-white outline-none">
-                                <select id="pos-disc-type" onchange="updatePOSCalc()" class="bg-slate-800 border-none rounded-xl p-2 text-xs text-yellow-500 font-bold outline-none">
-                                    <option value="fijo">Gs</option>
-                                    <option value="porc">%</option>
+                                <input type="number" id="pos-disc-val" oninput="updatePOSCalc()" placeholder="Descuento" class="flex-1 bg-slate-800 border-none rounded-xl p-2 text-xs text-white outline-none">
+                                <select id="pos-disc-type" onchange="updatePOSCalc()" class="bg-slate-800 border-none rounded-xl p-2 text-xs text-yellow-500 font-black">
+                                    <option value="fijo">Gs</option><option value="porc">%</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="space-y-1 mb-6 px-1">
-                            <div class="flex justify-between text-[10px] text-slate-400">
-                                <span>Subtotal:</span><span id="res-sub">0 Gs</span>
-                            </div>
-                            <div class="flex justify-between text-[10px] text-red-400">
-                                <span>Descuento:</span><span id="res-disc">0 Gs</span>
-                            </div>
-                            <div class="flex justify-between text-2xl font-black text-yellow-500 pt-2 border-t border-slate-800 mt-2">
-                                <span>TOTAL:</span><span id="pos-total">0 Gs</span>
-                            </div>
+                        <div class="space-y-1 mb-6 text-sm">
+                            <div class="flex justify-between text-slate-400"><span>Subtotal:</span><span id="res-sub">0 Gs</span></div>
+                            <div class="flex justify-between text-2xl font-black text-yellow-500 pt-3 border-t border-slate-800 mt-2"><span>TOTAL:</span><span id="pos-total">0 Gs</span></div>
                         </div>
 
-                        <button onclick="finalizeSale()" class="w-full bg-yellow-500 text-slate-950 font-black py-4 rounded-2xl uppercase text-xs shadow-lg hover:scale-[1.02] transition-all">Confirmar y Agendar</button>
+                        <div class="flex gap-2">
+                            <button id="btn-cancel-edit" onclick="cancelEdit()" class="hidden flex-1 bg-slate-800 text-white font-black py-4 rounded-2xl uppercase text-[10px]">Cancelar</button>
+                            <button id="btn-finalize" onclick="finalizeSale()" class="flex-[2] bg-yellow-500 text-slate-950 font-black py-4 rounded-2xl uppercase text-xs shadow-xl hover:bg-yellow-400 transition-all">Confirmar Turno</button>
+                        </div>
                     </div>
                 </div>
             </section>
 
             <section id="sec-agenda" class="content-sec hidden space-y-6">
-                <div class="flex justify-between items-end">
+                <div class="flex justify-between items-center bg-slate-900/40 p-6 rounded-[2rem] border border-white/5">
                     <div>
-                        <h2 class="text-3xl font-black uppercase italic text-yellow-500">Agenda Maestra</h2>
-                        <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Servicios Programados</p>
+                        <h2 class="text-3xl font-black uppercase italic text-yellow-500">Cronograma</h2>
+                        <p class="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Gestión de turnos agendados</p>
                     </div>
-                    <button onclick="loadAgenda()" class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-yellow-500 hover:rotate-180 transition-all duration-500"><i class="fas fa-sync"></i></button>
+                    <button onclick="loadAgenda()" class="h-12 w-12 flex items-center justify-center bg-slate-900 border border-slate-800 rounded-2xl text-yellow-500 hover:text-white transition-all shadow-xl"><i class="fas fa-sync-alt"></i></button>
                 </div>
                 <div id="agenda-timeline" class="space-y-8"></div>
             </section>
-
-            <section id="sec-inicio" class="content-sec hidden"></section>
-            <section id="sec-clientes" class="content-sec hidden"></section>
-            <section id="sec-gastos" class="content-sec hidden"></section>
-            <section id="sec-servicios" class="content-sec hidden"></section>
-            <section id="sec-empleados" class="content-sec hidden"></section>
 
         </main>
     </div>
@@ -127,10 +138,20 @@
         window.onload = () => {
             const saved = localStorage.getItem('dg_session');
             if(saved) { currentUser = JSON.parse(saved); initApp(); }
+            resetPOSForm();
+        };
+
+        function resetPOSForm() {
             const now = new Date();
             document.getElementById('pos-date').value = now.toISOString().split('T')[0];
             document.getElementById('pos-time').value = now.toTimeString().slice(0,5);
-        };
+            document.getElementById('edit-id').value = "";
+            document.getElementById('caja-title').innerText = "Ticket de Servicio";
+            document.getElementById('btn-finalize').innerText = "Confirmar Turno";
+            document.getElementById('btn-cancel-edit').classList.add('hidden');
+            cart = [];
+            updateCartUI();
+        }
 
         document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault();
@@ -147,13 +168,8 @@
             document.getElementById('dashboard').classList.remove('hidden');
             const menu = document.getElementById('nav-menu');
             const navItems = [
-                { id: 'caja', label: 'CAJA (POS)', icon: 'fa-cash-register' },
-                { id: 'agenda', label: 'AGENDA', icon: 'fa-calendar-alt' },
-                { id: 'inicio', label: 'REPORTES', icon: 'fa-chart-pie' },
-                { id: 'clientes', label: 'CLIENTES', icon: 'fa-address-book' },
-                { id: 'gastos', label: 'GASTOS', icon: 'fa-wallet' },
-                { id: 'servicios', label: 'SERVICIOS', icon: 'fa-tags' },
-                { id: 'empleados', label: 'STAFF', icon: 'fa-user-cog' }
+                { id: 'caja', label: 'CAJA POS', icon: 'fa-cash-register' },
+                { id: 'agenda', label: 'AGENDA', icon: 'fa-calendar-check' }
             ];
             menu.innerHTML = navItems.map(i => `<div onclick="switchSec('${i.id}')" id="nav-${i.id}" class="sidebar-item p-4 text-[10px] font-black flex items-center gap-3"><i class="fas ${i.icon} w-5"></i> ${i.label}</div>`).join('');
             switchSec('caja');
@@ -161,9 +177,7 @@
 
         async function switchSec(id) {
             document.querySelectorAll('.content-sec').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active-tab'));
             document.getElementById('sec-' + id).classList.remove('hidden');
-            document.getElementById('nav-' + id).classList.add('active-tab');
             if(id === 'caja') loadCaja();
             if(id === 'agenda') loadAgenda();
         }
@@ -179,9 +193,9 @@
         function filterServices() {
             const q = document.getElementById('pos-search').value.toLowerCase();
             document.getElementById('pos-grid').innerHTML = servicesList.filter(s => s.name.toLowerCase().includes(q)).map(s => `
-                <div onclick="addToCart('${s.id}')" class="glass p-4 rounded-2xl cursor-pointer hover:border-yellow-500 border border-transparent transition-all">
-                    <p class="text-[9px] font-black text-slate-500 uppercase">${s.name}</p>
-                    <p class="text-yellow-500 font-bold">${Number(s.price).toLocaleString()} Gs</p>
+                <div onclick="addToCart('${s.id}')" class="card-service glass p-5 rounded-3xl cursor-pointer">
+                    <p class="text-[10px] font-black text-slate-500 uppercase mb-1">${s.name}</p>
+                    <p class="text-yellow-500 font-black text-lg">${Number(s.price).toLocaleString()} Gs</p>
                 </div>`).join('');
         }
 
@@ -193,9 +207,9 @@
         function updateCartUI() {
             const container = document.getElementById('pos-cart');
             container.innerHTML = cart.map((item, i) => `
-                <div class="flex justify-between items-center py-2 text-[10px] font-bold uppercase border-b border-white/5">
+                <div class="flex justify-between items-center py-2 text-[10px] font-black uppercase">
                     <span>${item.name}</span>
-                    <button onclick="cart.splice(${i},1); updateCartUI();" class="text-red-500 px-2 font-black">X</button>
+                    <button onclick="cart.splice(${i},1); updateCartUI();" class="text-red-500"><i class="fas fa-times-circle"></i></button>
                 </div>`).join('');
             updatePOSCalc();
         }
@@ -205,9 +219,7 @@
             const dVal = Number(document.getElementById('pos-disc-val').value) || 0;
             const dType = document.getElementById('pos-disc-type').value;
             let disc = dType === 'fijo' ? dVal : (sub * dVal / 100);
-            
             document.getElementById('res-sub').innerText = sub.toLocaleString() + ' Gs';
-            document.getElementById('res-disc').innerText = '-' + disc.toLocaleString() + ' Gs';
             document.getElementById('pos-total').innerText = (sub - disc).toLocaleString() + ' Gs';
         }
 
@@ -216,31 +228,36 @@
             const total = parseInt(document.getElementById('pos-total').innerText.replace(/\D/g,''));
             const dateS = document.getElementById('pos-date').value;
             const timeS = document.getElementById('pos-time').value;
+            const editId = document.getElementById('edit-id').value;
             
             const saleData = {
                 company_id: currentUser.company_id,
                 total_final: total,
                 details: cart.map(i => i.name).join(', '),
                 created_at: `${dateS}T${timeS}:00`,
-                status: 'Pendiente',
                 client_id: document.getElementById('pos-client-select').value || null
             };
 
-            const { error } = await _supabase.from('sales').insert([saleData]);
-            if(!error) {
-                alert("Servicio Agendado!");
-                cart = []; 
-                document.getElementById('pos-disc-val').value = '';
-                updateCartUI();
+            let res;
+            if(editId) {
+                res = await _supabase.from('sales').update(saleData).eq('id', editId);
+            } else {
+                saleData.status = 'Pendiente';
+                res = await _supabase.from('sales').insert([saleData]);
+            }
+
+            if(!res.error) {
+                alert(editId ? "Turno actualizado" : "Turno agendado");
+                resetPOSForm();
+                switchSec('agenda');
             }
         }
 
         async function loadAgenda() {
             const container = document.getElementById('agenda-timeline');
-            container.innerHTML = '<p class="text-center text-slate-500 py-10">Cargando cronograma...</p>';
-            const { data, error } = await _supabase.from('sales').select('*, clients(name)').eq('company_id', currentUser.company_id).order('created_at', { ascending: true });
-            if(error) return;
-
+            container.innerHTML = '<p class="text-center py-10">Cargando...</p>';
+            const { data } = await _supabase.from('sales').select('*, clients(name)').eq('company_id', currentUser.company_id).order('created_at', { ascending: true });
+            
             const groups = data.reduce((acc, item) => {
                 const date = item.created_at.split('T')[0];
                 if (!acc[date]) acc[date] = [];
@@ -250,25 +267,58 @@
 
             container.innerHTML = '';
             Object.keys(groups).forEach(date => {
-                let html = `<div class="space-y-4"><div class="agenda-group-title"><span class="bg-yellow-500 text-black px-4 py-1 rounded-full text-[10px] font-black uppercase">${date}</span></div>`;
+                let html = `<div class="space-y-4">
+                    <div class="agenda-group-title"><span class="bg-yellow-500 text-slate-950 px-4 py-1 rounded-full text-[10px] font-black uppercase">${date}</span></div>`;
                 groups[date].forEach(item => {
                     const time = new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    html += `<div class="glass p-5 rounded-3xl border-l-4 border-yellow-500 flex flex-col md:flex-row justify-between items-center gap-4">
-                        <div class="flex items-center gap-4">
-                            <span class="text-xl font-black">${time}</span>
-                            <div><h4 class="font-black text-yellow-500 uppercase">${item.clients?.name || 'C. Final'}</h4><p class="text-[10px] text-slate-400">${item.details}</p></div>
-                        </div>
-                        <select onchange="updateStatus('${item.id}', this.value)" class="status-${item.status?.toLowerCase()} text-[10px] font-black rounded-full px-4 py-2 outline-none">
-                            <option value="Pendiente" ${item.status === 'Pendiente' ? 'selected' : ''}>PENDIENTE</option>
-                            <option value="Proceso" ${item.status === 'Proceso' ? 'selected' : ''}>EN PROCESO</option>
-                            <option value="Terminado" ${item.status === 'Terminado' ? 'selected' : ''}>TERMINADO</option>
-                        </select>
-                    </div>`;
+                    html += `
+                        <div class="glass p-5 rounded-[2rem] border-l-4 border-yellow-500 flex flex-col md:flex-row justify-between items-center gap-4 transition-all">
+                            <div class="flex items-center gap-4">
+                                <span class="text-xl font-black">${time}</span>
+                                <div><h4 class="font-black text-white uppercase">${item.clients?.name || 'C. Final'}</h4><p class="text-[10px] text-yellow-500/70 uppercase">${item.details}</p></div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <select onchange="updateStatus('${item.id}', this.value)" class="status-${item.status?.toLowerCase()} text-[10px] font-black rounded-full px-4 py-2 outline-none">
+                                    <option value="Pendiente" ${item.status === 'Pendiente' ? 'selected' : ''}>PENDIENTE</option>
+                                    <option value="Proceso" ${item.status === 'Proceso' ? 'selected' : ''}>EN PROCESO</option>
+                                    <option value="Terminado" ${item.status === 'Terminado' ? 'selected' : ''}>TERMINADO</option>
+                                </select>
+                                <button onclick="prepEdit('${item.id}')" class="btn-action bg-blue-500/10 text-blue-500 hover:bg-blue-500 hover:text-white"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteSale('${item.id}')" class="btn-action bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>`;
                 });
                 container.innerHTML += html + '</div>';
             });
         }
 
+        async function prepEdit(id) {
+            const { data } = await _supabase.from('sales').select('*').eq('id', id).single();
+            if(data) {
+                switchSec('caja');
+                document.getElementById('edit-id').value = data.id;
+                document.getElementById('caja-title').innerText = "Editando Turno";
+                document.getElementById('btn-finalize').innerText = "Guardar Cambios";
+                document.getElementById('btn-cancel-edit').classList.remove('hidden');
+                document.getElementById('pos-client-select').value = data.client_id || "";
+                document.getElementById('pos-date').value = data.created_at.split('T')[0];
+                document.getElementById('pos-time').value = data.created_at.split('T')[1].substring(0,5);
+                
+                // Reconstruir carrito basado en los detalles (simulado ya que no guardamos IDs en sales)
+                const names = data.details.split(', ');
+                cart = names.map(n => servicesList.find(s => s.name === n)).filter(x => x);
+                updateCartUI();
+            }
+        }
+
+        async function deleteSale(id) {
+            if(confirm("¿Eliminar este agendamiento permanentemente?")) {
+                await _supabase.from('sales').delete().eq('id', id);
+                loadAgenda();
+            }
+        }
+
+        function cancelEdit() { resetPOSForm(); }
         async function updateStatus(id, s) { await _supabase.from('sales').update({ status: s }).eq('id', id); loadAgenda(); }
     </script>
 </body>
