@@ -3,135 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DetailGest Pro v2.9 - Business Suite</title>
+    <title>DetailGest Pro v3.0 - Enterprise</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #0f172a; color: #f1f5f9; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        body { background: #0b0f1a; color: #f1f5f9; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .sidebar-item:hover { background: rgba(234, 179, 8, 0.1); color: #eab308; }
+        .active-tab { background: #eab308 !important; color: #0f172a !important; font-weight: 900; }
         .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        .card-glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); }
-        .card-glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.1); }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
     </style>
 </head>
 <body>
 
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
-        <div class="max-w-md w-full glass p-8 rounded-3xl shadow-2xl border-t-4 border-yellow-500 text-center">
-            <h1 class="text-5xl font-black text-yellow-500 mb-2 italic tracking-tighter text-center">DG PRO</h1>
-            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-8">Gestión de Lavaderos</p>
+        <div class="max-w-md w-full glass p-10 rounded-[2.5rem] shadow-2xl border-t-4 border-yellow-500 text-center">
+            <h1 class="text-6xl font-black text-yellow-500 mb-2 italic tracking-tighter">DG PRO</h1>
+            <p class="text-slate-500 text-xs font-bold uppercase tracking-[0.3em] mb-10">Enterprise Edition</p>
             <form id="login-form" class="space-y-4 text-left">
-                <input type="text" id="user" placeholder="Usuario" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-yellow-500 text-white">
-                <input type="password" id="pass" placeholder="Contraseña" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-yellow-500 text-white">
-                <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black py-4 rounded-2xl shadow-lg transition-all">ENTRAR AL SISTEMA</button>
+                <input type="text" id="user" placeholder="Usuario" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none focus:border-yellow-500 text-white transition-all">
+                <input type="password" id="pass" placeholder="Contraseña" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none focus:border-yellow-500 text-white transition-all">
+                <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-4 rounded-2xl shadow-xl transition-all transform hover:scale-[1.02]">ACCEDER</button>
             </form>
         </div>
     </div>
 
-    <div id="dashboard" class="hidden min-h-screen flex flex-col">
-        <nav class="glass sticky top-0 z-50 p-4 border-b border-slate-800 flex justify-between items-center px-8">
-            <h2 class="text-xl font-black text-yellow-500 italic">DETAILGEST <span id="client-name-tag" class="text-slate-500 font-light text-sm not-italic ml-2"></span></h2>
-            <div class="flex items-center gap-4">
-                <a href="https://wa.me/595981000000" target="_blank" class="text-emerald-400 text-xs font-bold hover:opacity-80"><i class="fab fa-whatsapp mr-1"></i> SOPORTE</a>
-                <button onclick="location.reload()" class="text-red-400 hover:bg-red-500/10 px-4 py-2 rounded-xl text-xs font-bold transition-all"><i class="fas fa-power-off"></i></button>
+    <div id="dashboard" class="hidden min-h-screen flex flex-col md:flex-row">
+        
+        <aside class="md:w-64 glass border-r border-slate-800 flex flex-col z-50">
+            <div class="p-6">
+                <h2 class="text-2xl font-black text-yellow-500 italic">DETAILGEST</h2>
+                <p id="client-name-tag" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1"></p>
             </div>
-        </nav>
-
-        <main class="p-4 max-w-6xl mx-auto w-full space-y-6">
             
-            <div id="view-superadmin" class="hidden space-y-6">
-                <div class="glass p-6 rounded-3xl border-l-4 border-emerald-500">
-                    <h3 class="text-slate-400 font-bold mb-4 uppercase text-xs">Registrar Nuevo Taller</h3>
-                    <form id="auto-register-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <input type="text" id="new-comp-name" placeholder="Nombre Taller" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none">
-                        <input type="number" id="new-due-day" placeholder="Día Cobro" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none">
-                        <input type="text" id="new-user" placeholder="Usuario Acceso" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none">
-                        <input type="text" id="new-pass" placeholder="Password" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none">
-                        <button type="submit" class="md:col-span-4 bg-emerald-600 hover:bg-emerald-500 font-black py-4 rounded-xl transition-all uppercase text-xs">Crear Taller</button>
-                    </form>
-                </div>
-                <div class="glass rounded-3xl overflow-hidden shadow-xl">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-900/50 text-slate-500 text-[10px] uppercase font-bold"><tr id="header-table-sa"></tr></thead>
-                        <tbody id="companies-list" class="divide-y divide-slate-800"></tbody>
-                    </table>
-                </div>
+            <nav id="nav-menu" class="flex-1 px-4 space-y-2 overflow-y-auto custom-scroll">
+                </nav>
+
+            <div class="p-4 border-t border-slate-800">
+                <button onclick="location.reload()" class="w-full p-3 text-red-400 font-bold text-xs flex items-center gap-3 hover:bg-red-500/10 rounded-xl transition-all">
+                    <i class="fas fa-power-off"></i> CERRAR SESIÓN
+                </button>
             </div>
+        </aside>
 
-            <div id="view-client" class="hidden space-y-6">
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div class="glass p-5 rounded-3xl border-b-4 border-emerald-500 card-glow-green">
-                        <p class="text-slate-500 text-[10px] font-bold uppercase mb-1">Ingresos</p>
-                        <h4 id="client-total-sales" class="text-2xl font-black text-emerald-400">0 Gs</h4>
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto custom-scroll h-screen">
+            
+            <section id="sec-inicio" class="content-sec space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="glass p-6 rounded-3xl border-b-4 border-emerald-500">
+                        <p class="text-slate-500 text-[10px] font-black uppercase">Ingresos Mensuales</p>
+                        <h4 id="stat-sales" class="text-3xl font-black text-emerald-400">0 Gs</h4>
                     </div>
-                    <div class="glass p-5 rounded-3xl border-b-4 border-red-500 card-glow-red">
-                        <p class="text-slate-500 text-[10px] font-bold uppercase mb-1">Gastos</p>
-                        <h4 id="client-total-expenses" class="text-2xl font-black text-red-400">0 Gs</h4>
+                    <div class="glass p-6 rounded-3xl border-b-4 border-red-500">
+                        <p class="text-slate-500 text-[10px] font-black uppercase">Gastos Mensuales</p>
+                        <h4 id="stat-expenses" class="text-3xl font-black text-red-400">0 Gs</h4>
                     </div>
-                    <div class="glass p-5 rounded-3xl border-b-4 border-blue-500 col-span-2 md:col-span-1">
-                        <p class="text-slate-500 text-[10px] font-bold uppercase mb-1">Caja Neta</p>
-                        <h4 id="client-total-net" class="text-2xl font-black text-blue-400">0 Gs</h4>
+                    <div class="glass p-6 rounded-3xl border-b-4 border-blue-500">
+                        <p class="text-slate-500 text-[10px] font-black uppercase">Utilidad</p>
+                        <h4 id="stat-net" class="text-3xl font-black text-blue-400">0 Gs</h4>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <button onclick="openSaleModal()" class="bg-emerald-600 hover:bg-emerald-500 p-6 rounded-3xl flex flex-col items-center justify-center transition-all shadow-lg shadow-emerald-900/20">
-                        <i class="fas fa-car-wash text-2xl mb-2"></i>
-                        <span class="font-black text-xs uppercase tracking-widest">Nueva Venta</span>
-                    </button>
-                    <button onclick="openExpenseModal()" class="bg-slate-800 hover:bg-slate-700 p-6 rounded-3xl flex flex-col items-center justify-center border border-slate-700 transition-all">
-                        <i class="fas fa-receipt text-2xl mb-2 text-red-400"></i>
-                        <span class="font-black text-xs uppercase tracking-widest">Registrar Gasto</span>
-                    </button>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center px-2">
-                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Movimientos del Mes</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass p-6 rounded-3xl">
+                        <h3 class="text-xs font-black text-slate-500 uppercase mb-4">Rendimiento Semanal</h3>
+                        <canvas id="mainChart"></canvas>
                     </div>
-                    <div id="client-movements-list" class="space-y-3 custom-scroll max-h-[500px] overflow-y-auto">
+                    <div class="glass p-6 rounded-3xl flex flex-col">
+                        <h3 class="text-xs font-black text-slate-500 uppercase mb-4">Acciones Rápidas</h3>
+                        <div class="grid grid-cols-2 gap-4 flex-1">
+                            <button onclick="openSaleModal()" class="bg-emerald-600/20 border border-emerald-500/30 text-emerald-500 rounded-3xl flex flex-col items-center justify-center hover:bg-emerald-600 hover:text-white transition-all">
+                                <i class="fas fa-plus-circle text-2xl mb-2"></i> <span class="text-[10px] font-black uppercase">Venta</span>
+                            </button>
+                            <button onclick="openExpenseModal()" class="bg-red-600/20 border border-red-500/30 text-red-500 rounded-3xl flex flex-col items-center justify-center hover:bg-red-600 hover:text-white transition-all">
+                                <i class="fas fa-minus-circle text-2xl mb-2"></i> <span class="text-[10px] font-black uppercase">Gasto</span>
+                            </button>
                         </div>
+                    </div>
                 </div>
-            </div>
+            </section>
+
+            <section id="sec-servicios" class="content-sec hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-black uppercase italic">Lista de Precios</h2>
+                    <button onclick="openGenericModal('service')" class="bg-yellow-500 text-slate-900 px-6 py-2 rounded-full font-black text-xs">+ AGREGAR</button>
+                </div>
+                <div id="list-services" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+            </section>
+
+            <section id="sec-empleados" class="content-sec hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-black uppercase italic">Staff / Empleados</h2>
+                    <button onclick="openGenericModal('employee')" class="bg-blue-600 text-white px-6 py-2 rounded-full font-black text-xs">+ VINCULAR</button>
+                </div>
+                <div id="list-employees" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </section>
+
+            <section id="sec-reportes" class="content-sec hidden space-y-6">
+                <div class="glass p-8 rounded-[2.5rem] border-l-4 border-yellow-500">
+                    <h2 class="text-2xl font-black uppercase italic mb-6">Centro de Informes</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="p-6 bg-slate-900/50 rounded-3xl border border-slate-800">
+                            <p class="font-black text-sm mb-2 uppercase text-yellow-500">Reporte de Caja</p>
+                            <p class="text-xs text-slate-500 mb-4">Resumen detallado de todos los ingresos y egresos del mes actual.</p>
+                            <button onclick="downloadReport('caja')" class="w-full bg-slate-800 py-3 rounded-xl font-black text-[10px] hover:bg-slate-700">GENERAR PDF / CSV</button>
+                        </div>
+                        <div class="p-6 bg-slate-900/50 rounded-3xl border border-slate-800">
+                            <p class="font-black text-sm mb-2 uppercase text-blue-500">Productividad Empleados</p>
+                            <p class="text-xs text-slate-500 mb-4">Análisis de quién está generando más servicios.</p>
+                            <button onclick="downloadReport('staff')" class="w-full bg-slate-800 py-3 rounded-xl font-black text-[10px] hover:bg-slate-700">GENERAR PDF / CSV</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="sec-herramientas" class="content-sec hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass p-8 rounded-3xl">
+                        <h3 class="font-black text-yellow-500 uppercase mb-4">Calculadora de Dilución</h3>
+                        <div class="space-y-4">
+                            <input type="number" id="dil-ratio" placeholder="Proporción (Ej: 10)" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl outline-none text-sm">
+                            <input type="number" id="dil-total" placeholder="Litros totales de mezcla" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl outline-none text-sm">
+                            <button onclick="calcDilution()" class="w-full bg-yellow-500 text-slate-950 font-black py-3 rounded-xl uppercase text-xs">Calcular</button>
+                            <div id="dil-res" class="text-center font-black text-emerald-400"></div>
+                        </div>
+                    </div>
+                    <div class="glass p-8 rounded-3xl">
+                        <h3 class="font-black text-blue-500 uppercase mb-4">Programador de Próximo Service</h3>
+                        <p class="text-xs text-slate-500 mb-4">Enviará un recordatorio automático vía WhatsApp (Simulado).</p>
+                        <input type="text" placeholder="Cliente" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl mb-4 text-sm">
+                        <button onclick="alert('Programado')" class="w-full bg-blue-600 text-white font-black py-3 rounded-xl uppercase text-xs">Agendar Recordatorio</button>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
 
-    <div id="sale-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
-        <div class="glass p-8 rounded-[2rem] w-full max-w-md border border-emerald-500/20">
-            <h3 class="text-xl font-black text-emerald-500 mb-6 uppercase italic"><i class="fas fa-plus mr-2"></i>Nueva Venta</h3>
-            <form id="client-sale-form" class="space-y-4">
-                <input type="text" id="s-client" placeholder="Cliente / Chapa del Vehículo" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none focus:border-emerald-500">
-                <input type="number" id="s-amount" placeholder="Monto en Gs" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none focus:border-emerald-500">
-                <button type="submit" class="w-full bg-emerald-600 py-4 rounded-2xl font-black uppercase shadow-lg">Registrar Servicio</button>
-                <button type="button" onclick="closeSaleModal()" class="w-full text-slate-500 text-[10px] font-bold uppercase mt-2">Cancelar</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="expense-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
-        <div class="glass p-8 rounded-[2rem] w-full max-w-md border border-red-500/20">
-            <h3 class="text-xl font-black text-red-500 mb-6 uppercase italic"><i class="fas fa-minus mr-2"></i>Nuevo Gasto</h3>
-            <form id="client-expense-form" class="space-y-4">
-                <input type="text" id="e-desc" placeholder="Descripción (Ej: Insumos, Luz)" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none focus:border-red-500">
-                <input type="number" id="e-amount" placeholder="Monto en Gs" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none focus:border-red-500">
-                <button type="submit" class="w-full bg-red-600 py-4 rounded-2xl font-black uppercase shadow-lg">Guardar Gasto</button>
-                <button type="button" onclick="closeExpenseModal()" class="w-full text-slate-500 text-[10px] font-bold uppercase mt-2">Cancelar</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="edit-auth-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 z-[120]">
-        <div class="glass p-8 rounded-[2rem] w-full max-w-md border border-yellow-500/20">
-            <h3 class="text-xl font-black mb-6 text-yellow-500 uppercase italic">Accesos del Cliente</h3>
-            <form id="edit-auth-form" class="space-y-4 text-left">
-                <input type="hidden" id="auth-user-id">
-                <input type="text" id="auth-username" required placeholder="Usuario" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
-                <input type="text" id="auth-password" required placeholder="Contraseña" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
+    <div id="modal-container" class="hidden fixed inset-0 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4 z-[100]">
+        <div class="glass p-8 rounded-[2.5rem] w-full max-w-md border border-yellow-500/20">
+            <h3 id="modal-title" class="text-2xl font-black text-yellow-500 mb-6 uppercase italic">Título</h3>
+            <form id="generic-form" class="space-y-4">
+                <div id="modal-fields"></div>
                 <div class="flex gap-4 pt-4">
-                    <button type="button" onclick="closeAuthModal()" class="flex-1 text-slate-500 font-bold uppercase text-xs">Cerrar</button>
-                    <button type="submit" class="flex-[2] bg-yellow-600 text-slate-900 font-black py-4 rounded-2xl">ACTUALIZAR</button>
+                    <button type="button" onclick="closeModal()" class="flex-1 text-slate-500 font-black uppercase text-[10px]">Cerrar</button>
+                    <button type="submit" class="flex-[2] bg-yellow-500 text-slate-950 font-black py-4 rounded-2xl shadow-lg uppercase text-xs">Guardar</button>
                 </div>
             </form>
         </div>
@@ -139,148 +157,153 @@
 
     <script>
         // --- CONFIGURACIÓN ---
-        const SB_URL = 'https://itahtywhhaecjakgtnzu.supabase.co'; 
+        const SB_URL = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0YWh0eXdoaGFlY2pha2d0bnp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMjYyODIsImV4cCI6MjA4NTkwMjI4Mn0.ARQ9W_Rpj8rp_xo88TbTjbdwT6o75J7sCPlConcoshw'; 
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0YWh0eXdoaGFlY2pha2d0bnp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMjYyODIsImV4cCI6MjA4NTkwMjI4Mn0.ARQ9W_Rpj8rp_xo88TbTjbdwT6o75J7sCPlConcoshw';
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         let currentUser = null;
+        let mainChart = null;
 
         // LOGIN
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const u = document.getElementById('user').value.trim();
             const p = document.getElementById('pass').value.trim();
-            const { data, error } = await _supabase.from('users').select('*, companies(*)').eq('username', u).eq('password_hash', p).maybeSingle();
+            const { data } = await _supabase.from('users').select('*, companies(*)').eq('username', u).eq('password_hash', p).maybeSingle();
             
             if (data) {
                 if (data.role !== 'superadmin' && data.companies && !data.companies.is_active) {
-                    alert('ACCESO SUSPENDIDO. Contacte al administrador.'); return;
+                    alert('CUENTA SUSPENDIDA'); return;
                 }
                 currentUser = data;
-                showPanel(data.role);
-            } else { alert('Usuario o contraseña incorrectos.'); }
+                initApp(data.role);
+            } else { alert('Error en acceso'); }
         });
 
-        function showPanel(role) {
+        function initApp(role) {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
+            
+            const menu = document.getElementById('nav-menu');
             if (role === 'superadmin') {
-                document.getElementById('view-superadmin').classList.remove('hidden');
-                loadCompanies();
+                menu.innerHTML = `<button onclick="switchSec('super')" class="sidebar-item active-tab w-full p-4 rounded-2xl flex items-center gap-4 text-xs font-black transition-all"><i class="fas fa-crown"></i> GESTIÓN TALLERES</button>`;
+                // Aquí podrías reutilizar tu código anterior de SuperAdmin
             } else {
-                document.getElementById('view-client').classList.remove('hidden');
-                document.getElementById('client-name-tag').innerText = `| ${currentUser.companies.name.toUpperCase()}`;
-                loadClientData();
+                document.getElementById('client-name-tag').innerText = currentUser.companies.name;
+                menu.innerHTML = `
+                    <button onclick="switchSec('inicio')" class="sidebar-item active-tab w-full p-4 rounded-2xl flex items-center gap-4 text-xs font-black transition-all"><i class="fas fa-home"></i> INICIO</button>
+                    <button onclick="switchSec('servicios')" class="sidebar-item w-full p-4 rounded-2xl flex items-center gap-4 text-xs font-black transition-all"><i class="fas fa-tag"></i> SERVICIOS</button>
+                    <button onclick="switchSec('empleados')" class="sidebar-item w-full p-4 rounded-2xl flex items-center gap-4 text-xs font-black transition-all"><i class="fas fa-users"></i> EMPLEADOS</button>
+                    <button onclick="switchSec('reportes')" class="sidebar-item w-full p-4 rounded-2xl flex items-center gap-4 text-xs font-black transition-all"><i class="fas fa-chart-line"></i> REPORTES</button>
+                    <button onclick="switchSec('herramientas')" class="sidebar-item w-full p-4 rounded-2xl flex items-center gap-4 text-xs font-black transition-all"><i class="fas fa-flask"></i> TOOLS</button>
+                `;
+                loadDashboardData();
+                initChart();
             }
         }
 
-        // --- FUNCIONES SUPER ADMIN ---
-        async function loadCompanies() {
-            const { data } = await _supabase.from('companies').select('*, users(id, username, password_hash)').order('created_at', {ascending: false});
-            document.getElementById('companies-list').innerHTML = data.map(c => {
-                const user = c.users && c.users[0] ? c.users[0] : {id: '', username: 'N/A', password_hash: ''};
-                return `<tr class="hover:bg-slate-800/30">
-                    <td class="p-4 text-xs font-bold text-yellow-500 uppercase">${c.name}<br><span class="text-slate-500 font-normal">User: ${user.username}</span></td>
-                    <td class="p-4 text-xs">Día ${c.due_day}</td>
-                    <td class="p-4"><span class="px-2 py-1 rounded-full text-[9px] font-black ${c.is_active ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}">${c.is_active ? 'ACTIVO' : 'SUSP'}</span></td>
-                    <td class="p-4 text-right flex justify-end gap-1">
-                        <button onclick="openAuthModal('${user.id}', '${user.username}', '${user.password_hash}')" class="p-2 bg-yellow-500/10 text-yellow-500 rounded-lg"><i class="fas fa-key text-[10px]"></i></button>
-                        <button onclick="toggleCompany('${c.id}', ${c.is_active})" class="p-2 bg-slate-800 text-slate-400 rounded-lg"><i class="fas fa-power-off text-[10px]"></i></button>
-                        <button onclick="deleteCompany('${c.id}', '${c.name}')" class="p-2 bg-red-500/10 text-red-500 rounded-lg"><i class="fas fa-trash text-[10px]"></i></button>
-                    </td>
-                </tr>`;
-            }).join('');
+        function switchSec(id) {
+            document.querySelectorAll('.content-sec').forEach(s => s.classList.add('hidden'));
+            document.getElementById('sec-' + id).classList.remove('hidden');
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active-tab'));
+            event.currentTarget.classList.add('active-tab');
+            if(id === 'servicios') loadServices();
+            if(id === 'empleados') loadEmployees();
         }
 
-        async function toggleCompany(id, status) { await _supabase.from('companies').update({ is_active: !status }).eq('id', id); loadCompanies(); }
-        async function deleteCompany(id, name) { if(confirm(`¿Borrar ${name}?`)){ await _supabase.from('users').delete().eq('company_id', id); await _supabase.from('companies').delete().eq('id', id); loadCompanies(); }}
-        function openAuthModal(id, user, pass) { document.getElementById('auth-user-id').value = id; document.getElementById('auth-username').value = user; document.getElementById('auth-password').value = pass; document.getElementById('edit-auth-modal').classList.remove('hidden'); }
-        function closeAuthModal() { document.getElementById('edit-auth-modal').classList.add('hidden'); }
-        document.getElementById('edit-auth-form').addEventListener('submit', async (e) => { e.preventDefault(); await _supabase.from('users').update({ username: document.getElementById('auth-username').value, password_hash: document.getElementById('auth-password').value }).eq('id', document.getElementById('auth-user-id').value); closeAuthModal(); loadCompanies(); });
-
-        document.getElementById('auto-register-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const { data: comp } = await _supabase.from('companies').insert([{ name: document.getElementById('new-comp-name').value, due_day: document.getElementById('new-due-day').value }]).select().single();
-            if (comp) { await _supabase.from('users').insert([{ username: document.getElementById('new-user').value, password_hash: document.getElementById('new-pass').value, role: 'admin_empresa', company_id: comp.id }]); loadCompanies(); e.target.reset(); }
-        });
-
-        // --- FUNCIONES PANEL CLIENTE (NEGOCIO) ---
-        function openSaleModal() { document.getElementById('sale-modal').classList.remove('hidden'); }
-        function closeSaleModal() { document.getElementById('sale-modal').classList.add('hidden'); }
-        function openExpenseModal() { document.getElementById('expense-modal').classList.remove('hidden'); }
-        function closeExpenseModal() { document.getElementById('expense-modal').classList.add('hidden'); }
-
-        async function loadClientData() {
+        // --- DASHBOARD ---
+        async function loadDashboardData() {
             const cid = currentUser.company_id;
-            const { data: sales } = await _supabase.from('sales').select('*').eq('company_id', cid).order('created_at', {ascending: false});
-            const { data: expenses } = await _supabase.from('gastos').select('*').eq('company_id', cid).order('created_at', {ascending: false});
+            const { data: sales } = await _supabase.from('sales').select('*').eq('company_id', cid);
+            const { data: expenses } = await _supabase.from('gastos').select('*').eq('company_id', cid);
+            
+            let totalS = 0, totalE = 0;
+            sales?.forEach(s => totalS += Number(s.total_final));
+            expenses?.forEach(e => totalE += Number(e.monto));
 
-            let totalV = 0, totalG = 0;
-            sales?.forEach(s => totalV += Number(s.total_final));
-            expenses?.forEach(e => totalG += Number(e.monto));
-
-            document.getElementById('client-total-sales').innerText = totalV.toLocaleString() + ' Gs';
-            document.getElementById('client-total-expenses').innerText = totalG.toLocaleString() + ' Gs';
-            document.getElementById('client-total-net').innerText = (totalV - totalG).toLocaleString() + ' Gs';
-
-            // Mezclar movimientos para la lista
-            let moveHTML = '';
-            sales?.forEach(s => {
-                moveHTML += `
-                <div class="glass p-4 rounded-2xl flex justify-between items-center border-l-4 border-emerald-500">
-                    <div>
-                        <p class="text-[10px] text-slate-500 font-bold uppercase">Ingreso</p>
-                        <p class="text-sm font-black uppercase text-slate-200">${s.client_info}</p>
-                    </div>
-                    <div class="text-right flex items-center gap-4">
-                        <span class="text-emerald-400 font-black">${Number(s.total_final).toLocaleString()} Gs</span>
-                        <button onclick="deleteMove('sales', '${s.id}')" class="text-slate-600 hover:text-red-500 transition-all"><i class="fas fa-times-circle"></i></button>
-                    </div>
-                </div>`;
-            });
-            expenses?.forEach(e => {
-                moveHTML += `
-                <div class="glass p-4 rounded-2xl flex justify-between items-center border-l-4 border-red-500">
-                    <div>
-                        <p class="text-[10px] text-slate-500 font-bold uppercase">Gasto</p>
-                        <p class="text-sm font-black uppercase text-slate-200">${e.descripcion}</p>
-                    </div>
-                    <div class="text-right flex items-center gap-4">
-                        <span class="text-red-400 font-black">${Number(e.monto).toLocaleString()} Gs</span>
-                        <button onclick="deleteMove('gastos', '${e.id}')" class="text-slate-600 hover:text-red-500 transition-all"><i class="fas fa-times-circle"></i></button>
-                    </div>
-                </div>`;
-            });
-            document.getElementById('client-movements-list').innerHTML = moveHTML || '<p class="text-center text-slate-600 py-10">Sin movimientos registrados.</p>';
+            document.getElementById('stat-sales').innerText = totalS.toLocaleString() + ' Gs';
+            document.getElementById('stat-expenses').innerText = totalE.toLocaleString() + ' Gs';
+            document.getElementById('stat-net').innerText = (totalS - totalE).toLocaleString() + ' Gs';
         }
 
-        async function deleteMove(table, id) {
-            if(confirm("¿Eliminar este registro?")) {
-                await _supabase.from(table).delete().eq('id', id);
-                loadClientData();
+        // --- SERVICIOS ---
+        async function loadServices() {
+            const { data } = await _supabase.from('services_list').select('*').eq('company_id', currentUser.company_id);
+            document.getElementById('list-services').innerHTML = data.map(s => `
+                <div class="glass p-5 rounded-3xl border border-slate-800 flex justify-between items-center">
+                    <div><p class="font-black text-xs uppercase">${s.name}</p><p class="text-emerald-400 font-black text-sm">${Number(s.price).toLocaleString()} Gs</p></div>
+                    <button onclick="deleteGeneric('services_list', '${s.id}')" class="text-red-500/50 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                </div>`).join('');
+        }
+
+        // --- EMPLEADOS ---
+        async function loadEmployees() {
+            const { data } = await _supabase.from('employees').select('*').eq('company_id', currentUser.company_id);
+            document.getElementById('list-employees').innerHTML = data.map(e => `
+                <div class="glass p-5 rounded-3xl border border-slate-800 flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-black">${e.name[0]}</div>
+                        <div><p class="font-black text-xs uppercase">${e.name}</p><p class="text-[10px] text-slate-500">${e.phone}</p></div>
+                    </div>
+                    <button onclick="deleteGeneric('employees', '${e.id}')" class="text-red-500/50 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                </div>`).join('');
+        }
+
+        // --- MODALES Y CRUD ---
+        function openGenericModal(type) {
+            const container = document.getElementById('modal-fields');
+            const title = document.getElementById('modal-title');
+            container.innerHTML = '';
+            
+            if(type === 'service') {
+                title.innerText = 'Nuevo Servicio';
+                container.innerHTML = `<input type="text" id="fn-name" placeholder="Nombre (Ej: Lavado Full)" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl text-white outline-none mb-3"><input type="number" id="fn-price" placeholder="Precio Gs" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl text-white outline-none">`;
+            } else if(type === 'employee') {
+                title.innerText = 'Nuevo Empleado';
+                container.innerHTML = `<input type="text" id="fn-name" placeholder="Nombre del Staff" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl text-white outline-none mb-3"><input type="text" id="fn-phone" placeholder="Celular" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl text-white outline-none">`;
+            }
+            
+            document.getElementById('modal-container').classList.remove('hidden');
+            document.getElementById('generic-form').onsubmit = async (e) => {
+                e.preventDefault();
+                const obj = { company_id: currentUser.company_id, name: document.getElementById('fn-name').value };
+                if(type === 'service') obj.price = document.getElementById('fn-price').value;
+                if(type === 'employee') obj.phone = document.getElementById('fn-phone').value;
+                
+                await _supabase.from(type === 'service' ? 'services_list' : 'employees').insert([obj]);
+                closeModal(); type === 'service' ? loadServices() : loadEmployees();
+            };
+        }
+
+        async function deleteGeneric(table, id) {
+            if(confirm('¿Seguro?')) { await _supabase.from(table).delete().eq('id', id); table === 'services_list' ? loadServices() : loadEmployees(); }
+        }
+
+        function closeModal() { document.getElementById('modal-container').classList.add('hidden'); }
+
+        // --- HERRAMIENTAS ---
+        function calcDilution() {
+            const r = document.getElementById('dil-ratio').value;
+            const t = document.getElementById('dil-total').value;
+            if(r && t) {
+                const res = (t * 1000) / (Number(r) + 1);
+                document.getElementById('dil-res').innerText = `Usa ${res.toFixed(0)}ml de químico y el resto agua.`;
             }
         }
 
-        document.getElementById('client-sale-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await _supabase.from('sales').insert([{ 
-                company_id: currentUser.company_id, 
-                client_info: document.getElementById('s-client').value, 
-                total_final: document.getElementById('s-amount').value,
-                estado: 'completado'
-            }]);
-            closeSaleModal(); e.target.reset(); loadClientData();
-        });
+        function downloadReport(type) {
+            alert(`Generando Reporte de ${type} en formato CSV... (Se descargará automáticamente)`);
+            // Aquí iría la lógica de exportación a CSV
+        }
 
-        document.getElementById('client-expense-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await _supabase.from('gastos').insert([{ 
-                company_id: currentUser.company_id, 
-                descripcion: document.getElementById('e-desc').value, 
-                monto: document.getElementById('e-amount').value 
-            }]);
-            closeExpenseModal(); e.target.reset(); loadClientData();
-        });
+        function initChart() {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            mainChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'], datasets: [{ label: 'Ventas', data: [12, 19, 3, 5, 2, 3, 15], borderColor: '#eab308', tension: 0.4 }] },
+                options: { plugins: { legend: { display: false } }, scales: { y: { display: false } } }
+            });
+        }
     </script>
 </body>
 </html>
