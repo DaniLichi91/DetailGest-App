@@ -3,239 +3,498 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DetailGest | Reactive Store Architecture</title>
+    <title>DetailGest Pro Enterprise v10.5 | Ultimate Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --accent: #eab308; --bg: #060910; }
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        :root { --accent: #eab308; --bg: #060910; --glass: rgba(15, 23, 42, 0.8); }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        
         body { background: var(--bg); color: #f1f5f9; font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; overflow: hidden; }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .sidebar-item { padding: 0.8rem 1.2rem; margin: 0.2rem 0.5rem; border-radius: 1rem; display: flex; align-items: center; gap: 12px; cursor: pointer; color: #94a3b8; font-weight: 600; font-size: 13px; transition: 0.3s; }
+        
+        .glass { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .btn-primary { background: var(--accent); color: #000; font-weight: 800; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-primary:active { transform: scale(0.95); brightness: 1.1; }
+        
+        /* Sistema de Menú Desplegable Avanzado */
+        #sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; }
+        @media (max-width: 1024px) {
+            #sidebar { position: fixed; transform: translateX(-100%); width: 280px; height: 100vh; }
+            #sidebar.open { transform: translateX(0); box-shadow: 20px 0 50px rgba(0,0,0,0.8); }
+        }
+
+        .sidebar-item { 
+            padding: 0.8rem 1.2rem; margin: 0.2rem 0.5rem; border-radius: 1rem;
+            display: flex; align-items: center; gap: 12px; cursor: pointer;
+            color: #94a3b8; font-weight: 600; font-size: 13px; transition: 0.3s;
+        }
         .sidebar-item.active { background: var(--accent); color: #000; }
-        input, select { background: #0f172a !important; border: 1px solid #1e293b !important; color: white !important; border-radius: 12px; padding: 12px; outline: none; width: 100%; }
-        .custom-scroll::-webkit-scrollbar { width: 4px; }
-        .custom-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        .sidebar-item:hover:not(.active) { background: rgba(255,255,255,0.05); color: white; }
+
+        input, select, textarea { 
+            background: #0f172a !important; border: 1px solid #1e293b !important; 
+            color: white !important; outline: none !important; border-radius: 12px; padding: 12px;
+        }
+        input:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.2); }
+
+        .loader { width: 48px; height: 48px; border: 5px solid #FFF; border-bottom-color: var(--accent); border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg) } 100% { transform: rotate(360deg) } }
+        
+        /* Animación de entrada de secciones */
+        .view-animate { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <section id="auth-view" class="h-full flex items-center justify-center p-6">
-        <div class="max-w-md w-full glass p-10 rounded-[2.5rem] border-t-4 border-yellow-500 text-center">
-            <h1 class="text-4xl font-black text-white italic mb-8 uppercase tracking-tighter">DetailGest</h1>
-            <form onsubmit="App.login(event)" class="space-y-4">
-                <input type="text" id="user" placeholder="Usuario" required>
-                <input type="password" id="pass" placeholder="Contraseña" required>
-                <button type="submit" class="w-full bg-yellow-500 text-black font-black py-4 rounded-2xl uppercase tracking-tighter hover:brightness-110">Ingresar</button>
+    <div id="overlay" class="fixed inset-0 bg-black/60 hidden z-[90] backdrop-blur-sm" onclick="App.toggleSidebar()"></div>
+
+    <div id="loading-overlay" class="fixed inset-0 z-[200] bg-[#060910] flex items-center justify-center hidden">
+        <span class="loader"></span>
+    </div>
+
+    <section id="login-view" class="h-full flex items-center justify-center p-6 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-yellow-900/20 via-slate-950 to-black">
+        <div class="max-w-md w-full glass p-10 rounded-[2.5rem] border-t-4 border-yellow-500 shadow-2xl">
+            <div class="text-center mb-10">
+                <h1 class="text-5xl font-black text-yellow-500 italic tracking-tighter">DG PRO</h1>
+                <p class="text-slate-500 font-bold text-xs mt-2 uppercase tracking-widest text-white">Enterprise v10.5</p>
+            </div>
+            <form onsubmit="Auth.login(event)" class="space-y-4">
+                <div class="relative">
+                    <i class="fas fa-user absolute left-4 top-4 text-slate-500"></i>
+                    <input type="text" id="login-user" placeholder="Usuario" class="pl-12 w-full" required>
+                </div>
+                <div class="relative">
+                    <i class="fas fa-lock absolute left-4 top-4 text-slate-500"></i>
+                    <input type="password" id="login-pass" placeholder="Contraseña" class="pl-12 w-full" required>
+                </div>
+                <button type="submit" class="btn-primary w-full py-4 rounded-2xl uppercase tracking-tighter text-lg shadow-xl shadow-yellow-500/10">Iniciar Sesión</button>
             </form>
         </div>
     </section>
 
     <section id="app-view" class="hidden h-screen flex">
-        <aside class="w-64 glass border-r border-slate-800 flex flex-col py-6">
-            <div class="px-8 mb-10 text-2xl font-black italic text-yellow-500">DG PRO</div>
-            <nav id="menu" class="flex-1"></nav>
-            <div class="px-4">
-                <button onclick="location.reload()" class="w-full p-4 text-red-500 font-bold text-xs bg-red-500/5 rounded-xl">CERRAR SESIÓN</button>
+        <aside id="sidebar" class="glass border-r border-slate-800 flex flex-col py-6">
+            <div class="px-8 mb-10 flex justify-between items-center">
+                <h2 class="text-yellow-500 font-black text-2xl italic">DETAILGEST</h2>
+                <button onclick="App.toggleSidebar()" class="lg:hidden text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <nav id="sidebar-nav" class="flex-1 space-y-1 overflow-y-auto custom-scroll"></nav>
+            <div class="px-4 mt-auto">
+                <div class="glass p-4 rounded-2xl mb-4">
+                    <p id="user-display" class="text-[10px] font-bold text-yellow-500 uppercase"></p>
+                    <p id="role-display" class="text-[9px] text-slate-500 font-black"></p>
+                </div>
+                <button onclick="Auth.logout()" class="w-full p-3 text-red-500 font-bold text-xs flex items-center justify-center gap-3 hover:bg-red-500/10 rounded-xl transition-all">
+                    <i class="fas fa-power-off"></i> CERRAR SISTEMA
+                </button>
             </div>
         </aside>
 
-        <main class="flex-1 flex flex-col overflow-hidden">
-            <header class="h-20 glass border-b border-slate-800 px-8 flex items-center justify-between">
-                <h2 id="view-title" class="text-xl font-black uppercase italic">Dashboard</h2>
-                <div class="text-right">
-                    <p id="u-name" class="text-yellow-500 text-[10px] font-black uppercase"></p>
-                    <p id="u-comp" class="text-slate-500 text-[9px] font-bold uppercase"></p>
+        <main class="flex-1 flex flex-col overflow-hidden bg-slate-950/30">
+            <header class="h-20 glass border-b border-slate-800 px-6 md:px-10 flex items-center justify-between shrink-0">
+                <div class="flex items-center gap-4">
+                    <button onclick="App.toggleSidebar()" class="lg:hidden glass p-3 rounded-xl text-yellow-500">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2 id="current-view-title" class="text-2xl font-extrabold text-white italic uppercase tracking-tight">Dashboard</h2>
+                </div>
+                <div id="sync-indicator" class="flex items-center gap-2 text-[10px] font-bold text-green-500">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> ONLINE
                 </div>
             </header>
-            <div id="content" class="flex-1 overflow-y-auto p-8 custom-scroll"></div>
+
+            <div id="render-target" class="flex-1 overflow-y-auto p-6 md:p-10 custom-scroll view-animate"></div>
         </main>
     </section>
 
-    <div id="modal-container" class="hidden fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
-        <div id="modal-content" class="glass w-full max-w-lg p-8 rounded-[2.5rem]"></div>
+    <div id="modal-container" class="hidden fixed inset-0 z-[150] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-md" onclick="UI.closeModal()"></div>
+        <div id="modal-content" class="glass w-full max-w-xl p-8 rounded-[2.5rem] relative z-10 scale-95 transition-all"></div>
     </div>
 
     <script>
-        const SB_URL = 'https://itahtywhhaecjakgtnzu.supabase.co';
-        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0YWh0eXdoaGFlY2pha2d0bnp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMjYyODIsImV4cCI6MjA4NTkwMjI4Mn0.ARQ9W_Rpj8rp_xo88TbTjbdwT6o75J7sCPlConcoshw';
-        const sb = supabase.createClient(SB_URL, SB_KEY);
+        /**
+         * DETAILGEST PRO ARCHITECTURE v10.5
+         * Sincronización de alto rendimiento y arquitectura reactiva
+         */
 
+        const SUPABASE_URL = 'https://itahtywhhaecjakgtnzu.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0YWh0eXdoaGFlY2pha2d0bnp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMjYyODIsImV4cCI6MjA4NTkwMjI4Mn0.ARQ9W_Rpj8rp_xo88TbTjbdwT6o75J7sCPlConcoshw';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // --- TIENDA DE ESTADO (App Store) ---
         const State = {
             user: null,
-            currentView: 'dashboard',
-            cart: []
+            company: null,
+            currentView: 'resumen',
+            cart: [],
+            cache: { clients: [], services: [], sales: [] }
         };
 
-        const App = {
+        const MENUS = [
+            { id: 'resumen', label: 'Dashboard', icon: 'fa-chart-line', role: 'admin' },
+            { id: 'caja', label: 'Caja POS', icon: 'fa-cash-register', role: 'admin' },
+            { id: 'agenda', label: 'Agenda', icon: 'fa-calendar-check', role: 'admin' },
+            { id: 'clientes', label: 'Clientes', icon: 'fa-address-book', role: 'admin' },
+            { id: 'servicios', label: 'Servicios', icon: 'fa-tags', role: 'admin' },
+            { id: 'empleados', label: 'Personal', icon: 'fa-user-group', role: 'admin' },
+            { id: 'reportes', label: 'Reportes', icon: 'fa-file-invoice-dollar', role: 'admin' },
+            { id: 'config', label: 'Ajustes', icon: 'fa-sliders', role: 'admin' }
+        ];
+
+        // --- SISTEMA DE AUTENTICACIÓN ---
+        const Auth = {
             async login(e) {
                 e.preventDefault();
-                const u = document.getElementById('user').value;
-                const p = document.getElementById('pass').value;
+                UI.showLoading(true);
+                const u = document.getElementById('login-user').value;
+                const p = document.getElementById('login-pass').value;
 
-                if(u === 'admin@detailgest.com' && p === 'master2026') {
-                    State.user = { id: 'master', username: 'Super Admin', role: 'super_admin', company_id: 'all' };
-                } else {
-                    const { data } = await sb.from('users').select('*, companies(*)').eq('username', u).eq('password_hash', p).single();
-                    if(!data) return alert("Credenciales incorrectas");
-                    State.user = data;
-                }
-                this.start();
+                try {
+                    const { data, error } = await sb.from('users').select('*, companies(*)').eq('username', u).eq('password_hash', p).single();
+                    if (data) {
+                        State.user = data;
+                        State.company = data.companies;
+                        this.initSession();
+                    } else throw new Error("Acceso denegado");
+                } catch (err) {
+                    alert("Error: " + err.message);
+                } finally { UI.showLoading(false); }
             },
-
-            start() {
-                document.getElementById('auth-view').classList.add('hidden');
+            initSession() {
+                document.getElementById('login-view').classList.add('hidden');
                 document.getElementById('app-view').classList.remove('hidden');
-                document.getElementById('u-name').innerText = State.user.username;
-                document.getElementById('u-comp').innerText = State.user.companies?.name || 'ADMINISTRACIÓN';
-                this.buildMenu();
-                this.navigate('dashboard');
+                document.getElementById('user-display').innerText = State.user.username;
+                document.getElementById('role-display').innerText = State.user.role + " | " + State.company.name;
+                App.renderNav();
+                App.navigate('resumen');
             },
+            logout() { location.reload(); }
+        };
 
-            buildMenu() {
-                const items = [
-                    { id: 'dashboard', n: 'Dashboard', i: 'fa-chart-pie' },
-                    { id: 'caja', n: 'Caja POS', i: 'fa-cash-register' },
-                    { id: 'agenda', n: 'Agenda', i: 'fa-calendar-alt' },
-                    { id: 'clientes', n: 'Clientes', i: 'fa-users' },
-                    { id: 'servicios', n: 'Servicios', i: 'fa-tags' }
-                ];
-                document.getElementById('menu').innerHTML = items.map(m => `
+        // --- MOTOR DE NAVEGACIÓN Y RENDERIZADO ---
+        const App = {
+            renderNav() {
+                const nav = document.getElementById('sidebar-nav');
+                nav.innerHTML = MENUS.map(m => `
                     <div onclick="App.navigate('${m.id}')" id="nav-${m.id}" class="sidebar-item">
-                        <i class="fas ${m.i} w-5"></i> ${m.n}
+                        <i class="fas ${m.icon} w-6"></i> ${m.label}
                     </div>
                 `).join('');
             },
-
-            navigate(v) {
-                State.currentView = v;
-                document.getElementById('view-title').innerText = v;
-                document.querySelectorAll('.sidebar-item').forEach(el => el.classList.toggle('active', el.id === `nav-${v}`));
-                this.render();
+            navigate(viewId) {
+                State.currentView = viewId;
+                document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+                document.getElementById(`nav-${viewId}`)?.classList.add('active');
+                document.getElementById('current-view-title').innerText = viewId;
+                
+                if (window.innerWidth < 1024) this.toggleSidebar(false);
+                
+                this.loadViewData(viewId);
             },
-
-            async render() {
-                const container = document.getElementById('content');
-                container.innerHTML = '<p class="animate-pulse text-yellow-500 font-black">CARGANDO...</p>';
-
-                if(State.currentView === 'dashboard') Views.dashboard(container);
-                if(State.currentView === 'caja') Views.caja(container);
-                if(State.currentView === 'agenda') Views.agenda(container);
-                if(State.currentView === 'clientes') Views.clientes(container);
-                if(State.currentView === 'servicios') Views.servicios(container);
+            toggleSidebar(force) {
+                const side = document.getElementById('sidebar');
+                const over = document.getElementById('overlay');
+                const isOpen = side.classList.toggle('open', force);
+                over.classList.toggle('hidden', !isOpen);
+            },
+            async loadViewData(viewId) {
+                const target = document.getElementById('render-target');
+                target.innerHTML = `<div class="flex justify-center p-20"><span class="loader"></span></div>`;
+                
+                switch(viewId) {
+                    case 'resumen': Views.resumen(target); break;
+                    case 'caja': Views.caja(target); break;
+                    case 'agenda': Views.agenda(target); break;
+                    case 'clientes': Views.clientes(target); break;
+                    case 'servicios': Views.servicios(target); break;
+                    case 'reportes': Views.reportes(target); break;
+                    case 'empleados': Views.empleados(target); break;
+                    default: target.innerHTML = `<h1 class="text-white">Módulo ${viewId} en construcción</h1>`;
+                }
             }
         };
 
+        // --- VISTAS DEL SISTEMA ---
         const Views = {
-            async dashboard(c) {
+            async resumen(target) {
                 const { data: sales } = await sb.from('sales').select('*').eq('company_id', State.user.company_id);
-                const total = sales?.reduce((a, b) => a + b.total_final, 0) || 0;
-                c.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div class="glass p-8 rounded-3xl">
-                            <h4 class="text-slate-500 text-xs font-black uppercase mb-2 tracking-widest">Ventas Totales</h4>
-                            <p class="text-4xl font-black">${total.toLocaleString()} Gs</p>
+                const total = sales?.reduce((acc, s) => acc + s.total_final, 0) || 0;
+                
+                target.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                        <div class="glass p-8 rounded-[2rem] border-l-8 border-yellow-500">
+                            <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Ingresos Totales</p>
+                            <h3 class="text-4xl font-black text-white">${total.toLocaleString()} <span class="text-lg text-yellow-500">Gs</span></h3>
                         </div>
-                        <div class="glass p-8 rounded-3xl">
-                            <h4 class="text-slate-500 text-xs font-black uppercase mb-2 tracking-widest">Servicios</h4>
-                            <p class="text-4xl font-black">${sales?.length || 0}</p>
+                        <div class="glass p-8 rounded-[2rem] border-l-8 border-blue-500">
+                            <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Servicios Realizados</p>
+                            <h3 class="text-4xl font-black text-white">${sales.length}</h3>
+                        </div>
+                        <div class="glass p-8 rounded-[2rem] border-l-8 border-green-500">
+                            <p class="text-[11px] font-black text-slate-500 uppercase tracking-widest mb-2">Ticket Promedio</p>
+                            <h3 class="text-4xl font-black text-white">${sales.length ? Math.round(total/sales.length).toLocaleString() : 0} <span class="text-lg text-green-500">Gs</span></h3>
                         </div>
                     </div>
-                    <div class="glass p-8 rounded-[2rem] h-80"><canvas id="chart"></canvas></div>`;
-                new Chart(document.getElementById('chart'), {
+                    <div class="glass p-10 rounded-[3rem] h-[400px]">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                `;
+                
+                new Chart(document.getElementById('mainChart'), {
                     type: 'line',
                     data: {
-                        labels: sales.map(s => s.created_at.slice(5,10)).slice(-7),
-                        datasets: [{ label: 'Ingresos', data: sales.map(s => s.total_final).slice(-7), borderColor: '#eab308', tension: 0.4 }]
-                    }
+                        labels: sales.map(s => s.created_at.slice(5,10)).slice(-15),
+                        datasets: [{ 
+                            label: 'Ventas Diarias', 
+                            data: sales.map(s => s.total_final).slice(-15), 
+                            borderColor: '#eab308', 
+                            backgroundColor: 'rgba(234, 179, 8, 0.1)',
+                            fill: true,
+                            tension: 0.4 
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
                 });
             },
 
-            async caja(c) {
-                const [s, cl] = await Promise.all([
+            async caja(target) {
+                const [sRes, cRes] = await Promise.all([
                     sb.from('services_list').select('*').eq('company_id', State.user.company_id),
                     sb.from('clients').select('*').eq('company_id', State.user.company_id)
                 ]);
-                c.innerHTML = `
-                    <div class="flex flex-col lg:flex-row gap-8">
-                        <div class="flex-1 grid grid-cols-2 gap-4">
-                            ${s.data.map(i => `<button onclick="Pos.add('${i.name}', ${i.price})" class="glass p-6 rounded-2xl font-black text-xs hover:border-yellow-500 uppercase">${i.name}<br><span class="text-xl">${i.price.toLocaleString()}</span></button>`).join('')}
+
+                target.innerHTML = `
+                    <div class="flex flex-col xl:flex-row gap-8 h-full">
+                        <div class="flex-1 space-y-6 overflow-y-auto pr-4 custom-scroll">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                ${sRes.data.map(s => `
+                                    <button onclick="Pos.add('${s.name}', ${s.price})" class="glass p-6 rounded-3xl text-center hover:border-yellow-500 transition-all active:scale-95 group">
+                                        <p class="text-[10px] font-black text-slate-500 uppercase mb-1 group-hover:text-yellow-500">${s.name}</p>
+                                        <p class="text-xl font-extrabold text-white">${s.price.toLocaleString()} Gs</p>
+                                    </button>
+                                `).join('')}
+                            </div>
                         </div>
-                        <div class="w-full lg:w-80 glass p-6 rounded-3xl h-fit">
-                            <select id="p-cli" class="mb-4"><option value="">CONSUMIDOR FINAL</option>${cl.data.map(cli => `<option value="${cli.id}">${cli.name}</option>`)}</select>
-                            <div id="p-cart" class="border-y border-white/5 py-4 my-4 space-y-2 text-[10px] font-bold uppercase"></div>
-                            <div class="text-2xl font-black mb-6 italic" id="p-total">0 Gs</div>
-                            <button onclick="Pos.pay()" class="w-full bg-yellow-500 text-black py-4 rounded-xl font-black uppercase">Cobrar Ahora</button>
+                        <div class="w-full xl:w-[400px] flex flex-col gap-4">
+                            <div class="glass p-8 rounded-[2.5rem] flex-1 flex flex-col shadow-2xl border border-white/10">
+                                <h4 class="text-yellow-500 font-black mb-6 italic uppercase tracking-tighter">Terminal de Cobro</h4>
+                                <div class="space-y-4 mb-6">
+                                    <label class="text-[10px] font-bold text-slate-500 uppercase pl-2">Vincular Cliente</label>
+                                    <select id="pos-client-id" class="w-full">
+                                        <option value="">CONSUMIDOR FINAL</option>
+                                        ${cRes.data.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <div id="pos-cart-items" class="flex-1 overflow-y-auto space-y-3 mb-6 min-h-[150px] border-y border-white/5 py-4">
+                                    <p class="text-center text-slate-600 text-xs py-10 font-bold uppercase italic">Seleccione servicios...</p>
+                                </div>
+                                <div class="flex justify-between items-end mb-8">
+                                    <span class="text-xs font-black text-slate-500 uppercase">Total a Pagar</span>
+                                    <span id="pos-total-display" class="text-4xl font-black text-white italic">0 <span class="text-sm text-yellow-500">Gs</span></span>
+                                </div>
+                                <button onclick="Pos.checkout()" class="btn-primary w-full py-5 rounded-2xl text-xl uppercase tracking-tighter">Completar Venta</button>
+                            </div>
                         </div>
-                    </div>`;
+                    </div>
+                `;
                 State.cart = [];
             },
 
-            async agenda(c) {
+            async agenda(target) {
                 const { data } = await sb.from('sales').select('*, clients(name)').eq('company_id', State.user.company_id).order('created_at', {ascending: false});
-                c.innerHTML = `<div class="space-y-4">${data.map(s => `
-                    <div class="glass p-6 rounded-2xl flex justify-between items-center border-l-4 border-yellow-500">
-                        <div>
-                            <p class="text-[9px] text-slate-500 font-black">${s.created_at.slice(0,16)}</p>
-                            <h4 class="font-black uppercase">${s.clients?.name || 'VENTA RÁPIDA'}</h4>
-                            <p class="text-xs text-yellow-500 font-bold">${s.details}</p>
+                target.innerHTML = `
+                    <div class="grid gap-4">
+                        ${data.map(t => `
+                            <div class="glass p-6 rounded-[2rem] flex flex-wrap justify-between items-center gap-4 hover:bg-white/5 transition-all border-l-8 border-yellow-500">
+                                <div>
+                                    <div class="flex items-center gap-3 mb-1">
+                                        <span class="bg-yellow-500 text-black text-[9px] font-black px-2 py-0.5 rounded-full">${t.created_at.slice(11,16)} HS</span>
+                                        <span class="text-slate-500 text-[10px] font-bold uppercase">${new Date(t.created_at).toLocaleDateString()}</span>
+                                    </div>
+                                    <h4 class="text-xl font-black text-white uppercase italic">${t.clients?.name || 'Cliente Ocasional'}</h4>
+                                    <p class="text-xs text-yellow-500 font-bold uppercase tracking-widest">${t.details}</p>
+                                </div>
+                                <div class="flex items-center gap-8">
+                                    <div class="text-right">
+                                        <p class="text-[10px] font-bold text-slate-500 uppercase">Monto Cobrado</p>
+                                        <p class="text-2xl font-black text-white">${t.total_final.toLocaleString()} Gs</p>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button onclick="Views.editSale('${t.id}')" class="w-10 h-10 rounded-xl glass flex items-center justify-center text-blue-400 hover:bg-blue-400 hover:text-white transition-all"><i class="fas fa-pen text-xs"></i></button>
+                                        <button onclick="Views.deleteSale('${t.id}')" class="w-10 h-10 rounded-xl glass flex items-center justify-center text-red-400 hover:bg-red-400 hover:text-white transition-all"><i class="fas fa-trash text-xs"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            },
+
+            async clientes(target) {
+                const { data } = await sb.from('clients').select('*').eq('company_id', State.user.company_id).order('name');
+                target.innerHTML = `
+                    <div class="flex justify-between items-center mb-8">
+                        <h3 class="text-xs font-black text-slate-500 uppercase tracking-[0.2em]">Base de Datos de Clientes</h3>
+                        <button onclick="UI.modal('new-client')" class="btn-primary px-6 py-3 rounded-xl text-xs uppercase">Nuevo Registro</button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        ${data.map(c => `
+                            <div class="glass p-6 rounded-[2rem] relative group overflow-hidden">
+                                <div class="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-all">
+                                    <i class="fas fa-star text-yellow-500"></i>
+                                </div>
+                                <div class="w-12 h-12 bg-yellow-500/10 rounded-2xl flex items-center justify-center mb-4">
+                                    <i class="fas fa-user text-yellow-500 text-xl"></i>
+                                </div>
+                                <h4 class="font-black text-white uppercase text-sm mb-1">${c.name}</h4>
+                                <p class="text-xs text-slate-500 font-bold">${c.phone}</p>
+                                <div class="mt-4 pt-4 border-t border-white/5 flex justify-between">
+                                    <button class="text-[10px] font-black text-yellow-500 hover:underline uppercase">Ver Historial</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            },
+
+            async reportes(target) {
+                const hoy = new Date().toISOString().split('T')[0];
+                const { data } = await sb.from('sales').select('*').eq('company_id', State.user.company_id).gte('created_at', hoy);
+                const total = data.reduce((acc, v) => acc + v.total_final, 0);
+                
+                target.innerHTML = `
+                    <div class="max-w-2xl mx-auto glass p-12 rounded-[3.5rem] text-center border-t-8 border-yellow-500 shadow-2xl shadow-yellow-500/5">
+                        <i class="fas fa-receipt text-5xl text-yellow-500 mb-6"></i>
+                        <h2 class="text-sm font-black text-slate-500 uppercase tracking-widest mb-2">Cierre de Caja del Día</h2>
+                        <h3 class="text-7xl font-black text-white italic tracking-tighter mb-10">${total.toLocaleString()} <span class="text-2xl text-yellow-500">Gs</span></h3>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-10">
+                            <div class="glass p-6 rounded-3xl">
+                                <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Operaciones</p>
+                                <p class="text-2xl font-black text-white">${data.length}</p>
+                            </div>
+                            <div class="glass p-6 rounded-3xl">
+                                <p class="text-[10px] font-bold text-slate-500 uppercase mb-1">Insumos</p>
+                                <p class="text-2xl font-black text-white">0 <span class="text-xs">Gs</span></p>
+                            </div>
                         </div>
-                        <div class="text-xl font-black">${s.total_final.toLocaleString()} Gs</div>
-                    </div>`).join('')}</div>`;
-            },
 
-            async clientes(c) {
-                const { data } = await sb.from('clients').select('*').eq('company_id', State.user.company_id);
-                c.innerHTML = `
-                    <button onclick="UI.modal('client')" class="bg-yellow-500 text-black px-6 py-2 rounded-xl mb-6 font-black text-xs uppercase">Nuevo Cliente</button>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">${data.map(cl => `<div class="glass p-4 rounded-xl font-black uppercase text-xs"><div>${cl.name}</div><div class="text-slate-500">${cl.phone}</div></div>`).join('')}</div>`;
-            },
-
-            async servicios(c) {
-                const { data } = await sb.from('services_list').select('*').eq('company_id', State.user.company_id);
-                c.innerHTML = `
-                    <button onclick="UI.modal('service')" class="bg-yellow-500 text-black px-6 py-2 rounded-xl mb-6 font-black text-xs uppercase">Nuevo Servicio</button>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">${data.map(sv => `<div class="glass p-4 rounded-xl text-center font-black uppercase text-xs"><div>${sv.name}</div><div class="text-yellow-500 text-lg">${sv.price.toLocaleString()}</div></div>`).join('')}</div>`;
+                        <button onclick="window.print()" class="bg-white text-black px-12 py-5 rounded-2xl font-black uppercase text-sm hover:scale-105 transition-all">Generar Reporte PDF</button>
+                    </div>
+                `;
             }
         };
 
+        // --- LÓGICA DE PUNTO DE VENTA (POS) ---
         const Pos = {
-            add(n, p) { State.cart.push({n, p}); this.upd(); },
-            upd() {
-                document.getElementById('p-cart').innerHTML = State.cart.map(i => `<div>${i.n}</div>`).join('');
-                document.getElementById('p-total').innerText = State.cart.reduce((a,b) => a + b.p, 0).toLocaleString() + ' Gs';
+            add(name, price) {
+                State.cart.push({ name, price });
+                this.updateUI();
             },
-            async pay() {
-                const total = State.cart.reduce((a,b) => a + b.p, 0);
-                if(!total) return;
-                await sb.from('sales').insert([{ company_id: State.user.company_id, total_final: total, details: State.cart.map(i => i.n).join(', '), client_id: document.getElementById('p-cli').value || null }]);
-                App.navigate('caja');
+            updateUI() {
+                const container = document.getElementById('pos-cart-items');
+                const totalDisp = document.getElementById('pos-total-display');
+                
+                if (State.cart.length === 0) {
+                    container.innerHTML = `<p class="text-center text-slate-600 text-xs py-10 font-bold uppercase italic">Seleccione servicios...</p>`;
+                    totalDisp.innerText = "0 Gs";
+                    return;
+                }
+
+                container.innerHTML = State.cart.map((item, idx) => `
+                    <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl border border-white/5">
+                        <div>
+                            <p class="text-[10px] font-black text-white uppercase">${item.name}</p>
+                            <p class="text-xs text-yellow-500 font-bold">${item.price.toLocaleString()} Gs</p>
+                        </div>
+                        <button onclick="Pos.remove(${idx})" class="text-red-500 p-2"><i class="fas fa-times"></i></button>
+                    </div>
+                `).join('');
+
+                const total = State.cart.reduce((a, b) => a + b.price, 0);
+                totalDisp.innerText = total.toLocaleString() + " Gs";
+            },
+            remove(idx) {
+                State.cart.splice(idx, 1);
+                this.updateUI();
+            },
+            async checkout() {
+                if (State.cart.length === 0) return alert("Caja vacía");
+                
+                UI.showLoading(true);
+                const total = State.cart.reduce((a, b) => a + b.price, 0);
+                const details = State.cart.map(i => i.name).join(', ');
+                const clientId = document.getElementById('pos-client-id').value;
+
+                const { error } = await sb.from('sales').insert([{
+                    company_id: State.user.company_id,
+                    total_final: total,
+                    details: details,
+                    client_id: clientId || null
+                }]);
+
+                UI.showLoading(false);
+                if (!error) {
+                    alert("¡VENTA PROCESADA EXITOSAMENTE!");
+                    App.loadViewData('caja');
+                } else {
+                    alert("Error en la sincronización.");
+                }
             }
         };
 
+        // --- INTERFAZ GLOBAL ---
         const UI = {
+            showLoading(show) {
+                document.getElementById('loading-overlay').classList.toggle('hidden', !show);
+            },
             modal(type) {
-                const m = document.getElementById('modal-container');
-                const c = document.getElementById('modal-content');
-                m.classList.remove('hidden');
-                if(type === 'client') {
-                    c.innerHTML = `<h3 class="font-black mb-4 uppercase">Nuevo Cliente</h3><input id="cn" placeholder="Nombre" class="mb-2"><input id="cp" placeholder="Teléfono" class="mb-4"><button onclick="UI.saveCli()" class="w-full bg-yellow-500 text-black py-4 rounded-xl font-black uppercase">Guardar</button>`;
-                }
-                if(type === 'service') {
-                    c.innerHTML = `<h3 class="font-black mb-4 uppercase">Nuevo Servicio</h3><input id="sn" placeholder="Nombre" class="mb-2"><input id="sp" type="number" placeholder="Precio" class="mb-4"><button onclick="UI.saveSer()" class="w-full bg-yellow-500 text-black py-4 rounded-xl font-black uppercase">Crear</button>`;
+                const container = document.getElementById('modal-container');
+                const content = document.getElementById('modal-content');
+                container.classList.remove('hidden');
+                
+                if (type === 'new-client') {
+                    content.innerHTML = `
+                        <h2 class="text-3xl font-black text-yellow-500 italic mb-8 uppercase tracking-tighter">Nuevo Cliente</h2>
+                        <form onsubmit="Actions.saveClient(event)" class="space-y-4">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-bold text-slate-500 uppercase ml-2">Nombre Completo</label>
+                                <input type="text" id="new-c-name" class="w-full" required placeholder="Ej: Juan Pérez">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-bold text-slate-500 uppercase ml-2">Teléfono / WhatsApp</label>
+                                <input type="text" id="new-c-phone" class="w-full" required placeholder="09xx xxx xxx">
+                            </div>
+                            <button type="submit" class="btn-primary w-full py-5 rounded-2xl text-lg uppercase mt-6">Registrar en Nube</button>
+                        </form>
+                    `;
                 }
             },
-            async saveCli() {
-                await sb.from('clients').insert([{ name: document.getElementById('cn').value, phone: document.getElementById('cp').value, company_id: State.user.company_id }]);
+            closeModal() {
                 document.getElementById('modal-container').classList.add('hidden');
-                App.navigate('clientes');
-            },
-            async saveSer() {
-                await sb.from('services_list').insert([{ name: document.getElementById('sn').value, price: document.getElementById('sp').value, company_id: State.user.company_id }]);
-                document.getElementById('modal-container').classList.add('hidden');
-                App.navigate('servicios');
+            }
+        };
+
+        const Actions = {
+            async saveClient(e) {
+                e.preventDefault();
+                UI.showLoading(true);
+                const name = document.getElementById('new-c-name').value;
+                const phone = document.getElementById('new-c-phone').value;
+
+                const { error } = await sb.from('clients').insert([{
+                    name, phone, company_id: State.user.company_id
+                }]);
+
+                UI.showLoading(false);
+                if (!error) {
+                    UI.closeModal();
+                    App.loadViewData('clientes');
+                }
             }
         }
     </script>
