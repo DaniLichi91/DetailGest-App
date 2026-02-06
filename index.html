@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DetailGest Pro v4.0 - Caja Profesional</title>
+    <title>DetailGest Pro v4.5 - CRM & POS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -24,7 +24,7 @@
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
         <div class="max-w-md w-full glass p-10 rounded-[2.5rem] shadow-2xl border-t-4 border-yellow-500 text-center">
             <h1 class="text-6xl font-black text-yellow-500 mb-2 italic tracking-tighter">DG PRO</h1>
-            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-10">Punto de Venta</p>
+            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-10">CRM & POS System</p>
             <form id="login-form" class="space-y-4 text-left">
                 <input type="text" id="user" placeholder="Usuario" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none text-white">
                 <input type="password" id="pass" placeholder="Contraseña" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none text-white">
@@ -55,19 +55,21 @@
                     <div class="flex-1 space-y-4">
                         <div class="relative">
                             <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
-                            <input type="text" id="pos-search" oninput="filterServices()" placeholder="Buscar servicio por nombre..." 
-                                class="w-full p-4 pl-12 bg-slate-900 border border-slate-800 rounded-2xl outline-none focus:border-yellow-500 transition-all">
+                            <input type="text" id="pos-search" oninput="filterServices()" placeholder="Buscar servicio..." class="w-full p-4 pl-12 bg-slate-900 border border-slate-800 rounded-2xl outline-none focus:border-yellow-500">
                         </div>
-                        <div id="pos-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 overflow-y-auto max-h-[60vh] pr-2 custom-scroll">
-                            </div>
+                        <div id="pos-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 overflow-y-auto max-h-[55vh] pr-2 custom-scroll"></div>
                     </div>
 
                     <div class="w-full lg:w-96 glass rounded-[2.5rem] flex flex-col border border-yellow-500/10">
-                        <div class="p-6 border-b border-slate-800">
-                            <h3 class="font-black text-yellow-500 uppercase italic">Ticket Actual</h3>
+                        <div class="p-6 border-b border-slate-800 bg-slate-900/30">
+                            <p class="text-[9px] font-black text-slate-500 uppercase mb-2">Cliente</p>
+                            <select id="pos-client-select" class="w-full bg-slate-800 border-none rounded-xl p-3 text-xs text-white outline-none focus:ring-1 ring-yellow-500">
+                                <option value="">Consumidor Final</option>
+                            </select>
                         </div>
-                        <div id="pos-cart" class="flex-1 p-6 space-y-3 overflow-y-auto max-h-[40vh] custom-scroll">
-                            </div>
+                        
+                        <div id="pos-cart" class="flex-1 p-6 space-y-3 overflow-y-auto max-h-[35vh] custom-scroll"></div>
+
                         <div class="p-6 bg-slate-900/50 rounded-b-[2.5rem] space-y-4">
                             <div class="grid grid-cols-2 gap-2">
                                 <input type="number" id="pos-disc" oninput="updatePOSCalc()" placeholder="Desc." class="p-3 bg-slate-800 border border-slate-700 rounded-xl text-xs outline-none">
@@ -77,39 +79,43 @@
                                 </select>
                             </div>
                             <div class="pt-2 border-t border-slate-700">
-                                <div class="flex justify-between text-xs text-slate-400"><span>Subtotal</span><span id="pos-sub">0 Gs</span></div>
-                                <div class="flex justify-between text-2xl font-black text-yellow-500 mt-2"><span>TOTAL</span><span id="pos-total">0 Gs</span></div>
+                                <div class="flex justify-between text-2xl font-black text-yellow-500"><span>TOTAL</span><span id="pos-total">0 Gs</span></div>
                             </div>
-                            <button onclick="finalizeSale()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-4 rounded-2xl uppercase shadow-xl transition-all">Cobrar Ahora</button>
+                            <button onclick="finalizeSale()" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-4 rounded-2xl uppercase shadow-xl transition-all">Registrar Venta</button>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section id="sec-inicio" class="content-sec hidden space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="glass p-6 rounded-3xl border-b-4 border-emerald-500">
-                        <p class="text-slate-500 text-[10px] font-black uppercase">Ventas</p>
-                        <h4 id="stat-sales" class="text-3xl font-black text-emerald-400">0 Gs</h4>
-                    </div>
-                    <div class="glass p-6 rounded-3xl border-b-4 border-red-500">
-                        <p class="text-slate-500 text-[10px] font-black uppercase">Gastos</p>
-                        <h4 id="stat-expenses" class="text-3xl font-black text-red-400">0 Gs</h4>
-                    </div>
-                    <div class="glass p-6 rounded-3xl border-b-4 border-blue-500">
-                        <p class="text-slate-500 text-[10px] font-black uppercase">Saldo</p>
-                        <h4 id="stat-net" class="text-3xl font-black text-blue-400">0 Gs</h4>
-                    </div>
+            <section id="sec-clientes" class="content-sec hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-black uppercase italic">Base de Clientes</h2>
+                    <button onclick="openClientModal()" class="bg-blue-600 text-white px-6 py-2 rounded-full font-black text-xs">+ NUEVO CLIENTE</button>
                 </div>
-                <div class="glass p-6 rounded-[2.5rem]">
-                    <canvas id="mainChart" height="100"></canvas>
-                </div>
+                <div id="list-clientes" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </section>
 
+            <section id="sec-inicio" class="content-sec hidden space-y-6">
+                <div id="stats-container" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+                <div class="glass p-6 rounded-[2.5rem]"><canvas id="mainChart" height="100"></canvas></div>
+            </section>
             <section id="sec-gastos" class="content-sec hidden space-y-6"></section>
             <section id="sec-servicios" class="content-sec hidden space-y-6"></section>
             <section id="sec-empleados" class="content-sec hidden space-y-6"></section>
         </main>
+    </div>
+
+    <div id="modal-container" class="hidden fixed inset-0 bg-slate-950/95 flex items-center justify-center p-4 z-[100]">
+        <div class="glass p-8 rounded-[2.5rem] w-full max-w-md border border-yellow-500/20">
+            <h3 id="modal-title" class="text-2xl font-black text-yellow-500 mb-6 uppercase italic">Registro</h3>
+            <form id="generic-form" class="space-y-4">
+                <div id="modal-fields" class="space-y-4"></div>
+                <div class="flex gap-4 pt-4">
+                    <button type="button" onclick="closeModal()" class="flex-1 text-slate-500 font-black text-[10px]">CANCELAR</button>
+                    <button type="submit" class="flex-[2] bg-yellow-500 text-slate-950 font-black py-4 rounded-2xl uppercase text-xs">Guardar</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -119,6 +125,7 @@
 
         let currentUser = null;
         let servicesList = [];
+        let clientsList = [];
         let cart = [];
         let mainChart = null;
 
@@ -136,6 +143,7 @@
             const navItems = [
                 { id: 'caja', label: 'CAJA', icon: 'fa-cash-register' },
                 { id: 'inicio', label: 'REPORTES', icon: 'fa-chart-pie' },
+                { id: 'clientes', label: 'CLIENTES', icon: 'fa-address-book' },
                 { id: 'gastos', label: 'GASTOS', icon: 'fa-wallet' },
                 { id: 'servicios', label: 'SERVICIOS', icon: 'fa-tags' },
                 { id: 'empleados', label: 'STAFF', icon: 'fa-users' }
@@ -145,7 +153,7 @@
                 document.getElementById('client-name-tag').innerText = currentUser.companies.name;
                 menu.innerHTML = navItems.map(item => `<div onclick="switchSec('${item.id}')" class="sidebar-item p-4 text-xs font-black flex items-center gap-3"><i class="fas ${item.icon}"></i> ${item.label}</div>`).join('');
             } else {
-                menu.innerHTML = `<div onclick="switchSec('caja')" class="sidebar-item active-tab p-4 text-xs font-black"><i class="fas fa-cash-register mr-2"></i> CAJA</div>`;
+                menu.innerHTML = `<div onclick="switchSec('caja')" class="sidebar-item p-4 text-xs font-black"><i class="fas fa-cash-register mr-2"></i> CAJA</div>`;
             }
             switchSec('caja');
         }
@@ -153,14 +161,71 @@
         async function switchSec(id) {
             document.querySelectorAll('.content-sec').forEach(s => s.classList.add('hidden'));
             document.getElementById('sec-' + id).classList.remove('hidden');
-            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active-tab'));
-            if(event && event.currentTarget) event.currentTarget.classList.add('active-tab');
-
-            if(id === 'caja') loadCaja();
+            
+            if(id === 'caja') { await loadCaja(); await loadClients(); }
+            if(id === 'clientes') loadClientesList();
             if(id === 'inicio') loadDashboardData();
         }
 
-        // --- FUNCIONES DE CAJA (POS) ---
+        // --- GESTIÓN DE CLIENTES ---
+        async function loadClients() {
+            const { data } = await _supabase.from('clients').select('*').eq('company_id', currentUser.company_id);
+            clientsList = data || [];
+            const select = document.getElementById('pos-client-select');
+            select.innerHTML = '<option value="">Consumidor Final</option>' + clientsList.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+
+        async function loadClientesList() {
+            const { data } = await _supabase.from('clients').select('*').eq('company_id', currentUser.company_id);
+            document.getElementById('list-clientes').innerHTML = data.map(c => `
+                <div class="glass p-5 rounded-3xl border-l-4 border-blue-500 flex justify-between items-center">
+                    <div>
+                        <p class="font-black text-xs uppercase">${c.name}</p>
+                        <p class="text-[10px] text-slate-500">${c.phone || 'Sin Teléfono'}</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="editCliente('${c.id}', '${c.name}', '${c.phone}')" class="text-blue-400 opacity-50 hover:opacity-100"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteCliente('${c.id}')" class="text-red-500 opacity-50 hover:opacity-100"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openClientModal() {
+            const f = document.getElementById('modal-fields');
+            document.getElementById('modal-title').innerText = "Gestión de Cliente";
+            f.innerHTML = `
+                <input id="cl-id" type="hidden">
+                <input id="cl-name" placeholder="Nombre Completo" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl outline-none">
+                <input id="cl-phone" placeholder="WhatsApp / Celular" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl outline-none">
+            `;
+            document.getElementById('modal-container').classList.remove('hidden');
+            document.getElementById('generic-form').onsubmit = saveCliente;
+        }
+
+        async function saveCliente(e) {
+            e.preventDefault();
+            const id = document.getElementById('cl-id').value;
+            const payload = { 
+                company_id: currentUser.company_id, 
+                name: document.getElementById('cl-name').value, 
+                phone: document.getElementById('cl-phone').value 
+            };
+            if(id) await _supabase.from('clients').update(payload).eq('id', id);
+            else await _supabase.from('clients').insert([payload]);
+            closeModal(); loadClientesList();
+        }
+
+        function editCliente(id, name, phone) {
+            openClientModal();
+            document.getElementById('cl-id').value = id;
+            document.getElementById('cl-name').value = name;
+            document.getElementById('cl-phone').value = phone;
+        }
+
+        async function deleteCliente(id) { if(confirm('¿Eliminar cliente?')) { await _supabase.from('clients').delete().eq('id', id); loadClientesList(); } }
+
+        // --- CAJA (POS) ---
         async function loadCaja() {
             const { data } = await _supabase.from('services_list').select('*').eq('company_id', currentUser.company_id);
             servicesList = data || [];
@@ -170,8 +235,7 @@
         function filterServices() {
             const query = document.getElementById('pos-search').value.toLowerCase();
             const filtered = servicesList.filter(s => s.name.toLowerCase().includes(query));
-            const grid = document.getElementById('pos-grid');
-            grid.innerHTML = filtered.map(s => `
+            document.getElementById('pos-grid').innerHTML = filtered.map(s => `
                 <div onclick="addToCart('${s.id}')" class="service-card glass p-4 rounded-2xl cursor-pointer">
                     <p class="text-[10px] font-black text-slate-500 uppercase truncate">${s.name}</p>
                     <p class="text-emerald-400 font-bold">${Number(s.price).toLocaleString()} Gs</p>
@@ -186,50 +250,49 @@
         }
 
         function updateCartUI() {
-            const container = document.getElementById('pos-cart');
-            container.innerHTML = cart.map((item, index) => `
+            document.getElementById('pos-cart').innerHTML = cart.map((item, index) => `
                 <div class="flex justify-between items-center bg-slate-800/40 p-3 rounded-xl border border-slate-700">
-                    <div>
-                        <p class="text-[10px] font-bold text-white uppercase">${item.name}</p>
-                        <p class="text-xs text-emerald-500 font-black">${Number(item.price).toLocaleString()} Gs</p>
-                    </div>
-                    <button onclick="removeFromCart(${index})" class="text-red-500 opacity-50"><i class="fas fa-times"></i></button>
+                    <div class="max-w-[150px]"><p class="text-[9px] font-bold text-white uppercase truncate">${item.name}</p></div>
+                    <button onclick="cart.splice(${index},1); updateCartUI();" class="text-red-500 text-xs"><i class="fas fa-times"></i></button>
                 </div>
             `).join('');
             updatePOSCalc();
-        }
-
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            updateCartUI();
         }
 
         function updatePOSCalc() {
             const sub = cart.reduce((a, b) => a + Number(b.price), 0);
             const disc = Number(document.getElementById('pos-disc').value) || 0;
             const type = document.getElementById('pos-disc-type').value;
-            const finalDisc = type === 'fijo' ? disc : (sub * disc / 100);
-            const total = sub - finalDisc;
-            document.getElementById('pos-sub').innerText = sub.toLocaleString() + ' Gs';
-            document.getElementById('pos-total').innerText = (total < 0 ? 0 : total).toLocaleString() + ' Gs';
+            const final = sub - (type === 'fijo' ? disc : (sub * disc / 100));
+            document.getElementById('pos-total').innerText = (final < 0 ? 0 : final).toLocaleString() + ' Gs';
         }
 
         async function finalizeSale() {
             if(cart.length === 0) return;
             const total = parseInt(document.getElementById('pos-total').innerText.replace(/\D/g,''));
-            const { error } = await _supabase.from('sales').insert([{ company_id: currentUser.company_id, total_final: total, details: cart.map(i => i.name).join(', ') }]);
+            const client_id = document.getElementById('pos-client-select').value;
+            const { error } = await _supabase.from('sales').insert([{ 
+                company_id: currentUser.company_id, 
+                total_final: total, 
+                client_id: client_id || null,
+                details: cart.map(i => i.name).join(', ') 
+            }]);
             if(!error) { alert('Venta Exitosa'); cart = []; updateCartUI(); }
         }
 
-        // --- GRÁFICOS Y REPORTES ---
+        function closeModal() { document.getElementById('modal-container').classList.add('hidden'); }
+
+        // --- REPORTES (Se mantiene lógica previa) ---
         async function loadDashboardData() {
             const { data: s } = await _supabase.from('sales').select('total_final').eq('company_id', currentUser.company_id);
             const { data: g } = await _supabase.from('gastos').select('monto').eq('company_id', currentUser.company_id);
             const ts = s?.reduce((a,b) => a + Number(b.total_final), 0) || 0;
             const tg = g?.reduce((a,b) => a + Number(b.monto), 0) || 0;
-            document.getElementById('stat-sales').innerText = ts.toLocaleString() + ' Gs';
-            document.getElementById('stat-expenses').innerText = tg.toLocaleString() + ' Gs';
-            document.getElementById('stat-net').innerText = (ts - tg).toLocaleString() + ' Gs';
+            document.getElementById('stats-container').innerHTML = `
+                <div class="glass p-6 rounded-3xl border-b-4 border-emerald-500"><p class="text-slate-500 text-[10px] uppercase font-black">Ventas</p><h4 class="text-3xl font-black text-emerald-400">${ts.toLocaleString()} Gs</h4></div>
+                <div class="glass p-6 rounded-3xl border-b-4 border-red-500"><p class="text-slate-500 text-[10px] uppercase font-black">Gastos</p><h4 class="text-3xl font-black text-red-400">${tg.toLocaleString()} Gs</h4></div>
+                <div class="glass p-6 rounded-3xl border-b-4 border-blue-500"><p class="text-slate-500 text-[10px] uppercase font-black">Neto</p><h4 class="text-3xl font-black text-blue-400">${(ts-tg).toLocaleString()} Gs</h4></div>
+            `;
             initChart();
         }
 
@@ -241,8 +304,8 @@
                 data: {
                     labels: ['Lun','Mar','Mie','Jue','Vie','Sab','Dom'],
                     datasets: [
-                        { label: 'Ventas', data: [40, 60, 45, 80, 100, 120, 90], borderColor: '#eab308', tension: 0.4 },
-                        { label: 'Gastos', data: [15, 20, 25, 10, 30, 50, 20], borderColor: '#ef4444', tension: 0.4 }
+                        { label: 'Ingresos', data: [50, 80, 60, 120, 90, 150, 110], borderColor: '#eab308', tension: 0.4 },
+                        { label: 'Gastos', data: [20, 30, 40, 20, 50, 60, 30], borderColor: '#ef4444', tension: 0.4 }
                     ]
                 },
                 options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
