@@ -53,7 +53,10 @@
                     <table class="w-full text-left">
                         <thead class="bg-slate-900/50 text-slate-500 text-[10px] uppercase font-bold">
                             <tr>
-                                <th class="p-4">Taller</th><th class="p-4">Cobro</th><th class="p-4">Estado</th><th class="p-4 text-right">Acciones</th>
+                                <th class="p-4">Taller / Empresa</th>
+                                <th class="p-4">Día Cobro</th>
+                                <th class="p-4">Estado</th>
+                                <th class="p-4 text-right">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="companies-list" class="divide-y divide-slate-800"></tbody>
@@ -64,6 +67,7 @@
             <div id="view-client" class="hidden space-y-6">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 glass p-6 rounded-3xl">
+                        <h3 class="text-slate-500 text-xs font-bold uppercase mb-4">Ingresos vs Gastos</h3>
                         <canvas id="revenueChart" height="120"></canvas>
                     </div>
                     <div class="space-y-4">
@@ -76,16 +80,16 @@
                             <h4 id="total-gastos" class="text-xl font-black text-red-400">0 Gs</h4>
                         </div>
                         <div class="glass p-4 rounded-2xl border-l-4 border-blue-500">
-                            <p class="text-slate-500 text-[10px] font-bold uppercase">Neto</p>
+                            <p class="text-slate-500 text-[10px] font-bold uppercase">Utilidad Neta</p>
                             <h4 id="total-utilidad" class="text-2xl font-black text-blue-400">0 Gs</h4>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick="openModal()" class="bg-blue-600 p-4 rounded-2xl flex flex-col items-center"><i class="fas fa-plus mb-1"></i><span class="font-black text-[10px]">ORDEN</span></button>
+                            <button onclick="openModal()" class="bg-blue-600 p-4 rounded-2xl flex flex-col items-center"><i class="fas fa-plus mb-1"></i><span class="font-black text-[10px]">VENTA</span></button>
                             <button onclick="openGastoModal()" class="bg-red-600/20 text-red-400 p-4 rounded-2xl border border-red-500/30 flex flex-col items-center"><i class="fas fa-minus mb-1"></i><span class="font-black text-[10px]">GASTO</span></button>
                         </div>
                     </div>
                 </div>
-                <div id="sales-list" class="p-4 space-y-3"></div>
+                <div id="sales-list" class="p-4 space-y-3 max-h-[400px] overflow-y-auto custom-scroll"></div>
             </div>
         </main>
     </div>
@@ -95,11 +99,17 @@
             <h3 class="text-2xl font-black mb-6 text-blue-400 uppercase italic">Editar Taller</h3>
             <form id="edit-comp-form" class="space-y-4">
                 <input type="hidden" id="edit-comp-id">
-                <input type="text" id="edit-comp-name" placeholder="Nombre" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
-                <input type="number" id="edit-comp-due" placeholder="Día Cobro" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
+                <div>
+                    <label class="text-[10px] text-slate-500 font-bold ml-2">NOMBRE DEL TALLER</label>
+                    <input type="text" id="edit-comp-name" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-500 font-bold ml-2">DÍA DE PAGO</label>
+                    <input type="number" id="edit-comp-due" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
+                </div>
                 <div class="flex gap-4 pt-4">
                     <button type="button" onclick="closeEditModal()" class="flex-1 text-slate-500 font-bold uppercase text-xs">Cancelar</button>
-                    <button type="submit" class="flex-[2] bg-blue-600 text-white font-black py-4 rounded-2xl">ACTUALIZAR</button>
+                    <button type="submit" class="flex-[2] bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg">GUARDAR CAMBIOS</button>
                 </div>
             </form>
         </div>
@@ -107,47 +117,58 @@
 
     <div id="service-modal" class="hidden fixed inset-0 bg-slate-950/90 flex items-center justify-center p-4 z-[100]">
         <div class="glass p-8 rounded-[2rem] w-full max-w-lg">
+            <h3 class="text-xl font-black text-yellow-500 mb-4 uppercase">Nueva Venta</h3>
             <form id="service-form" class="space-y-4">
-                <input type="text" id="c-info" placeholder="Cliente" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
+                <input type="text" id="c-info" placeholder="Cliente / Vehículo" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
                 <input type="number" id="s-price" placeholder="Monto Gs" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
                 <button type="submit" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase">Guardar Orden</button>
-                <button type="button" onclick="closeModal()" class="w-full text-slate-500 text-xs font-bold uppercase mt-2">Cerrar</button>
+                <button type="button" onclick="closeModal()" class="w-full text-slate-500 text-xs font-bold uppercase">Cerrar</button>
             </form>
         </div>
     </div>
 
     <div id="gasto-modal" class="hidden fixed inset-0 bg-slate-950/90 flex items-center justify-center p-4 z-[100]">
         <div class="glass p-8 rounded-[2rem] w-full max-w-md">
+            <h3 class="text-xl font-black text-red-500 mb-4 uppercase">Registrar Gasto</h3>
             <form id="gasto-form" class="space-y-4">
-                <input type="text" id="g-desc" placeholder="Descripción Gasto" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
+                <input type="text" id="g-desc" placeholder="Descripción del Gasto" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
                 <input type="number" id="g-amount" placeholder="Monto Gs" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
-                <button type="submit" class="w-full bg-red-600 py-4 rounded-2xl font-black uppercase">Registrar Gasto</button>
-                <button type="button" onclick="closeGastoModal()" class="w-full text-slate-500 text-xs font-bold uppercase mt-2">Cerrar</button>
+                <button type="submit" class="w-full bg-red-600 py-4 rounded-2xl font-black uppercase">Guardar Gasto</button>
+                <button type="button" onclick="closeGastoModal()" class="w-full text-slate-500 text-xs font-bold uppercase">Cerrar</button>
             </form>
         </div>
     </div>
 
     <script>
-        const SB_URL = 'https://itahtywhhaecjakgtnzu.supabase.co';
+        // --- CONFIGURACIÓN ---
+        const SB_URL = 'https://itahtywhhaecjakgtnzu.supabase.co'; 
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0YWh0eXdoaGFlY2pha2d0bnp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMjYyODIsImV4cCI6MjA4NTkwMjI4Mn0.ARQ9W_Rpj8rp_xo88TbTjbdwT6o75J7sCPlConcoshw';
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         let currentUser = null;
+        let myChart = null;
 
+        // LOGIN
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const u = document.getElementById('user').value;
-            const p = document.getElementById('pass').value;
+            const u = document.getElementById('user').value.trim();
+            const p = document.getElementById('pass').value.trim();
             
-            const { data, error } = await _supabase.from('users').select('*, companies(*)').eq('username', u).eq('password_hash', p).maybeSingle();
+            try {
+                const { data, error } = await _supabase.from('users').select('*, companies(*)').eq('username', u).eq('password_hash', p).maybeSingle();
 
-            if (data) {
-                if (data.role !== 'superadmin' && data.companies && !data.companies.is_active) {
-                    alert('CUENTA SUSPENDIDA'); return;
+                if (error) throw error;
+
+                if (data) {
+                    if (data.role !== 'superadmin' && data.companies && !data.companies.is_active) {
+                        alert('ACCESO DENEGADO: Cuenta suspendida.'); return;
+                    }
+                    currentUser = data;
+                    showPanel(data.role);
+                } else {
+                    alert('Usuario o contraseña incorrectos.');
                 }
-                currentUser = data;
-                showPanel(data.role);
-            } else { alert('Usuario o clave incorrecta'); }
+            } catch (err) { alert('Error: ' + err.message); }
         });
 
         function showPanel(role) {
@@ -159,9 +180,11 @@
             } else {
                 document.getElementById('view-client').classList.remove('hidden');
                 loadSales();
+                initChart();
             }
         }
 
+        // LÓGICA SUPER ADMIN
         async function loadCompanies() {
             const { data } = await _supabase.from('companies').select('*').order('created_at', {ascending: false});
             document.getElementById('companies-list').innerHTML = data.map(c => `
@@ -171,7 +194,7 @@
                     <td class="p-4"><span class="px-2 py-1 rounded-full text-[9px] font-black ${c.is_active ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}">${c.is_active ? '● ACTIVO' : '○ BLOQUEADO'}</span></td>
                     <td class="p-4 text-right flex justify-end gap-2">
                         <button onclick="openEditModal('${c.id}', '${c.name}', ${c.due_day})" class="text-[9px] bg-blue-500/20 text-blue-400 px-3 py-2 rounded-lg font-black border border-blue-500/30">EDITAR</button>
-                        <button onclick="toggleCompany('${c.id}', ${c.is_active})" class="text-[9px] bg-slate-800 px-3 py-2 rounded-lg font-black border border-slate-700">${c.is_active ? 'SUSPENDER' : 'ACTIVAR'}</button>
+                        <button onclick="toggleCompany('${c.id}', ${c.is_active})" class="text-[9px] bg-slate-800 px-3 py-2 rounded-lg font-black border border-slate-700">${c.is_active ? 'ESTADO' : 'ACTIVAR'}</button>
                     </td>
                 </tr>`).join('');
         }
@@ -182,7 +205,6 @@
             document.getElementById('edit-comp-due').value = due;
             document.getElementById('edit-comp-modal').classList.remove('hidden');
         }
-
         function closeEditModal() { document.getElementById('edit-comp-modal').classList.add('hidden'); }
 
         document.getElementById('edit-comp-form').addEventListener('submit', async (e) => {
@@ -212,11 +234,11 @@
                     role: 'admin_empresa', 
                     company_id: comp.id 
                 }]);
-                alert('Taller registrado correctamente'); loadCompanies(); e.target.reset();
+                alert('Taller Creado!'); loadCompanies(); e.target.reset();
             }
         });
 
-        // FUNCIONES TALLER
+        // LÓGICA TALLER (CLIENTE)
         function openModal() { document.getElementById('service-modal').classList.remove('hidden'); }
         function closeModal() { document.getElementById('service-modal').classList.add('hidden'); }
         function openGastoModal() { document.getElementById('gasto-modal').classList.remove('hidden'); }
@@ -227,7 +249,8 @@
             await _supabase.from('sales').insert([{ 
                 company_id: currentUser.company_id, 
                 client_info: document.getElementById('c-info').value, 
-                total_final: document.getElementById('s-price').value 
+                total_final: document.getElementById('s-price').value,
+                estado: 'completado'
             }]);
             closeModal(); loadSales();
         });
@@ -243,22 +266,42 @@
         });
 
         async function loadSales() {
-            const { data: v } = await _supabase.from('sales').select('*').eq('company_id', currentUser.company_id);
-            const { data: g } = await _supabase.from('gastos').select('*').eq('company_id', currentUser.company_id);
+            const { data: v } = await _supabase.from('sales').select('*').eq('company_id', currentUser.company_id).order('created_at', {ascending: false});
+            const { data: g } = await _supabase.from('gastos').select('*').eq('company_id', currentUser.company_id).order('created_at', {ascending: false});
             
-            let totalV = 0, totalG = 0;
-            v?.forEach(x => totalV += Number(x.total_final));
-            g?.forEach(x => totalG += Number(x.monto));
+            let tv = 0, tg = 0;
+            v?.forEach(x => tv += Number(x.total_final));
+            g?.forEach(x => tg += Number(x.monto));
 
-            document.getElementById('total-cash').innerText = totalV.toLocaleString() + ' Gs';
-            document.getElementById('total-gastos').innerText = totalG.toLocaleString() + ' Gs';
-            document.getElementById('total-utilidad').innerText = (totalV - totalG).toLocaleString() + ' Gs';
+            document.getElementById('total-cash').innerText = tv.toLocaleString() + ' Gs';
+            document.getElementById('total-gastos').innerText = tg.toLocaleString() + ' Gs';
+            document.getElementById('total-utilidad').innerText = (tv - tg).toLocaleString() + ' Gs';
 
             document.getElementById('sales-list').innerHTML = v.map(s => `
-                <div class="glass p-4 rounded-2xl flex justify-between">
-                    <span>${s.client_info}</span>
-                    <span class="text-emerald-400 font-bold">${Number(s.total_final).toLocaleString()} Gs</span>
+                <div class="glass p-4 rounded-2xl flex justify-between items-center">
+                    <span class="text-xs uppercase font-bold text-slate-300">${s.client_info}</span>
+                    <span class="text-emerald-400 font-black">${Number(s.total_final).toLocaleString()} Gs</span>
                 </div>`).join('');
+            
+            if(myChart) updateChart(v, g);
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: ['Hoy'], datasets: [
+                    { label: 'Ventas', data: [0], borderColor: '#eab308', tension: 0.4 },
+                    { label: 'Gastos', data: [0], borderColor: '#ef4444', tension: 0.4 }
+                ]},
+                options: { plugins: { legend: { display: false } } }
+            });
+        }
+
+        function updateChart(sales, gastos) {
+            myChart.data.datasets[0].data = [sales.reduce((a,b) => a + Number(b.total_final), 0)];
+            myChart.data.datasets[1].data = [gastos.reduce((a,b) => a + Number(b.monto), 0)];
+            myChart.update();
         }
     </script>
 </body>
