@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DetailGest Pro - Business Intelligence</title>
+    <title>DetailGest Pro v2.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -21,7 +20,7 @@
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
         <div class="max-w-md w-full glass p-8 rounded-3xl shadow-2xl border-t-4 border-yellow-500">
             <h1 class="text-5xl font-black text-yellow-500 text-center mb-2 italic tracking-tighter">DG PRO</h1>
-            <p class="text-center text-slate-500 text-xs font-bold uppercase tracking-widest mb-8">Intelligence Suite</p>
+            <p class="text-center text-slate-500 text-xs font-bold uppercase tracking-widest mb-8">Financial Intelligence</p>
             <form id="login-form" class="space-y-4">
                 <input type="text" id="user" placeholder="Usuario" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-yellow-500 transition-all text-white">
                 <input type="password" id="pass" placeholder="Contraseña" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-yellow-500 transition-all text-white">
@@ -32,7 +31,7 @@
 
     <div id="dashboard" class="hidden min-h-screen flex flex-col">
         <nav class="glass sticky top-0 z-50 p-4 border-b border-slate-800 flex justify-between items-center px-8">
-            <h2 class="text-xl font-black text-yellow-500 italic">DETAILGEST <span class="text-slate-500 font-light text-sm not-italic ml-2">v2.0</span></h2>
+            <h2 class="text-xl font-black text-yellow-500 italic">DETAILGEST <span class="text-slate-500 font-light text-sm not-italic ml-2">v2.5</span></h2>
             <button onclick="location.reload()" class="text-red-400 hover:bg-red-500/10 px-4 py-2 rounded-xl text-xs font-bold transition-all"><i class="fas fa-power-off mr-2"></i>SALIR</button>
         </nav>
 
@@ -49,7 +48,7 @@
                         <button type="submit" class="md:col-span-4 bg-emerald-600 hover:bg-emerald-500 font-black py-4 rounded-xl transition-all">DAR DE ALTA Y ACTIVAR</button>
                     </form>
                 </div>
-                <div class="glass rounded-3xl overflow-hidden">
+                <div class="glass rounded-3xl overflow-hidden shadow-xl">
                     <table class="w-full text-left">
                         <thead class="bg-slate-900/50 text-slate-500 text-[10px] uppercase font-bold">
                             <tr><th class="p-4">Taller</th><th class="p-4">Cobro</th><th class="p-4">Estado</th><th class="p-4 text-right">Acciones</th></tr>
@@ -62,12 +61,19 @@
             <div id="view-client" class="hidden space-y-6">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-2 glass p-6 rounded-3xl">
-                        <h3 class="text-xs font-bold text-slate-500 uppercase mb-4 tracking-widest">Rendimiento Semanal (Ingresos vs Gastos)</h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Balance Semanal</h3>
+                            <div class="flex gap-4 text-[10px] font-bold">
+                                <span class="text-yellow-500">● INGRESOS</span>
+                                <span class="text-red-500">● GASTOS</span>
+                            </div>
+                        </div>
                         <canvas id="revenueChart" height="120"></canvas>
                     </div>
+                    
                     <div class="space-y-4">
                         <div class="glass p-4 rounded-2xl border-l-4 border-emerald-500">
-                            <p class="text-slate-500 text-[10px] font-bold uppercase">Ingresos (Cobrados)</p>
+                            <p class="text-slate-500 text-[10px] font-bold uppercase">Ingresos Totales</p>
                             <h4 id="total-cash" class="text-xl font-black text-emerald-400">0 Gs</h4>
                         </div>
                         <div class="glass p-4 rounded-2xl border-l-4 border-red-500">
@@ -75,11 +81,11 @@
                             <h4 id="total-gastos" class="text-xl font-black text-red-400">0 Gs</h4>
                         </div>
                         <div class="glass p-4 rounded-2xl border-l-4 border-blue-500 bg-blue-500/5">
-                            <p class="text-slate-500 text-[10px] font-bold uppercase">Utilidad Neta (Limpio)</p>
+                            <p class="text-slate-500 text-[10px] font-bold uppercase text-blue-300">Utilidad Neta (Ganancia)</p>
                             <h4 id="total-utilidad" class="text-2xl font-black text-blue-400">0 Gs</h4>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
-                            <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-500 p-4 rounded-2xl flex flex-col items-center justify-center transition-all shadow-lg">
+                            <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-500 p-4 rounded-2xl flex flex-col items-center justify-center transition-all">
                                 <i class="fas fa-car-clean text-lg mb-1"></i>
                                 <span class="font-black text-[10px] uppercase">Nueva Orden</span>
                             </button>
@@ -88,13 +94,16 @@
                                 <span class="font-black text-[10px] uppercase">Gasto</span>
                             </button>
                         </div>
+                        <button onclick="exportarReporte()" class="w-full bg-slate-800 hover:bg-slate-700 p-3 rounded-2xl flex items-center justify-center gap-2 border border-slate-700 transition-all">
+                            <i class="fas fa-file-excel text-emerald-500"></i>
+                            <span class="font-bold text-[10px] uppercase">Descargar Reporte Excel</span>
+                        </button>
                     </div>
                 </div>
 
                 <div class="glass rounded-3xl overflow-hidden">
-                    <div class="p-4 bg-slate-900/50 border-b border-slate-800 flex justify-between items-center">
-                        <h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Vehículos en Taller</h3>
-                        <span id="current-date" class="text-[10px] text-slate-500 font-bold uppercase"></span>
+                    <div class="p-4 bg-slate-900/50 border-b border-slate-800">
+                        <h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Flujo de Trabajo Actual</h3>
                     </div>
                     <div id="sales-list" class="p-4 space-y-3 max-h-[400px] overflow-y-auto custom-scroll"></div>
                 </div>
@@ -108,7 +117,7 @@
             <form id="service-form" class="space-y-4">
                 <div class="relative">
                     <input type="text" id="c-info" placeholder="Nombre del Cliente..." required autocomplete="off" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-blue-500 text-white">
-                    <div id="customer-suggestions" class="absolute z-[110] w-full bg-slate-800 rounded-2xl mt-1 hidden max-h-48 overflow-y-auto border border-slate-700 shadow-2xl"></div>
+                    <div id="customer-suggestions" class="absolute z-[110] w-full bg-slate-800 rounded-2xl mt-1 hidden max-h-48 overflow-y-auto border border-slate-700"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <input type="text" id="c-phone" placeholder="WhatsApp (09xx)" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
@@ -118,13 +127,13 @@
                     <select id="s-type" class="p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
                         <option>Lavado Simple</option>
                         <option>Lavado Full</option>
-                        <option>Limpieza de Tapizado</option>
-                        <option>Pulido y Encerado</option>
+                        <option>Limpieza Tapizado</option>
+                        <option>Pulido Pro</option>
                     </select>
                     <input type="number" id="s-price" placeholder="Monto Gs" required class="p-4 bg-slate-900 border border-slate-700 rounded-2xl text-emerald-400 font-bold outline-none">
                 </div>
                 <div class="flex gap-4 pt-4">
-                    <button type="button" onclick="closeModal()" class="flex-1 text-slate-500 font-bold">CANCELAR</button>
+                    <button type="button" onclick="closeModal()" class="flex-1 text-slate-500 font-bold uppercase text-xs">Cerrar</button>
                     <button type="submit" class="flex-[2] bg-blue-600 text-white font-black py-4 rounded-2xl">GUARDAR ORDEN</button>
                 </div>
             </form>
@@ -138,7 +147,7 @@
                 <input type="text" id="g-desc" placeholder="Descripción (Ej: Shampoo, Luz...)" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
                 <input type="number" id="g-amount" placeholder="Monto Gs" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-red-400 font-bold outline-none">
                 <div class="flex gap-4 pt-4">
-                    <button type="button" onclick="closeGastoModal()" class="flex-1 text-slate-500 font-bold">CANCELAR</button>
+                    <button type="button" onclick="closeGastoModal()" class="flex-1 text-slate-500 font-bold uppercase text-xs">Cerrar</button>
                     <button type="submit" class="flex-[2] bg-red-600 text-white font-black py-4 rounded-2xl">GUARDAR GASTO</button>
                 </div>
             </form>
@@ -153,9 +162,7 @@
         let currentUser = null;
         let myChart = null;
 
-        document.getElementById('current-date').innerText = new Date().toLocaleDateString('es-PY', { weekday: 'long', day: 'numeric', month: 'long' });
-
-        // --- LÓGICA DE LOGIN ---
+        // --- LOGIN ---
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const u = document.getElementById('user').value;
@@ -164,12 +171,11 @@
 
             if (data) {
                 if (data.role !== 'superadmin' && data.companies && !data.companies.is_active) {
-                    alert('CUENTA SUSPENDIDA. Contacte al soporte.');
-                    return;
+                    alert('CUENTA SUSPENDIDA.'); return;
                 }
                 currentUser = data;
                 showPanel(data.role);
-            } else { alert('Usuario o clave incorrecta'); }
+            } else { alert('Error de acceso'); }
         });
 
         function showPanel(role) {
@@ -185,7 +191,7 @@
             }
         }
 
-        // --- LÓGICA SÚPER ADMIN ---
+        // --- ADMIN ---
         async function loadCompanies() {
             const { data } = await _supabase.from('companies').select('*').order('created_at', {ascending: false});
             document.getElementById('companies-list').innerHTML = data.map(c => `
@@ -207,26 +213,24 @@
             const { data: comp } = await _supabase.from('companies').insert([{ name: document.getElementById('new-comp-name').value, due_day: document.getElementById('new-due-day').value }]).select().single();
             if (comp) {
                 await _supabase.from('users').insert([{ username: document.getElementById('new-user').value, password_hash: document.getElementById('new-pass').value, role: 'admin_empresa', company_id: comp.id }]);
-                alert('Taller creado con éxito');
-                loadCompanies();
-                e.target.reset();
+                alert('Taller registrado'); loadCompanies(); e.target.reset();
             }
         });
 
-        // --- LÓGICA TALLER ---
+        // --- TALLER ---
         function openModal() { document.getElementById('service-modal').classList.remove('hidden'); }
         function closeModal() { document.getElementById('service-modal').classList.add('hidden'); }
         function openGastoModal() { document.getElementById('gasto-modal').classList.remove('hidden'); }
         function closeGastoModal() { document.getElementById('gasto-modal').classList.add('hidden'); }
 
-        // Buscador de Clientes
+        // Buscador Clientes
         document.getElementById('c-info').addEventListener('input', async (e) => {
             const search = e.target.value;
             if (search.length < 2) { document.getElementById('customer-suggestions').classList.add('hidden'); return; }
             const { data } = await _supabase.from('clientes').select('*').eq('company_id', currentUser.company_id).ilike('nombre', `%${search}%`).limit(5);
             const suggestions = document.getElementById('customer-suggestions');
-            if (data && data.length > 0) {
-                suggestions.innerHTML = data.map(c => `<div onclick="selectCustomer('${c.nombre}', '${c.telefono}', '${c.vehiculo_preferido}')" class="p-4 hover:bg-slate-700 cursor-pointer border-b border-slate-700 last:border-0"><p class="font-bold text-sm text-yellow-500 uppercase">${c.nombre}</p><p class="text-[10px] text-slate-400 uppercase">${c.vehiculo_preferido} • ${c.telefono}</p></div>`).join('');
+            if (data?.length > 0) {
+                suggestions.innerHTML = data.map(c => `<div onclick="selectCustomer('${c.nombre}', '${c.telefono}', '${c.vehiculo_preferido}')" class="p-4 hover:bg-slate-700 cursor-pointer border-b border-slate-700 last:border-0"><p class="font-bold text-sm text-yellow-500 uppercase">${c.nombre}</p><p class="text-[9px] text-slate-400 uppercase">${c.vehiculo_preferido}</p></div>`).join('');
                 suggestions.classList.remove('hidden');
             } else { suggestions.classList.add('hidden'); }
         });
@@ -241,15 +245,9 @@
         // Guardar Venta
         document.getElementById('service-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const n = document.getElementById('c-info').value;
-            const t = document.getElementById('c-phone').value;
-            const v = document.getElementById('v-info').value;
-            const p = document.getElementById('s-price').value;
-            const st = document.getElementById('s-type').value;
-
+            const n = document.getElementById('c-info').value, t = document.getElementById('c-phone').value, v = document.getElementById('v-info').value, p = document.getElementById('s-price').value, st = document.getElementById('s-type').value;
             await _supabase.from('clientes').upsert({ company_id: currentUser.company_id, nombre: n, telefono: t, vehiculo_preferido: v, ultima_visita: new Date() }, { onConflict: 'company_id, nombre' });
             await _supabase.from('sales').insert([{ company_id: currentUser.company_id, client_info: n + ' (' + v + ')', client_phone: t, service_type: st, total_final: p }]);
-            
             closeModal(); loadSales(); updateChart();
         });
 
@@ -267,19 +265,19 @@
             
             document.getElementById('sales-list').innerHTML = data.map(s => {
                 if (s.estado === 'completado') total += Number(s.total_final);
-                const msg = window.encodeURIComponent(`¡Hola! Tu vehículo ${s.client_info} ya está listo. Total: ${Number(s.total_final).toLocaleString()} Gs.`);
-                return `<div class="glass p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div class="flex items-center gap-3 w-full">
+                const msg = window.encodeURIComponent(`¡Hola! Vehículo ${s.client_info} LISTO. Total: ${Number(s.total_final).toLocaleString()} Gs.`);
+                return `<div class="glass p-4 rounded-2xl flex justify-between items-center gap-4">
+                    <div class="flex items-center gap-3">
                         <div class="h-8 w-8 bg-slate-800 rounded-full flex items-center justify-center text-slate-500"><i class="fas fa-car text-xs"></i></div>
-                        <div><h5 class="font-bold text-xs uppercase italic tracking-tighter">${s.client_info}</h5><p class="text-[9px] text-slate-500 uppercase">${s.service_type}</p></div>
+                        <div><h5 class="font-bold text-xs uppercase italic">${s.client_info}</h5><p class="text-[9px] text-slate-500 uppercase">${s.service_type}</p></div>
                     </div>
-                    <div class="flex items-center gap-3 w-full md:w-auto justify-between">
+                    <div class="flex items-center gap-3">
                         <span class="text-emerald-400 font-black text-xs">${Number(s.total_final).toLocaleString()} Gs</span>
                         <div class="flex gap-2">
                             <a href="https://wa.me/${s.client_phone}?text=${msg}" target="_blank" class="p-2 bg-emerald-500 text-slate-900 rounded-lg text-xs"><i class="fab fa-whatsapp"></i></a>
                             <select onchange="updateStatus('${s.id}', this.value)" class="bg-slate-900 border border-slate-700 text-[9px] rounded-lg p-2 font-bold uppercase ${colors[s.estado] || ''}">
                                 <option value="recibido" ${s.estado === 'recibido' ? 'selected' : ''}>Recibido</option>
-                                <option value="proceso" ${s.estado === 'proceso' ? 'selected' : ''}>En Proceso</option>
+                                <option value="proceso" ${s.estado === 'proceso' ? 'selected' : ''}>Proceso</option>
                                 <option value="listo" ${s.estado === 'listo' ? 'selected' : ''}>Listo</option>
                                 <option value="completado" ${s.estado === 'completado' ? 'selected' : ''}>Entregado</option>
                             </select>
@@ -291,18 +289,26 @@
             updateUtilidad();
         }
 
-        async function updateStatus(id, n) {
-            await _supabase.from('sales').update({ estado: n }).eq('id', id);
-            loadSales(); updateChart();
-        }
+        async function updateStatus(id, n) { await _supabase.from('sales').update({ estado: n }).eq('id', id); loadSales(); updateChart(); }
 
         function updateUtilidad() {
-            const ingresos = parseInt(document.getElementById('total-cash').innerText.replace(/\D/g,'')) || 0;
-            const gastos = parseInt(document.getElementById('total-gastos').innerText.replace(/\D/g,'')) || 0;
-            const utilidad = ingresos - gastos;
+            const ing = parseInt(document.getElementById('total-cash').innerText.replace(/\D/g,'')) || 0;
+            const gas = parseInt(document.getElementById('total-gastos').innerText.replace(/\D/g,'')) || 0;
+            const uti = ing - gas;
             const el = document.getElementById('total-utilidad');
-            el.innerText = utilidad.toLocaleString() + ' Gs';
-            el.className = utilidad >= 0 ? 'text-2xl font-black text-blue-400' : 'text-2xl font-black text-red-400';
+            el.innerText = uti.toLocaleString() + ' Gs';
+            el.className = uti >= 0 ? 'text-2xl font-black text-blue-400' : 'text-2xl font-black text-red-400';
+        }
+
+        // --- REPORTE EXCEL ---
+        async function exportarReporte() {
+            const { data: v } = await _supabase.from('sales').select('*').eq('company_id', currentUser.company_id);
+            const { data: g } = await _supabase.from('gastos').select('*').eq('company_id', currentUser.company_id);
+            let csv = "data:text/csv;charset=utf-8,FECHA,TIPO,DESCRIPCION,MONTO\n";
+            v?.forEach(x => csv += `${new Date(x.created_at).toLocaleDateString()},INGRESO,${x.client_info},${x.total_final}\n`);
+            g?.forEach(x => csv += `${new Date(x.created_at).toLocaleDateString()},GASTO,${x.descripcion},${x.monto}\n`);
+            const link = document.createElement("a"); link.setAttribute("href", encodeURI(csv));
+            link.setAttribute("download", `Reporte_Mensual.csv`); document.body.appendChild(link); link.click();
         }
 
         // --- GRÁFICO ---
@@ -321,20 +327,13 @@
 
         async function updateChart() {
             if (!myChart) return;
-            const { data: sData } = await _supabase.from('sales').select('total_final, created_at').eq('company_id', currentUser.company_id).eq('estado', 'completado');
-            const { data: gData } = await _supabase.from('gastos').select('monto, created_at').eq('company_id', currentUser.company_id);
-
-            const sDays = [0,0,0,0,0,0,0], gDays = [0,0,0,0,0,0,0];
-            let gTotal = 0;
-
-            sData?.forEach(s => { const d = new Date(s.created_at).getDay(); sDays[d === 0 ? 6 : d - 1] += Number(s.total_final); });
-            gData?.forEach(g => { gTotal += Number(g.monto); const d = new Date(g.created_at).getDay(); gDays[d === 0 ? 6 : d - 1] += Number(g.monto); });
-
-            document.getElementById('total-gastos').innerText = gTotal.toLocaleString() + ' Gs';
-            myChart.data.datasets[0].data = sDays;
-            myChart.data.datasets[1].data = gDays;
-            myChart.update();
-            updateUtilidad();
+            const { data: sD } = await _supabase.from('sales').select('total_final, created_at').eq('company_id', currentUser.company_id).eq('estado', 'completado');
+            const { data: gD } = await _supabase.from('gastos').select('monto, created_at').eq('company_id', currentUser.company_id);
+            const sW = [0,0,0,0,0,0,0], gW = [0,0,0,0,0,0,0]; let gT = 0;
+            sD?.forEach(x => { const d = new Date(x.created_at).getDay(); sW[d === 0 ? 6 : d - 1] += Number(x.total_final); });
+            gD?.forEach(x => { gT += Number(x.monto); const d = new Date(x.created_at).getDay(); gW[d === 0 ? 6 : d - 1] += Number(x.monto); });
+            document.getElementById('total-gastos').innerText = gT.toLocaleString() + ' Gs';
+            myChart.data.datasets[0].data = sW; myChart.data.datasets[1].data = gW; myChart.update(); updateUtilidad();
         }
     </script>
 </body>
