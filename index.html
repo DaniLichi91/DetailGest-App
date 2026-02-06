@@ -3,63 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DetailGest Ultimate v11.0</title>
+    <title>DetailGest Enterprise v10.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap');
-        body { background: #060910; color: #f1f5f9; font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
-        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .sidebar-item { transition: 0.2s; cursor: pointer; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 10px; color: #94a3b8; }
-        .sidebar-item:hover, .active-tab { background: #eab308 !important; color: #0f172a !important; }
+        body { background: #0b0f1a; color: #f1f5f9; font-family: 'Inter', sans-serif; overflow: hidden; }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .sidebar-item { transition: all 0.2s; cursor: pointer; border-radius: 0.75rem; padding: 0.75rem 1rem; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 10px; color: #94a3b8; }
+        .sidebar-item:hover { background: rgba(234, 179, 8, 0.1); color: #eab308; }
+        .active-tab { background: #eab308 !important; color: #0f172a !important; }
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
-        input, select, textarea { background: #0f172a !important; border: 1px solid #1e293b !important; color: white !important; padding: 12px; border-radius: 12px; outline: none !important; width: 100%; }
-        input:focus { border-color: #eab308 !important; }
-        @media print { .no-print { display: none; } body { background: white; color: black; } .glass { border: none; backdrop-filter: none; } }
+        .btn-primary { background: #eab308; color: #0f172a; font-weight: 900; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: all 0.2s; text-transform: uppercase; font-size: 10px; }
+        .status-badge { padding: 2px 8px; border-radius: 20px; font-size: 9px; font-weight: 900; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen" class="h-full flex items-center justify-center p-4">
-        <div class="max-w-md w-full glass p-10 rounded-[2.5rem] border-t-4 border-yellow-500 shadow-2xl">
-            <div class="text-center mb-10">
-                <h1 class="text-5xl font-black text-yellow-500 italic leading-none">DG <span class="text-white">PRO</span></h1>
-                <p class="text-[10px] text-slate-500 mt-2 font-bold tracking-[0.3em] uppercase">Ecosystem 2026</p>
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 bg-slate-950">
+        <div class="max-w-md w-full glass p-10 rounded-[2.5rem] shadow-2xl border-t-4 border-yellow-500">
+            <div class="text-center mb-8">
+                <h1 class="text-5xl font-black text-yellow-500 italic">DG ENTERPRISE</h1>
+                <p class="text-slate-500 text-xs mt-2 uppercase font-bold tracking-widest">Management Suite 2026</p>
             </div>
             <form id="login-form" class="space-y-4">
-                <input type="text" id="user" placeholder="Usuario / Email" required>
-                <input type="password" id="pass" placeholder="Contraseña" required>
-                <button type="submit" class="w-full bg-yellow-500 text-slate-950 font-black py-4 rounded-2xl uppercase hover:scale-95 transition-all">Acceder al Sistema</button>
+                <input type="text" id="user" placeholder="Email o Usuario" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none text-white focus:ring-1 ring-yellow-500">
+                <input type="password" id="pass" placeholder="Contraseña" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none text-white focus:ring-1 ring-yellow-500">
+                <button type="submit" class="w-full bg-yellow-500 text-slate-950 font-black py-4 rounded-2xl uppercase hover:scale-[1.02] transition-transform">Iniciar Sesión</button>
             </form>
         </div>
     </div>
 
-    <div id="main-layout" class="hidden h-screen flex no-print">
+    <div id="main-layout" class="hidden h-screen flex overflow-hidden">
         <aside class="w-64 glass border-r border-slate-800 flex flex-col p-4">
-            <div class="mb-10 px-4"><h2 class="text-2xl font-black text-yellow-500 italic">DETAILGEST</h2></div>
+            <div class="mb-8 px-4"><h2 class="text-xl font-black text-yellow-500 italic">DETAILGEST</h2></div>
             <nav id="nav-container" class="flex-1 space-y-1 overflow-y-auto custom-scroll"></nav>
             <div class="pt-4 border-t border-slate-800">
-                <p id="display-user" class="text-[10px] font-black text-white px-4 mb-2 truncate uppercase"></p>
-                <button onclick="location.reload()" class="w-full p-3 text-red-500 font-bold text-[10px] flex items-center gap-3 hover:bg-red-500/10 rounded-xl transition-all">
-                    <i class="fas fa-sign-out-alt"></i> CERRAR SESIÓN
-                </button>
+                <div id="user-info" class="flex items-center gap-3 px-4 mb-4">
+                    <div class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-slate-950 font-black text-xs" id="user-initial">U</div>
+                    <div class="overflow-hidden"><p id="user-name" class="text-[10px] font-black truncate">Usuario</p><p id="user-role" class="text-[8px] text-slate-500 uppercase">Rol</p></div>
+                </div>
+                <button onclick="logout()" class="w-full p-3 text-red-500 font-bold text-[10px] flex items-center gap-3 hover:bg-red-500/10 rounded-xl"><i class="fas fa-sign-out-alt"></i> CERRAR SESIÓN</button>
             </div>
         </aside>
 
-        <main class="flex-1 overflow-y-auto p-8 custom-scroll">
-            <div class="flex justify-between items-center mb-8">
-                <h2 id="view-title" class="text-3xl font-black text-white uppercase italic tracking-tighter">Vista</h2>
-                <div id="top-stats" class="flex gap-4"></div>
+        <main class="flex-1 overflow-y-auto p-8 custom-scroll bg-[#060910]">
+            
+            <div id="view-sa-dashboard" class="view hidden space-y-6">
+                <h2 class="text-3xl font-black text-white">Panel de Control <span class="text-yellow-500">SuperAdmin</span></h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="glass p-6 rounded-3xl">
+                        <p class="text-[10px] text-slate-500 font-bold uppercase">Empresas Activas</p>
+                        <h3 class="text-3xl font-black" id="sa-total-companies">0</h3>
+                    </div>
+                </div>
+                <div class="glass rounded-[2rem] overflow-hidden">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-900/50 text-slate-400">
+                            <tr><th class="p-4">Empresa</th><th class="p-4">Plan/Pago</th><th class="p-4">Estado</th><th class="p-4">Acciones</th></tr>
+                        </thead>
+                        <tbody id="sa-companies-list"></tbody>
+                    </table>
+                </div>
             </div>
-            <div id="content-area" class="animate-in fade-in duration-500"></div>
+
+            <div id="view-resumen" class="view hidden space-y-6">
+                <div class="flex justify-between items-center"><h2 class="text-3xl font-black uppercase italic text-yellow-500">Resumen de Negocio</h2></div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="glass p-6 rounded-3xl border-l-4 border-green-500">
+                        <p class="text-[10px] text-slate-500 font-bold uppercase">Ingresos Mes</p>
+                        <h3 class="text-2xl font-black" id="res-ingresos-mes">0 Gs</h3>
+                    </div>
+                    <div class="glass p-6 rounded-3xl border-l-4 border-red-500">
+                        <p class="text-[10px] text-slate-500 font-bold uppercase">Egresos Mes</p>
+                        <h3 class="text-2xl font-black" id="res-egresos-mes">0 Gs</h3>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass p-6 rounded-[2rem] h-80"><canvas id="chartPrincipal"></canvas></div>
+                    <div class="glass p-6 rounded-[2rem] overflow-y-auto custom-scroll h-80">
+                        <h4 class="text-xs font-black mb-4 uppercase">Top Servicios</h4>
+                        <div id="res-top-servicios" class="space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-caja" class="view hidden space-y-6">
+                <div class="flex flex-col lg:flex-row gap-6">
+                    <div class="flex-1 space-y-4">
+                        <input type="text" id="pos-search" placeholder="Buscar servicios..." class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none focus:ring-1 ring-yellow-500">
+                        <div id="pos-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+                    </div>
+                    <div class="w-full lg:w-96 glass p-6 rounded-[2.5rem] h-fit">
+                        <h3 class="text-xl font-black text-yellow-500 mb-6 uppercase text-center italic">Terminal de Venta</h3>
+                        <div class="space-y-3 mb-4">
+                            <div class="flex gap-2">
+                                <select id="pos-client-select" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs"></select>
+                                <button onclick="showQuickClientModal()" class="bg-yellow-500 text-slate-950 px-3 rounded-xl"><i class="fas fa-plus"></i></button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="date" id="pos-date" class="bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs">
+                                <input type="time" id="pos-time" class="bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs">
+                            </div>
+                        </div>
+                        <div id="pos-cart" class="border-y border-slate-800 py-4 mb-4 max-h-40 overflow-y-auto custom-scroll"></div>
+                        <div class="bg-slate-900/50 p-4 rounded-2xl mb-4 space-y-2">
+                            <div class="flex gap-2">
+                                <input type="number" id="pos-disc-val" oninput="updatePOSCalc()" placeholder="Descuento" class="flex-1 bg-slate-800 rounded-lg p-2 text-xs">
+                                <select id="pos-disc-type" onchange="updatePOSCalc()" class="bg-slate-800 rounded-lg p-2 text-xs font-black text-yellow-500"><option value="fijo">Gs</option><option value="porc">%</option></select>
+                            </div>
+                        </div>
+                        <div class="flex justify-between text-2xl font-black text-yellow-500 mb-6"><span>TOTAL:</span><span id="pos-total">0 Gs</span></div>
+                        <button onclick="finalizeSale()" class="w-full bg-yellow-500 text-slate-950 font-black py-4 rounded-2xl uppercase">Confirmar y Ticket</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-dynamic" class="view hidden"></div>
+
         </main>
     </div>
 
-    <div id="global-modal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-        <div class="glass max-w-lg w-full p-8 rounded-[3rem] shadow-2xl relative" id="modal-body"></div>
+    <div id="modal-quick-client" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="max-w-md w-full glass p-8 rounded-[2rem]">
+            <h3 class="text-xl font-black text-yellow-500 mb-6 uppercase">Registro Rápido</h3>
+            <div class="space-y-4">
+                <input type="text" id="qc-name" placeholder="Nombre y Apellido" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl outline-none">
+                <input type="text" id="qc-phone" placeholder="Celular" class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl outline-none">
+                <div class="flex gap-2 mt-6">
+                    <button onclick="hideQuickClientModal()" class="flex-1 p-3 text-slate-500 font-bold uppercase text-xs">Cancelar</button>
+                    <button onclick="saveQuickClient()" class="flex-[2] bg-yellow-500 text-slate-950 font-black p-3 rounded-xl uppercase text-xs">Guardar Cliente</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -68,311 +147,232 @@
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         let currentUser = null;
-        let currentCart = [];
-        let chartInstance = null;
+        let cart = [];
+        let servicesList = [];
+        let globalChart = null;
 
-        // CONFIGURACIÓN DE MENÚS POR ROL
-        const MENUS = {
-            super_admin: [
-                { id: 'sa_dashboard', label: 'Gestión Empresas', icon: 'fa-building', view: renderSA_Empresas },
-                { id: 'sa_pagos', label: 'Pagos & Cobros', icon: 'fa-wallet', view: renderSA_Pagos }
+        // --- MANEJO DE ROLES Y NAVEGACIÓN ---
+        const ROLES_MENU = {
+            'super_admin': [
+                {id: 'sa-dashboard', l: 'GESTIÓN EMPRESAS', i: 'fa-building'},
+                {id: 'sa-payments', l: 'PAGOS & ABONOS', i: 'fa-money-bill-wave'}
             ],
-            admin: [
-                { id: 'dashboard', label: 'Resumen Financiero', icon: 'fa-chart-line', view: renderDashboard },
-                { id: 'caja', label: 'Caja & Descuentos', icon: 'fa-cash-register', view: renderCaja },
-                { id: 'agenda', label: 'Agenda de Citas', icon: 'fa-calendar-alt', view: renderAgenda },
-                { id: 'clientes', label: 'Base Clientes', icon: 'fa-users', view: renderClientes },
-                { id: 'servicios', label: 'Catálogo Servicios', icon: 'fa-tags', view: renderServicios },
-                { id: 'egresos', label: 'Gastos / Egresos', icon: 'fa-arrow-down', view: renderEgresos },
-                { id: 'empleados', label: 'Mi Equipo', icon: 'fa-user-tie', view: renderEmpleados },
-                { id: 'reportes', label: 'Centro de Reportes', icon: 'fa-file-pdf', view: renderReportes },
-                { id: 'config', label: 'Configuración', icon: 'fa-cog', view: renderConfig }
+            'admin': [
+                {id: 'resumen', l: 'RESUMEN / DASHBOARD', i: 'fa-chart-line'},
+                {id: 'caja', l: 'CAJA POS', i: 'fa-cash-register'},
+                {id: 'agenda', l: 'AGENDA', i: 'fa-calendar-alt'},
+                {id: 'clientes', l: 'CLIENTES', i: 'fa-users'},
+                {id: 'servicios', l: 'SERVICIOS', i: 'fa-concierge-bell'},
+                {id: 'empleados', l: 'EMPLEADOS', i: 'fa-id-badge'},
+                {id: 'reportes', l: 'REPORTES', i: 'fa-file-invoice-dollar'},
+                {id: 'herramientas', l: 'HERRAMIENTAS PRO', i: 'fa-tools'},
+                {id: 'config', l: 'CONFIGURACIÓN', i: 'fa-cog'}
+            ],
+            'empleado': [
+                {id: 'caja', l: 'CAJA POS', i: 'fa-cash-register'},
+                {id: 'agenda', l: 'AGENDA', i: 'fa-calendar-alt'},
+                {id: 'clientes', l: 'CLIENTES', i: 'fa-users'}
             ]
         };
 
-        // --- LÓGICA DE AUTENTICACIÓN ---
+        // --- INICIO DE SESIÓN ---
         document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault();
             const u = document.getElementById('user').value;
             const p = document.getElementById('pass').value;
 
+            // Simulación de Super Admin (Hardware-coded para el ejercicio)
             if(u === 'admin@detailgest.com' && p === 'master2026') {
-                currentUser = { role: 'super_admin', name: 'Master' };
-                startApp();
+                currentUser = { name: 'Super Admin', role: 'super_admin', id: 'master' };
+                initDashboard();
+                return;
+            }
+
+            // Validación Supabase
+            const { data, error } = await _supabase.from('users').select('*, companies(*)').eq('username', u).eq('password_hash', p).maybeSingle();
+            
+            if(data) {
+                if(!data.companies.is_active) return alert("Cuenta suspendida por falta de pago.");
+                currentUser = data;
+                initDashboard();
             } else {
-                const { data, error } = await _supabase.from('users').select('*, companies(*)').eq('username', u).eq('password_hash', p).single();
-                if(data) {
-                    if(!data.companies.is_active) return alert("CUENTA INACTIVA POR PAGO");
-                    currentUser = data;
-                    startApp();
-                } else alert("Datos incorrectos");
+                alert("Credenciales incorrectas");
             }
         };
 
-        function startApp() {
+        function initDashboard() {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('main-layout').classList.remove('hidden');
-            document.getElementById('display-user').innerText = `${currentUser.name || currentUser.username} | ${currentUser.role}`;
             
-            const menuItems = MENUS[currentUser.role] || MENUS.admin;
+            document.getElementById('user-name').innerText = currentUser.name || currentUser.username;
+            document.getElementById('user-role').innerText = currentUser.role;
+
+            const menu = ROLES_MENU[currentUser.role] || ROLES_MENU['empleado'];
             const nav = document.getElementById('nav-container');
-            nav.innerHTML = menuItems.map(item => `
-                <div onclick="switchView('${item.id}')" id="nav-${item.id}" class="sidebar-item">
-                    <i class="fas ${item.icon} w-5"></i> ${item.label}
+            nav.innerHTML = menu.map(m => `
+                <div onclick="switchView('${m.id}')" id="nav-${m.id}" class="sidebar-item">
+                    <i class="fas ${m.i} w-5"></i> ${m.l}
                 </div>
             `).join('');
-            switchView(menuItems[0].id);
+
+            switchView(menu[0].id);
         }
 
-        function switchView(id) {
-            const allItems = [...MENUS.super_admin, ...MENUS.admin];
-            const active = allItems.find(x => x.id === id);
-            document.getElementById('view-title').innerText = active.label;
-            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active-tab'));
-            document.getElementById('nav-'+id)?.classList.add('active-tab');
-            active.view();
-        }
-
-        // --- VISTA CAJA (CON DESCUENTO) ---
-        async function renderCaja() {
-            const { data: servs } = await _supabase.from('services_list').select('*').eq('company_id', currentUser.company_id);
-            const { data: clis } = await _supabase.from('clients').select('*').eq('company_id', currentUser.company_id);
+        async function switchView(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active-tab'));
             
-            document.getElementById('content-area').innerHTML = `
-                <div class="flex flex-col lg:flex-row gap-8">
-                    <div class="flex-1 space-y-6">
-                        <input type="text" placeholder="Buscar servicio por nombre..." oninput="filterPOS(this.value)" class="glass">
-                        <div id="pos-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            ${servs.map(s => `
-                                <div onclick="addToCart(${s.id}, '${s.name}', ${s.price})" class="glass p-5 rounded-3xl cursor-pointer hover:border-yellow-500 transition-all active:scale-95">
-                                    <h4 class="text-[10px] font-black text-slate-500 uppercase">${s.name}</h4>
-                                    <p class="text-xl font-black text-yellow-500">${Number(s.price).toLocaleString()} Gs</p>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                    <div class="w-full lg:w-96 glass p-8 rounded-[3rem] h-fit sticky top-4 border-2 border-yellow-500/20">
-                        <div class="text-center mb-6"><i class="fas fa-shopping-cart text-yellow-500 text-2xl mb-2"></i><h3 class="font-black uppercase">Nueva Venta</h3></div>
-                        <div class="space-y-4 mb-6">
-                            <select id="pos-client"><option value="">Consumidor Final</option>${clis.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select>
-                            <div class="grid grid-cols-2 gap-2">
-                                <input type="date" id="pos-date" class="text-xs">
-                                <input type="time" id="pos-time" class="text-xs">
-                            </div>
-                        </div>
-                        <div id="cart-list" class="space-y-2 mb-6 border-y border-white/5 py-4 max-h-48 overflow-y-auto custom-scroll"></div>
-                        <div class="bg-slate-900/80 p-5 rounded-3xl space-y-4 mb-6">
-                            <div class="flex justify-between text-xs font-bold text-slate-500"><span>SUBTOTAL:</span><span id="pos-subtotal">0 Gs</span></div>
-                            <div class="flex gap-2">
-                                <input type="number" id="pos-disc-val" placeholder="0" class="flex-1 !p-2 !text-center font-black" oninput="updateTotals()">
-                                <select id="pos-disc-type" class="w-24 !p-2 font-black text-yellow-500" onchange="updateTotals()"><option value="fijo">Gs</option><option value="porc">%</option></select>
-                            </div>
-                            <div class="flex justify-between text-2xl font-black text-yellow-500 border-t border-white/5 pt-4"><span>TOTAL:</span><span id="pos-total">0 Gs</span></div>
-                        </div>
-                        <button onclick="saveSale()" class="w-full bg-yellow-500 text-slate-950 font-black py-5 rounded-2xl uppercase hover:brightness-110 shadow-lg shadow-yellow-500/10">Confirmar & Ticket</button>
-                    </div>
-                </div>
-            `;
-            setNow();
-            currentCart = [];
+            const target = document.getElementById('view-' + id) || document.getElementById('view-dynamic');
+            target.classList.remove('hidden');
+            document.getElementById('nav-' + id)?.classList.add('active-tab');
+
+            // Carga de datos específica
+            if(id === 'resumen') loadResumen();
+            if(id === 'caja') loadCaja();
+            if(id === 'sa-dashboard') loadSAManager();
+            if(id === 'agenda') loadAgenda();
         }
 
-        function addToCart(id, name, price) {
-            currentCart.push({id, name, price});
+        // --- MÓDULO CAJA (RESTAURADO) ---
+        async function loadCaja() {
+            const resS = await _supabase.from('services_list').select('*').eq('company_id', currentUser.company_id);
+            const resC = await _supabase.from('clients').select('*').eq('company_id', currentUser.company_id);
+            servicesList = resS.data || [];
+            
+            document.getElementById('pos-client-select').innerHTML = '<option value="">Consumidor Final</option>' + 
+                (resC.data || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            
+            renderPOSServices();
+            resetPOSForm();
+        }
+
+        function renderPOSServices() {
+            const q = document.getElementById('pos-search').value.toLowerCase();
+            document.getElementById('pos-grid').innerHTML = servicesList.filter(s => s.name.toLowerCase().includes(q)).map(s => `
+                <div onclick="addToCart('${s.id}')" class="glass p-4 rounded-2xl cursor-pointer hover:border-yellow-500 border border-transparent transition-all">
+                    <p class="text-[9px] font-black text-slate-500 uppercase">${s.name}</p>
+                    <p class="text-yellow-500 font-bold">${Number(s.price).toLocaleString()} Gs</p>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(id) {
+            const s = servicesList.find(x => x.id == id);
+            cart.push(s);
             updateCartUI();
         }
 
         function updateCartUI() {
-            const list = document.getElementById('cart-list');
-            list.innerHTML = currentCart.map((item, i) => `
-                <div class="flex justify-between items-center bg-white/5 p-3 rounded-xl">
-                    <div class="text-[10px] font-black uppercase"><span>${item.name}</span><br><span class="text-yellow-500">${item.price.toLocaleString()} Gs</span></div>
-                    <button onclick="currentCart.splice(${i},1); updateCartUI();" class="text-red-500 p-2"><i class="fas fa-trash"></i></button>
+            document.getElementById('pos-cart').innerHTML = cart.map((item, i) => `
+                <div class="flex justify-between items-center py-1 text-[10px] font-black uppercase">
+                    <span>${item.name}</span>
+                    <button onclick="cart.splice(${i},1); updateCartUI();" class="text-red-500"><i class="fas fa-times"></i></button>
                 </div>
             `).join('');
-            updateTotals();
+            updatePOSCalc();
         }
 
-        function updateTotals() {
-            const sub = currentCart.reduce((a, b) => a + b.price, 0);
+        function updatePOSCalc() {
+            const sub = cart.reduce((a, b) => a + Number(b.price), 0);
             const dVal = Number(document.getElementById('pos-disc-val').value) || 0;
             const dType = document.getElementById('pos-disc-type').value;
-            const discount = dType === 'fijo' ? dVal : (sub * dVal / 100);
-            const total = Math.max(0, sub - discount);
-            
-            document.getElementById('pos-subtotal').innerText = sub.toLocaleString() + ' Gs';
-            document.getElementById('pos-total').innerText = total.toLocaleString() + ' Gs';
+            const disc = dType === 'fijo' ? dVal : (sub * dVal / 100);
+            document.getElementById('pos-total').innerText = (sub - disc).toLocaleString() + ' Gs';
         }
 
-        async function saveSale() {
-            if(currentCart.length === 0) return alert("Carrito vacío");
-            const totalFinal = parseInt(document.getElementById('pos-total').innerText.replace(/\D/g,''));
+        async function finalizeSale() {
+            if(cart.length === 0) return alert("Carrito vacío");
+            const total = parseInt(document.getElementById('pos-total').innerText.replace(/\D/g,''));
+            
             const payload = {
                 company_id: currentUser.company_id,
-                total_final: totalFinal,
-                details: currentCart.map(x => x.name).join(', '),
-                client_id: document.getElementById('pos-client').value || null,
+                total_final: total,
+                details: cart.map(c => c.name).join(', '),
                 status: 'Pendiente',
-                created_at: `${document.getElementById('pos-date').value}T${document.getElementById('pos-time').value}:00`
+                created_at: `${document.getElementById('pos-date').value}T${document.getElementById('pos-time').value}:00`,
+                client_id: document.getElementById('pos-client-select').value || null
             };
 
             const { error } = await _supabase.from('sales').insert([payload]);
             if(!error) {
-                alert("VENTA Y TURNO REGISTRADO");
-                window.print();
+                alert("¡Turno agendado con éxito!");
+                window.print(); // Simulación de ticket
                 switchView('agenda');
             }
         }
 
-        // --- VISTA RESUMEN (INGRESOS VS EGRESOS) ---
-        async function renderDashboard() {
-            const { data: sales } = await _supabase.from('sales').select('*').eq('company_id', currentUser.company_id);
-            const { data: expenses } = await _supabase.from('expenses').select('*').eq('company_id', currentUser.company_id);
-            
-            const totalIn = sales.reduce((a, b) => a + Number(b.total_final), 0);
-            const totalOut = expenses.reduce((a, b) => a + Number(b.amount), 0);
-            const balance = totalIn - totalOut;
-
-            document.getElementById('content-area').innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="glass p-8 rounded-[2rem] border-b-4 border-green-500">
-                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ingresos Totales</p>
-                        <h3 class="text-3xl font-black text-green-400 mt-2">${totalIn.toLocaleString()} Gs</h3>
-                    </div>
-                    <div class="glass p-8 rounded-[2rem] border-b-4 border-red-500">
-                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Egresos Totales</p>
-                        <h3 class="text-3xl font-black text-red-400 mt-2">${totalOut.toLocaleString()} Gs</h3>
-                    </div>
-                    <div class="glass p-8 rounded-[2rem] border-b-4 border-yellow-500 bg-yellow-500/5">
-                        <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Utilidad Neta</p>
-                        <h3 class="text-3xl font-black text-yellow-500 mt-2">${balance.toLocaleString()} Gs</h3>
-                    </div>
-                </div>
-                <div class="glass p-8 rounded-[3.5rem] h-[400px]">
-                    <canvas id="mainChart"></canvas>
-                </div>
-            `;
-            initChart(totalIn, totalOut);
-        }
-
-        function initChart(inbound, outbound) {
-            const ctx = document.getElementById('mainChart').getContext('2d');
-            if(chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Ingresos', 'Egresos'],
-                    datasets: [{
-                        data: [inbound, outbound],
-                        backgroundColor: ['#4ade80', '#f87171'],
-                        borderRadius: 20,
-                        barThickness: 60
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { ticks: { color: '#64748b' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        x: { ticks: { color: '#f1f5f9', font: { weight: 'bold' } }, grid: { display: false } }
-                    }
-                }
-            });
-        }
-
-        // --- VISTA EGRESOS (GASTOS) ---
-        async function renderEgresos() {
-            const { data } = await _supabase.from('expenses').select('*').eq('company_id', currentUser.company_id).order('created_at', {ascending: false});
-            document.getElementById('content-area').innerHTML = `
-                <div class="max-w-xl mx-auto glass p-10 rounded-[3rem] mb-10">
-                    <h3 class="text-center font-black uppercase mb-6 italic text-red-400">Registrar Gasto</h3>
-                    <div class="space-y-4">
-                        <input type="text" id="exp-desc" placeholder="Descripción (Ej: Compra de Shampoo)">
-                        <input type="number" id="exp-amount" placeholder="Monto Gs">
-                        <button onclick="saveExpense()" class="w-full bg-red-500 text-black font-black py-4 rounded-2xl uppercase">Registrar Salida de Dinero</button>
-                    </div>
-                </div>
-                <div class="glass rounded-3xl overflow-hidden">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-white/5"><tr><th class="p-4">Fecha</th><th class="p-4">Descripción</th><th class="p-4">Monto</th></tr></thead>
-                        <tbody>${data.map(e => `<tr class="border-b border-white/5"><td class="p-4">${e.created_at.split('T')[0]}</td><td class="p-4 uppercase">${e.description}</td><td class="p-4 font-black text-red-400">-${Number(e.amount).toLocaleString()} Gs</td></tr>`).join('')}</tbody>
-                    </table>
-                </div>
-            `;
-        }
-
-        async function saveExpense() {
-            const description = document.getElementById('exp-desc').value;
-            const amount = document.getElementById('exp-amount').value;
-            if(!description || !amount) return;
-            await _supabase.from('expenses').insert([{description, amount, company_id: currentUser.company_id}]);
-            renderEgresos();
-        }
-
-        // --- SUPER ADMIN: GESTIÓN EMPRESAS ---
-        async function renderSA_Empresas() {
+        // --- SUPER ADMIN MANAGER ---
+        async function loadSAManager() {
             const { data } = await _supabase.from('companies').select('*');
-            document.getElementById('content-area').innerHTML = `
-                <div class="flex justify-end mb-6"><button onclick="modalAddCompany()" class="bg-yellow-500 text-black px-8 py-3 rounded-2xl font-black text-xs">AÑADIR NUEVO CLIENTE (TALLER)</button></div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    ${data.map(c => `
-                        <div class="glass p-8 rounded-[2.5rem] border-t-4 ${c.is_active ? 'border-green-500' : 'border-red-500'}">
-                            <h4 class="text-xl font-black text-white mb-1">${c.name}</h4>
-                            <p class="text-[10px] font-bold text-slate-500 uppercase mb-4">Dueño: ${c.owner_name || 'N/A'}</p>
-                            <div class="flex justify-between items-center border-t border-white/5 pt-4">
-                                <span class="text-[9px] font-black uppercase ${c.is_active ? 'text-green-500' : 'text-red-500'}">${c.is_active ? 'Suscripción Activa' : 'Cuenta Suspendida'}</span>
-                                <button onclick="toggleCompany('${c.id}', ${c.is_active})" class="text-[10px] font-black bg-white/10 px-4 py-2 rounded-lg">${c.is_active ? 'DESACTIVAR' : 'ACTIVAR'}</button>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-
-        // --- FUNCIONES SOPORTE ---
-        function setNow() {
-            const now = new Date();
-            document.getElementById('pos-date').value = now.toISOString().split('T')[0];
-            document.getElementById('pos-time').value = now.toTimeString().slice(0,5);
+            document.getElementById('sa-total-companies').innerText = data.length;
+            document.getElementById('sa-companies-list').innerHTML = data.map(c => `
+                <tr class="border-b border-slate-800 hover:bg-white/5">
+                    <td class="p-4 font-bold text-white">${c.name}</td>
+                    <td class="p-4">${c.plan || 'Plan Base'}</td>
+                    <td class="p-4"><span class="status-badge ${c.is_active ? 'bg-green-500 text-green-950' : 'bg-red-500 text-red-950'}">${c.is_active ? 'Activo' : 'Suspendido'}</span></td>
+                    <td class="p-4 flex gap-2">
+                        <button onclick="toggleCompany('${c.id}', ${c.is_active})" class="btn-primary !bg-slate-800 !text-white">${c.is_active ? 'Inhabilitar' : 'Activar'}</button>
+                        <button class="btn-primary"><i class="fas fa-edit"></i></button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
         async function toggleCompany(id, status) {
             await _supabase.from('companies').update({ is_active: !status }).eq('id', id);
-            renderSA_Empresas();
+            loadSAManager();
         }
 
-        function modalAddCompany() {
-            document.getElementById('global-modal').classList.remove('hidden');
-            document.getElementById('modal-body').innerHTML = `
-                <h3 class="text-2xl font-black text-yellow-500 italic mb-6">REGISTRAR EMPRESA</h3>
-                <div class="space-y-4">
-                    <input type="text" id="new-comp-name" placeholder="Nombre del Taller">
-                    <input type="text" id="new-comp-owner" placeholder="Nombre del Propietario">
-                    <div class="flex gap-2 mt-6">
-                        <button onclick="document.getElementById('global-modal').classList.add('hidden')" class="flex-1 font-black text-slate-500 text-xs uppercase">Cerrar</button>
-                        <button onclick="createNewCompany()" class="flex-[2] bg-yellow-500 text-black font-black py-4 rounded-2xl text-xs uppercase">Dar de Alta</button>
+        // --- HERRAMIENTAS EXTRAS (CREATIVIDAD) ---
+        function loadHerramientas() {
+            const view = document.getElementById('view-dynamic');
+            view.innerHTML = `
+                <div class="space-y-6">
+                    <h2 class="text-3xl font-black text-yellow-500 italic">HERRAMIENTAS DE GESTIÓN</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="glass p-8 rounded-[2rem]">
+                            <i class="fab fa-whatsapp text-4xl text-green-500 mb-4"></i>
+                            <h4 class="font-black uppercase">Recordatorio WhatsApp</h4>
+                            <p class="text-xs text-slate-500 mb-4">Genera un link para enviar recordatorios de turnos hoy.</p>
+                            <input type="text" id="wa-num" placeholder="Número (ej: 5959...)" class="w-full bg-slate-900 p-3 rounded-xl mb-2 text-xs">
+                            <button onclick="sendWA()" class="btn-primary w-full">Abrir Chat</button>
+                        </div>
+                        <div class="glass p-8 rounded-[2rem]">
+                            <i class="fas fa-calculator text-4xl text-blue-500 mb-4"></i>
+                            <h4 class="font-black uppercase">Calculadora de Margen</h4>
+                            <p class="text-xs text-slate-500 mb-4">Calcula cuánto estás ganando por servicio descontando insumos.</p>
+                            <div class="space-y-2">
+                                <input type="number" id="m-cost" placeholder="Costo Insumos" class="w-full bg-slate-900 p-3 rounded-xl text-xs">
+                                <input type="number" id="m-price" placeholder="Precio Venta" class="w-full bg-slate-900 p-3 rounded-xl text-xs">
+                                <button onclick="calcMargin()" class="btn-primary w-full">Calcular %</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
         }
 
-        async function createNewCompany() {
-            const name = document.getElementById('new-comp-name').value;
-            const owner = document.getElementById('new-comp-owner').value;
-            await _supabase.from('companies').insert([{name, owner_name: owner, is_active: true}]);
-            document.getElementById('global-modal').classList.add('hidden');
-            renderSA_Empresas();
+        // --- AUXILIARES ---
+        function resetPOSForm() {
+            const now = new Date();
+            document.getElementById('pos-date').value = now.toISOString().split('T')[0];
+            document.getElementById('pos-time').value = now.toTimeString().slice(0,5);
+            cart = [];
+            updateCartUI();
         }
 
-        // --- RESTO DE VISTAS (PLACEHOLDERS FUNCIONALES) ---
-        function renderAgenda() { document.getElementById('content-area').innerHTML = '<div class="glass p-10 rounded-3xl text-center">Módulo de Agenda con Drag & Drop en desarrollo...</div>'; }
-        function renderClientes() { document.getElementById('content-area').innerHTML = '<div class="glass p-10 rounded-3xl text-center">Gestión de Clientes Activa</div>'; }
-        function renderServicios() { document.getElementById('content-area').innerHTML = '<div class="glass p-10 rounded-3xl text-center">Catálogo de Servicios</div>'; }
-        function renderEmpleados() { document.getElementById('content-area').innerHTML = '<div class="glass p-10 rounded-3xl text-center">Equipo de Trabajo</div>'; }
-        function renderReportes() { document.getElementById('content-area').innerHTML = '<div class="glass p-10 rounded-3xl text-center">Exportación PDF/Excel</div>'; }
-        function renderConfig() { document.getElementById('content-area').innerHTML = '<div class="glass p-10 rounded-3xl text-center">Datos del Comercio</div>'; }
-        function renderSA_Pagos() { document.getElementById('content-area').innerHTML = '<div class="glass p-10 rounded-3xl text-center">Control de Cobros Mensuales</div>'; }
+        function logout() { localStorage.removeItem('dg_session'); location.reload(); }
+        
+        function showQuickClientModal() { document.getElementById('modal-quick-client').classList.remove('hidden'); }
+        function hideQuickClientModal() { document.getElementById('modal-quick-client').classList.add('hidden'); }
+        async function saveQuickClient() {
+            const name = document.getElementById('qc-name').value;
+            const phone = document.getElementById('qc-phone').value;
+            if(!name) return;
+            await _supabase.from('clients').insert([{name, phone, company_id: currentUser.company_id}]);
+            hideQuickClientModal();
+            loadCaja();
+        }
 
     </script>
 </body>
