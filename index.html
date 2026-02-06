@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DetailGest Pro v2.8 - Admin Suite</title>
+    <title>DetailGest Pro v2.9 - Business Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background: #0f172a; color: #f1f5f9; font-family: 'Inter', sans-serif; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .card-glow-green { box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); }
+        .card-glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.1); }
     </style>
 </head>
 <body>
 
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
-        <div class="max-w-md w-full glass p-8 rounded-3xl shadow-2xl border-t-4 border-yellow-500">
-            <h1 class="text-5xl font-black text-yellow-500 text-center mb-2 italic tracking-tighter">DG PRO</h1>
-            <p class="text-center text-slate-500 text-xs font-bold uppercase tracking-widest mb-8">Admin Dashboard</p>
-            <form id="login-form" class="space-y-4">
+        <div class="max-w-md w-full glass p-8 rounded-3xl shadow-2xl border-t-4 border-yellow-500 text-center">
+            <h1 class="text-5xl font-black text-yellow-500 mb-2 italic tracking-tighter text-center">DG PRO</h1>
+            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-8">Gestión de Lavaderos</p>
+            <form id="login-form" class="space-y-4 text-left">
                 <input type="text" id="user" placeholder="Usuario" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-yellow-500 text-white">
                 <input type="password" id="pass" placeholder="Contraseña" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-yellow-500 text-white">
                 <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black py-4 rounded-2xl shadow-lg transition-all">ENTRAR AL SISTEMA</button>
@@ -31,90 +32,106 @@
 
     <div id="dashboard" class="hidden min-h-screen flex flex-col">
         <nav class="glass sticky top-0 z-50 p-4 border-b border-slate-800 flex justify-between items-center px-8">
-            <h2 class="text-xl font-black text-yellow-500 italic">DETAILGEST <span class="text-slate-500 font-light text-sm not-italic ml-2">v2.8</span></h2>
-            <button onclick="location.reload()" class="text-red-400 hover:bg-red-500/10 px-4 py-2 rounded-xl text-xs font-bold transition-all"><i class="fas fa-power-off mr-2"></i>SALIR</button>
+            <h2 class="text-xl font-black text-yellow-500 italic">DETAILGEST <span id="client-name-tag" class="text-slate-500 font-light text-sm not-italic ml-2"></span></h2>
+            <div class="flex items-center gap-4">
+                <a href="https://wa.me/595981000000" target="_blank" class="text-emerald-400 text-xs font-bold hover:opacity-80"><i class="fab fa-whatsapp mr-1"></i> SOPORTE</a>
+                <button onclick="location.reload()" class="text-red-400 hover:bg-red-500/10 px-4 py-2 rounded-xl text-xs font-bold transition-all"><i class="fas fa-power-off"></i></button>
+            </div>
         </nav>
 
-        <main class="p-6 max-w-7xl mx-auto w-full space-y-8">
+        <main class="p-4 max-w-6xl mx-auto w-full space-y-6">
             
             <div id="view-superadmin" class="hidden space-y-6">
                 <div class="glass p-6 rounded-3xl border-l-4 border-emerald-500">
-                    <h3 class="text-slate-400 font-bold mb-4 uppercase text-xs tracking-widest text-emerald-500">Registrar Nuevo Taller</h3>
+                    <h3 class="text-slate-400 font-bold mb-4 uppercase text-xs">Registrar Nuevo Taller</h3>
                     <form id="auto-register-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <input type="text" id="new-comp-name" placeholder="Nombre Taller" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl outline-none text-white text-sm">
-                        <input type="number" id="new-due-day" placeholder="Día Cobro" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl outline-none text-white text-sm">
-                        <input type="text" id="new-user" placeholder="Usuario Acceso" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl outline-none text-white text-sm">
-                        <input type="text" id="new-pass" placeholder="Password" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl outline-none text-white text-sm">
+                        <input type="text" id="new-comp-name" placeholder="Nombre Taller" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none">
+                        <input type="number" id="new-due-day" placeholder="Día Cobro" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none">
+                        <input type="text" id="new-user" placeholder="Usuario Acceso" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none">
+                        <input type="text" id="new-pass" placeholder="Password" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm outline-none">
                         <button type="submit" class="md:col-span-4 bg-emerald-600 hover:bg-emerald-500 font-black py-4 rounded-xl transition-all uppercase text-xs">Crear Taller</button>
                     </form>
                 </div>
-
                 <div class="glass rounded-3xl overflow-hidden shadow-xl">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-900/50 text-slate-500 text-[10px] uppercase font-bold">
-                            <tr>
-                                <th class="p-4">Taller</th>
-                                <th class="p-4">Día Cobro</th>
-                                <th class="p-4">Estado</th>
-                                <th class="p-4 text-right">Acciones</th>
-                            </tr>
-                        </thead>
+                        <thead class="bg-slate-900/50 text-slate-500 text-[10px] uppercase font-bold"><tr id="header-table-sa"></tr></thead>
                         <tbody id="companies-list" class="divide-y divide-slate-800"></tbody>
                     </table>
                 </div>
             </div>
 
             <div id="view-client" class="hidden space-y-6">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 glass p-6 rounded-3xl text-center flex items-center justify-center border-2 border-dashed border-slate-800">
-                         <p class="text-slate-600 uppercase font-black tracking-tighter text-4xl opacity-20 italic">DetailGest Operativo</p>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div class="glass p-5 rounded-3xl border-b-4 border-emerald-500 card-glow-green">
+                        <p class="text-slate-500 text-[10px] font-bold uppercase mb-1">Ingresos</p>
+                        <h4 id="client-total-sales" class="text-2xl font-black text-emerald-400">0 Gs</h4>
                     </div>
-                    <div class="space-y-4">
-                        <div class="glass p-4 rounded-2xl border-l-4 border-emerald-500">
-                            <p class="text-slate-500 text-[10px] font-bold uppercase">Ventas</p>
-                            <h4 id="total-cash" class="text-xl font-black text-emerald-400">0 Gs</h4>
-                        </div>
-                        <div class="glass p-4 rounded-2xl border-l-4 border-red-500">
-                            <p class="text-slate-500 text-[10px] font-bold uppercase">Gastos</p>
-                            <h4 id="total-gastos" class="text-xl font-black text-red-400">0 Gs</h4>
-                        </div>
+                    <div class="glass p-5 rounded-3xl border-b-4 border-red-500 card-glow-red">
+                        <p class="text-slate-500 text-[10px] font-bold uppercase mb-1">Gastos</p>
+                        <h4 id="client-total-expenses" class="text-2xl font-black text-red-400">0 Gs</h4>
                     </div>
+                    <div class="glass p-5 rounded-3xl border-b-4 border-blue-500 col-span-2 md:col-span-1">
+                        <p class="text-slate-500 text-[10px] font-bold uppercase mb-1">Caja Neta</p>
+                        <h4 id="client-total-net" class="text-2xl font-black text-blue-400">0 Gs</h4>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="openSaleModal()" class="bg-emerald-600 hover:bg-emerald-500 p-6 rounded-3xl flex flex-col items-center justify-center transition-all shadow-lg shadow-emerald-900/20">
+                        <i class="fas fa-car-wash text-2xl mb-2"></i>
+                        <span class="font-black text-xs uppercase tracking-widest">Nueva Venta</span>
+                    </button>
+                    <button onclick="openExpenseModal()" class="bg-slate-800 hover:bg-slate-700 p-6 rounded-3xl flex flex-col items-center justify-center border border-slate-700 transition-all">
+                        <i class="fas fa-receipt text-2xl mb-2 text-red-400"></i>
+                        <span class="font-black text-xs uppercase tracking-widest">Registrar Gasto</span>
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center px-2">
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest">Movimientos del Mes</h3>
+                    </div>
+                    <div id="client-movements-list" class="space-y-3 custom-scroll max-h-[500px] overflow-y-auto">
+                        </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <div id="edit-auth-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 z-[120]">
-        <div class="glass p-8 rounded-[2rem] w-full max-w-md border border-yellow-500/20">
-            <h3 class="text-xl font-black mb-6 text-yellow-500 uppercase italic">Accesos del Cliente</h3>
-            <form id="edit-auth-form" class="space-y-4">
-                <input type="hidden" id="auth-user-id">
-                <div>
-                    <label class="text-[10px] text-slate-500 font-bold ml-2">USUARIO</label>
-                    <input type="text" id="auth-username" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-500 font-bold ml-2">CONTRASEÑA</label>
-                    <input type="text" id="auth-password" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
-                </div>
-                <div class="flex gap-4 pt-4">
-                    <button type="button" onclick="closeAuthModal()" class="flex-1 text-slate-500 font-bold uppercase text-xs">Cancelar</button>
-                    <button type="submit" class="flex-[2] bg-yellow-600 text-slate-900 font-black py-4 rounded-2xl">ACTUALIZAR</button>
-                </div>
+    <div id="sale-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+        <div class="glass p-8 rounded-[2rem] w-full max-w-md border border-emerald-500/20">
+            <h3 class="text-xl font-black text-emerald-500 mb-6 uppercase italic"><i class="fas fa-plus mr-2"></i>Nueva Venta</h3>
+            <form id="client-sale-form" class="space-y-4">
+                <input type="text" id="s-client" placeholder="Cliente / Chapa del Vehículo" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none focus:border-emerald-500">
+                <input type="number" id="s-amount" placeholder="Monto en Gs" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none focus:border-emerald-500">
+                <button type="submit" class="w-full bg-emerald-600 py-4 rounded-2xl font-black uppercase shadow-lg">Registrar Servicio</button>
+                <button type="button" onclick="closeSaleModal()" class="w-full text-slate-500 text-[10px] font-bold uppercase mt-2">Cancelar</button>
             </form>
         </div>
     </div>
 
-    <div id="edit-comp-modal" class="hidden fixed inset-0 bg-slate-950/90 flex items-center justify-center p-4 z-[110]">
-        <div class="glass p-8 rounded-[2rem] w-full max-w-md">
-            <h3 class="text-xl font-black mb-6 text-blue-400 uppercase italic">Editar Taller</h3>
-            <form id="edit-comp-form" class="space-y-4">
-                <input type="hidden" id="edit-comp-id">
-                <input type="text" id="edit-comp-name" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
-                <input type="number" id="edit-comp-due" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
+    <div id="expense-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
+        <div class="glass p-8 rounded-[2rem] w-full max-w-md border border-red-500/20">
+            <h3 class="text-xl font-black text-red-500 mb-6 uppercase italic"><i class="fas fa-minus mr-2"></i>Nuevo Gasto</h3>
+            <form id="client-expense-form" class="space-y-4">
+                <input type="text" id="e-desc" placeholder="Descripción (Ej: Insumos, Luz)" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none focus:border-red-500">
+                <input type="number" id="e-amount" placeholder="Monto en Gs" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none focus:border-red-500">
+                <button type="submit" class="w-full bg-red-600 py-4 rounded-2xl font-black uppercase shadow-lg">Guardar Gasto</button>
+                <button type="button" onclick="closeExpenseModal()" class="w-full text-slate-500 text-[10px] font-bold uppercase mt-2">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="edit-auth-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 z-[120]">
+        <div class="glass p-8 rounded-[2rem] w-full max-w-md border border-yellow-500/20">
+            <h3 class="text-xl font-black mb-6 text-yellow-500 uppercase italic">Accesos del Cliente</h3>
+            <form id="edit-auth-form" class="space-y-4 text-left">
+                <input type="hidden" id="auth-user-id">
+                <input type="text" id="auth-username" required placeholder="Usuario" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
+                <input type="text" id="auth-password" required placeholder="Contraseña" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl text-white outline-none">
                 <div class="flex gap-4 pt-4">
-                    <button type="button" onclick="closeEditModal()" class="flex-1 text-slate-500 font-bold uppercase text-xs">Cancelar</button>
-                    <button type="submit" class="flex-[2] bg-blue-600 text-white font-black py-4 rounded-2xl">GUARDAR</button>
+                    <button type="button" onclick="closeAuthModal()" class="flex-1 text-slate-500 font-bold uppercase text-xs">Cerrar</button>
+                    <button type="submit" class="flex-[2] bg-yellow-600 text-slate-900 font-black py-4 rounded-2xl">ACTUALIZAR</button>
                 </div>
             </form>
         </div>
@@ -133,14 +150,15 @@
             e.preventDefault();
             const u = document.getElementById('user').value.trim();
             const p = document.getElementById('pass').value.trim();
-            const { data } = await _supabase.from('users').select('*, companies(*)').eq('username', u).eq('password_hash', p).maybeSingle();
+            const { data, error } = await _supabase.from('users').select('*, companies(*)').eq('username', u).eq('password_hash', p).maybeSingle();
+            
             if (data) {
                 if (data.role !== 'superadmin' && data.companies && !data.companies.is_active) {
-                    alert('CUENTA SUSPENDIDA'); return;
+                    alert('ACCESO SUSPENDIDO. Contacte al administrador.'); return;
                 }
                 currentUser = data;
                 showPanel(data.role);
-            } else { alert('Credenciales incorrectas'); }
+            } else { alert('Usuario o contraseña incorrectos.'); }
         });
 
         function showPanel(role) {
@@ -151,113 +169,118 @@
                 loadCompanies();
             } else {
                 document.getElementById('view-client').classList.remove('hidden');
-                loadSales();
+                document.getElementById('client-name-tag').innerText = `| ${currentUser.companies.name.toUpperCase()}`;
+                loadClientData();
             }
         }
 
         // --- FUNCIONES SUPER ADMIN ---
         async function loadCompanies() {
             const { data } = await _supabase.from('companies').select('*, users(id, username, password_hash)').order('created_at', {ascending: false});
-            
             document.getElementById('companies-list').innerHTML = data.map(c => {
                 const user = c.users && c.users[0] ? c.users[0] : {id: '', username: 'N/A', password_hash: ''};
-                return `
-                <tr class="hover:bg-slate-800/30">
-                    <td class="p-4">
-                        <div class="font-black text-yellow-500 uppercase text-xs">${c.name}</div>
-                        <div class="text-[10px] text-slate-500">User: ${user.username}</div>
-                    </td>
-                    <td class="p-4 text-xs font-bold">Día ${c.due_day}</td>
-                    <td class="p-4"><span class="px-2 py-1 rounded-full text-[9px] font-black ${c.is_active ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}">${c.is_active ? 'ACTIVO' : 'SUSPENDIDO'}</span></td>
-                    <td class="p-4 text-right flex justify-end gap-2">
-                        <button onclick="openAuthModal('${user.id}', '${user.username}', '${user.password_hash}')" title="Accesos" class="text-[10px] bg-yellow-500/10 text-yellow-500 p-2 rounded-lg border border-yellow-500/20"><i class="fas fa-key"></i></button>
-                        <button onclick="openEditModal('${c.id}', '${c.name}', ${c.due_day})" title="Editar Info" class="text-[10px] bg-blue-500/10 text-blue-400 p-2 rounded-lg border border-blue-500/20"><i class="fas fa-edit"></i></button>
-                        <button onclick="toggleCompany('${c.id}', ${c.is_active})" title="Suspender/Activar" class="text-[10px] bg-slate-800 p-2 rounded-lg border border-slate-700"><i class="fas fa-power-off"></i></button>
-                        <button onclick="deleteCompany('${c.id}', '${c.name}')" title="Eliminar Cliente" class="text-[10px] bg-red-500/10 text-red-500 p-2 rounded-lg border border-red-500/20"><i class="fas fa-trash"></i></button>
+                return `<tr class="hover:bg-slate-800/30">
+                    <td class="p-4 text-xs font-bold text-yellow-500 uppercase">${c.name}<br><span class="text-slate-500 font-normal">User: ${user.username}</span></td>
+                    <td class="p-4 text-xs">Día ${c.due_day}</td>
+                    <td class="p-4"><span class="px-2 py-1 rounded-full text-[9px] font-black ${c.is_active ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}">${c.is_active ? 'ACTIVO' : 'SUSP'}</span></td>
+                    <td class="p-4 text-right flex justify-end gap-1">
+                        <button onclick="openAuthModal('${user.id}', '${user.username}', '${user.password_hash}')" class="p-2 bg-yellow-500/10 text-yellow-500 rounded-lg"><i class="fas fa-key text-[10px]"></i></button>
+                        <button onclick="toggleCompany('${c.id}', ${c.is_active})" class="p-2 bg-slate-800 text-slate-400 rounded-lg"><i class="fas fa-power-off text-[10px]"></i></button>
+                        <button onclick="deleteCompany('${c.id}', '${c.name}')" class="p-2 bg-red-500/10 text-red-500 rounded-lg"><i class="fas fa-trash text-[10px]"></i></button>
                     </td>
                 </tr>`;
             }).join('');
         }
 
-        // ELIMINAR CLIENTE TOTALMENTE
-        async function deleteCompany(id, name) {
-            if (confirm(`¿ESTÁS SEGURO? Se eliminará el taller "${name.toUpperCase()}", sus usuarios, ventas y gastos de forma permanente.`)) {
-                // Primero eliminamos los usuarios vinculados a esa empresa
-                await _supabase.from('users').delete().eq('company_id', id);
-                // Luego eliminamos la empresa
-                const { error } = await _supabase.from('companies').delete().eq('id', id);
-                
-                if (error) alert("Error al eliminar: " + error.message);
-                else { alert("Taller eliminado correctamente."); loadCompanies(); }
-            }
-        }
-
-        function openAuthModal(id, user, pass) {
-            document.getElementById('auth-user-id').value = id;
-            document.getElementById('auth-username').value = user;
-            document.getElementById('auth-password').value = pass;
-            document.getElementById('edit-auth-modal').classList.remove('hidden');
-        }
+        async function toggleCompany(id, status) { await _supabase.from('companies').update({ is_active: !status }).eq('id', id); loadCompanies(); }
+        async function deleteCompany(id, name) { if(confirm(`¿Borrar ${name}?`)){ await _supabase.from('users').delete().eq('company_id', id); await _supabase.from('companies').delete().eq('id', id); loadCompanies(); }}
+        function openAuthModal(id, user, pass) { document.getElementById('auth-user-id').value = id; document.getElementById('auth-username').value = user; document.getElementById('auth-password').value = pass; document.getElementById('edit-auth-modal').classList.remove('hidden'); }
         function closeAuthModal() { document.getElementById('edit-auth-modal').classList.add('hidden'); }
-
-        document.getElementById('edit-auth-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('auth-user-id').value;
-            const { error } = await _supabase.from('users').update({ 
-                username: document.getElementById('auth-username').value, 
-                password_hash: document.getElementById('auth-password').value 
-            }).eq('id', id);
-            if(!error) { closeAuthModal(); loadCompanies(); }
-        });
-
-        function openEditModal(id, name, due) {
-            document.getElementById('edit-comp-id').value = id;
-            document.getElementById('edit-comp-name').value = name;
-            document.getElementById('edit-comp-due').value = due;
-            document.getElementById('edit-comp-modal').classList.remove('hidden');
-        }
-        function closeEditModal() { document.getElementById('edit-comp-modal').classList.add('hidden'); }
-
-        document.getElementById('edit-comp-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await _supabase.from('companies').update({ 
-                name: document.getElementById('edit-comp-name').value, 
-                due_day: document.getElementById('edit-comp-due').value 
-            }).eq('id', document.getElementById('edit-comp-id').value);
-            closeEditModal(); loadCompanies();
-        });
-
-        async function toggleCompany(id, status) {
-            await _supabase.from('companies').update({ is_active: !status }).eq('id', id);
-            loadCompanies();
-        }
+        document.getElementById('edit-auth-form').addEventListener('submit', async (e) => { e.preventDefault(); await _supabase.from('users').update({ username: document.getElementById('auth-username').value, password_hash: document.getElementById('auth-password').value }).eq('id', document.getElementById('auth-user-id').value); closeAuthModal(); loadCompanies(); });
 
         document.getElementById('auto-register-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const { data: comp } = await _supabase.from('companies').insert([{ 
-                name: document.getElementById('new-comp-name').value, 
-                due_day: document.getElementById('new-due-day').value 
-            }]).select().single();
-            if (comp) {
-                await _supabase.from('users').insert([{ 
-                    username: document.getElementById('new-user').value, 
-                    password_hash: document.getElementById('new-pass').value, 
-                    role: 'admin_empresa', 
-                    company_id: comp.id 
-                }]);
-                loadCompanies(); e.target.reset();
-            }
+            const { data: comp } = await _supabase.from('companies').insert([{ name: document.getElementById('new-comp-name').value, due_day: document.getElementById('new-due-day').value }]).select().single();
+            if (comp) { await _supabase.from('users').insert([{ username: document.getElementById('new-user').value, password_hash: document.getElementById('new-pass').value, role: 'admin_empresa', company_id: comp.id }]); loadCompanies(); e.target.reset(); }
         });
 
-        async function loadSales() {
-            const { data: v } = await _supabase.from('sales').select('*').eq('company_id', currentUser.company_id);
-            const { data: g } = await _supabase.from('gastos').select('*').eq('company_id', currentUser.company_id);
-            let tv = 0, tg = 0;
-            v?.forEach(x => tv += Number(x.total_final));
-            g?.forEach(x => tg += Number(x.monto));
-            document.getElementById('total-cash').innerText = tv.toLocaleString() + ' Gs';
-            document.getElementById('total-gastos').innerText = tg.toLocaleString() + ' Gs';
+        // --- FUNCIONES PANEL CLIENTE (NEGOCIO) ---
+        function openSaleModal() { document.getElementById('sale-modal').classList.remove('hidden'); }
+        function closeSaleModal() { document.getElementById('sale-modal').classList.add('hidden'); }
+        function openExpenseModal() { document.getElementById('expense-modal').classList.remove('hidden'); }
+        function closeExpenseModal() { document.getElementById('expense-modal').classList.add('hidden'); }
+
+        async function loadClientData() {
+            const cid = currentUser.company_id;
+            const { data: sales } = await _supabase.from('sales').select('*').eq('company_id', cid).order('created_at', {ascending: false});
+            const { data: expenses } = await _supabase.from('gastos').select('*').eq('company_id', cid).order('created_at', {ascending: false});
+
+            let totalV = 0, totalG = 0;
+            sales?.forEach(s => totalV += Number(s.total_final));
+            expenses?.forEach(e => totalG += Number(e.monto));
+
+            document.getElementById('client-total-sales').innerText = totalV.toLocaleString() + ' Gs';
+            document.getElementById('client-total-expenses').innerText = totalG.toLocaleString() + ' Gs';
+            document.getElementById('client-total-net').innerText = (totalV - totalG).toLocaleString() + ' Gs';
+
+            // Mezclar movimientos para la lista
+            let moveHTML = '';
+            sales?.forEach(s => {
+                moveHTML += `
+                <div class="glass p-4 rounded-2xl flex justify-between items-center border-l-4 border-emerald-500">
+                    <div>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase">Ingreso</p>
+                        <p class="text-sm font-black uppercase text-slate-200">${s.client_info}</p>
+                    </div>
+                    <div class="text-right flex items-center gap-4">
+                        <span class="text-emerald-400 font-black">${Number(s.total_final).toLocaleString()} Gs</span>
+                        <button onclick="deleteMove('sales', '${s.id}')" class="text-slate-600 hover:text-red-500 transition-all"><i class="fas fa-times-circle"></i></button>
+                    </div>
+                </div>`;
+            });
+            expenses?.forEach(e => {
+                moveHTML += `
+                <div class="glass p-4 rounded-2xl flex justify-between items-center border-l-4 border-red-500">
+                    <div>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase">Gasto</p>
+                        <p class="text-sm font-black uppercase text-slate-200">${e.descripcion}</p>
+                    </div>
+                    <div class="text-right flex items-center gap-4">
+                        <span class="text-red-400 font-black">${Number(e.monto).toLocaleString()} Gs</span>
+                        <button onclick="deleteMove('gastos', '${e.id}')" class="text-slate-600 hover:text-red-500 transition-all"><i class="fas fa-times-circle"></i></button>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('client-movements-list').innerHTML = moveHTML || '<p class="text-center text-slate-600 py-10">Sin movimientos registrados.</p>';
         }
+
+        async function deleteMove(table, id) {
+            if(confirm("¿Eliminar este registro?")) {
+                await _supabase.from(table).delete().eq('id', id);
+                loadClientData();
+            }
+        }
+
+        document.getElementById('client-sale-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await _supabase.from('sales').insert([{ 
+                company_id: currentUser.company_id, 
+                client_info: document.getElementById('s-client').value, 
+                total_final: document.getElementById('s-amount').value,
+                estado: 'completado'
+            }]);
+            closeSaleModal(); e.target.reset(); loadClientData();
+        });
+
+        document.getElementById('client-expense-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await _supabase.from('gastos').insert([{ 
+                company_id: currentUser.company_id, 
+                descripcion: document.getElementById('e-desc').value, 
+                monto: document.getElementById('e-amount').value 
+            }]);
+            closeExpenseModal(); e.target.reset(); loadClientData();
+        });
     </script>
 </body>
 </html>
