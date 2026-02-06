@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DetailGest Pro v4.6 - Sesión Persistente</title>
+    <title>DetailGest Pro v4.7 - Full System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -12,9 +12,11 @@
         body { background: #0b0f1a; color: #f1f5f9; font-family: 'Inter', sans-serif; }
         .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
         .active-tab { background: #eab308 !important; color: #0f172a !important; font-weight: 900; }
-        .sidebar-item { transition: all 0.3s; cursor: pointer; border-radius: 1rem; }
+        .sidebar-item { transition: all 0.3s; cursor: pointer; border-radius: 1rem; margin-bottom: 4px; }
         .custom-scroll::-webkit-scrollbar { width: 4px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        .service-card { transition: all 0.2s; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+        .service-card:hover { transform: translateY(-3px); border-color: #eab308; background: rgba(234, 179, 8, 0.1); }
     </style>
 </head>
 <body>
@@ -22,73 +24,118 @@
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
         <div class="max-w-md w-full glass p-10 rounded-[2.5rem] shadow-2xl border-t-4 border-yellow-500 text-center">
             <h1 class="text-6xl font-black text-yellow-500 mb-2 italic tracking-tighter">DG PRO</h1>
-            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-10">Punto de Venta</p>
+            <p class="text-slate-500 text-[10px] font-bold uppercase tracking-[0.3em] mb-10">Sistema Integral</p>
             <form id="login-form" class="space-y-4 text-left">
                 <input type="text" id="user" placeholder="Usuario" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none text-white">
                 <input type="password" id="pass" placeholder="Contraseña" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none text-white">
-                <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-4 rounded-2xl transition-all">ACCEDER</button>
+                <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-4 rounded-2xl transition-all uppercase text-sm">Entrar al Taller</button>
             </form>
         </div>
     </div>
 
     <div id="dashboard" class="hidden min-h-screen flex flex-col md:flex-row">
+        
         <aside class="md:w-64 glass border-r border-slate-800 flex flex-col z-50">
             <div class="p-6">
                 <h2 class="text-2xl font-black text-yellow-500 italic">DETAILGEST</h2>
                 <p id="client-name-tag" class="text-[10px] font-bold text-slate-500 uppercase mt-1"></p>
             </div>
-            <nav id="nav-menu" class="flex-1 px-4 space-y-2 overflow-y-auto custom-scroll"></nav>
+            <nav id="nav-menu" class="flex-1 px-4 space-y-1 overflow-y-auto custom-scroll">
+                </nav>
             <div class="p-4 border-t border-slate-800">
-                <button onclick="logout()" class="w-full p-3 text-red-400 font-bold text-xs flex items-center gap-3">
+                <button onclick="logout()" class="w-full p-3 text-red-400 font-bold text-xs flex items-center gap-3 hover:bg-red-500/10 rounded-xl transition-all">
                     <i class="fas fa-power-off"></i> CERRAR SESIÓN
                 </button>
             </div>
         </aside>
 
-        <main class="flex-1 p-4 md:p-8 overflow-y-auto h-screen custom-scroll">
-            <section id="sec-caja" class="content-sec hidden">
-                <div class="flex flex-col lg:flex-row gap-6">
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto h-screen custom-scroll bg-[#0b0f1a]">
+            
+            <section id="sec-caja" class="content-sec hidden h-full">
+                <div class="flex flex-col lg:flex-row gap-6 h-full">
                     <div class="flex-1 space-y-4">
-                        <input type="text" id="pos-search" oninput="filterServices()" placeholder="Buscar servicio..." class="w-full p-4 bg-slate-900 border border-slate-800 rounded-2xl outline-none focus:border-yellow-500">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                            <input type="text" id="pos-search" oninput="filterServices()" placeholder="Buscar servicio..." class="w-full p-4 pl-12 bg-slate-900 border border-slate-800 rounded-2xl outline-none focus:border-yellow-500">
+                        </div>
                         <div id="pos-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 overflow-y-auto max-h-[60vh] pr-2 custom-scroll"></div>
                     </div>
-                    <div class="w-full lg:w-96 glass rounded-[2.5rem] flex flex-col border border-yellow-500/10 p-6 space-y-4">
-                        <h3 class="font-black text-yellow-500 uppercase italic">Ticket</h3>
-                        <select id="pos-client-select" class="w-full bg-slate-800 rounded-xl p-3 text-xs text-white outline-none"></select>
-                        <div id="pos-cart" class="flex-1 space-y-3 overflow-y-auto max-h-[40vh] custom-scroll"></div>
-                        <div class="pt-4 border-t border-slate-700">
-                            <div class="flex justify-between text-2xl font-black text-yellow-500 mb-4"><span>TOTAL</span><span id="pos-total">0 Gs</span></div>
-                            <button onclick="finalizeSale()" class="w-full bg-emerald-500 text-white font-black py-4 rounded-2xl uppercase shadow-xl hover:bg-emerald-400">Finalizar Cobro</button>
+
+                    <div class="w-full lg:w-96 glass rounded-[2.5rem] flex flex-col border border-yellow-500/10 p-6">
+                        <h3 class="font-black text-yellow-500 uppercase italic mb-4">Ticket de Venta</h3>
+                        <div class="mb-4">
+                            <label class="text-[9px] font-black text-slate-500 uppercase">Cliente</label>
+                            <select id="pos-client-select" class="w-full bg-slate-800 border-none rounded-xl p-3 text-xs text-white outline-none mt-1"></select>
+                        </div>
+                        <div id="pos-cart" class="flex-1 space-y-3 overflow-y-auto max-h-[35vh] custom-scroll mb-4">
+                            </div>
+                        <div class="pt-4 border-t border-slate-700 space-y-3">
+                            <div class="flex justify-between text-2xl font-black text-yellow-500">
+                                <span>TOTAL</span>
+                                <span id="pos-total">0 Gs</span>
+                            </div>
+                            <button onclick="finalizeSale()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl uppercase shadow-xl transition-all">Registrar Venta</button>
                         </div>
                     </div>
                 </div>
             </section>
 
+            <section id="sec-inicio" class="content-sec hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="glass p-6 rounded-3xl border-b-4 border-emerald-500">
+                        <p class="text-slate-500 text-[10px] font-black uppercase">Ingresos Totales</p>
+                        <h4 id="stat-sales" class="text-3xl font-black text-emerald-400">0 Gs</h4>
+                    </div>
+                    <div class="glass p-6 rounded-3xl border-b-4 border-red-500">
+                        <p class="text-slate-500 text-[10px] font-black uppercase">Gastos Totales</p>
+                        <h4 id="stat-expenses" class="text-3xl font-black text-red-400">0 Gs</h4>
+                    </div>
+                    <div class="glass p-6 rounded-3xl border-b-4 border-blue-500">
+                        <p class="text-slate-500 text-[10px] font-black uppercase">Utilidad Neta</p>
+                        <h4 id="stat-net" class="text-3xl font-black text-blue-400">0 Gs</h4>
+                    </div>
+                </div>
+                <div class="glass p-6 rounded-[2.5rem]">
+                    <h3 class="text-xs font-black uppercase text-slate-500 mb-6 italic">Flujo de Caja Semanal</h3>
+                    <canvas id="mainChart" height="100"></canvas>
+                </div>
+            </section>
+
             <section id="sec-clientes" class="content-sec hidden space-y-6">
                 <div class="flex justify-between items-center">
-                    <h2 class="text-2xl font-black uppercase italic">Clientes</h2>
-                    <button onclick="openClientModal()" class="bg-yellow-500 text-slate-950 px-6 py-2 rounded-full font-black text-xs">+ NUEVO CLIENTE</button>
+                    <h2 class="text-2xl font-black uppercase italic">Base de Clientes</h2>
+                    <button onclick="openGenericModal('cliente')" class="bg-blue-600 text-white px-6 py-2 rounded-full font-black text-xs hover:bg-blue-500">+ NUEVO CLIENTE</button>
                 </div>
                 <div id="list-clientes" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </section>
 
-            <section id="sec-inicio" class="content-sec hidden">
-                <div id="stats-container" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"></div>
-                <div class="glass p-6 rounded-[2.5rem]"><canvas id="mainChart" height="100"></canvas></div>
+            <section id="sec-gastos" class="content-sec hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-black uppercase italic">Registro de Gastos</h2>
+                    <button onclick="openGenericModal('gasto')" class="bg-red-600 text-white px-6 py-2 rounded-full font-black text-xs hover:bg-red-500">+ AGREGAR GASTO</button>
+                </div>
+                <div id="list-gastos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </section>
+
+            <section id="sec-servicios" class="content-sec hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-black uppercase italic">Catálogo de Servicios</h2>
+                    <button onclick="openGenericModal('servicio')" class="bg-yellow-500 text-slate-950 px-6 py-2 rounded-full font-black text-xs hover:bg-yellow-400">+ NUEVO SERVICIO</button>
+                </div>
+                <div id="list-servicios" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </section>
         </main>
     </div>
 
     <div id="modal-container" class="hidden fixed inset-0 bg-slate-950/95 flex items-center justify-center p-4 z-[100]">
         <div class="glass p-8 rounded-[2.5rem] w-full max-w-md border border-yellow-500/20">
-            <h3 id="modal-title" class="text-2xl font-black text-yellow-500 mb-6 uppercase italic">Nuevo Cliente</h3>
-            <form id="client-form" class="space-y-4">
-                <input id="cl-id" type="hidden">
-                <input id="cl-name" placeholder="Nombre" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">
-                <input id="cl-phone" placeholder="WhatsApp" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">
+            <h3 id="modal-title" class="text-2xl font-black text-yellow-500 mb-6 uppercase italic">Registro</h3>
+            <form id="generic-form" class="space-y-4">
+                <input type="hidden" id="entry-id">
+                <div id="modal-fields" class="space-y-4"></div>
                 <div class="flex gap-4 pt-4">
-                    <button type="button" onclick="closeModal()" class="flex-1 text-slate-500 font-black text-[10px]">CANCELAR</button>
-                    <button type="submit" class="flex-[2] bg-yellow-500 text-slate-950 font-black py-4 rounded-2xl uppercase text-xs">Guardar Cliente</button>
+                    <button type="button" onclick="closeModal()" class="flex-1 text-slate-500 font-black text-[10px] tracking-widest">CANCELAR</button>
+                    <button type="submit" class="flex-[2] bg-yellow-500 text-slate-950 font-black py-4 rounded-2xl uppercase text-xs shadow-lg shadow-yellow-500/20">Guardar Cambios</button>
                 </div>
             </form>
         </div>
@@ -96,109 +143,89 @@
 
     <script>
         const SB_URL = 'https://itahtywhhaecjakgtnzu.supabase.co';
-        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0YWh0eXdoaGFlY2pha2d0bnp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMjYyODIsImV4cCI6MjA4NTkwMjI4Mn0.ARQ9W_Rpj8rp_xo88TbTjbdwT6o75J7sCPlConcoshw';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0YWh0eXdoaGFlY2pha2d0bnp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMjYyODIsImV4cCI6MjA4NTkwMjI4Mn0.ARQ9W_Rpj8rp_xo88TbTjbdwT6o75J7sCPlConcoshw'; 
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         let currentUser = null;
         let servicesList = [];
         let cart = [];
+        let mainChart = null;
+        let currentModalType = '';
 
-        // --- PERSISTENCIA DE SESIÓN ---
+        // --- SISTEMA DE SESIÓN PERSISTENTE ---
         window.onload = () => {
-            const savedUser = localStorage.getItem('dg_user');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                initApp(currentUser.role);
+            const saved = localStorage.getItem('dg_session');
+            if(saved) {
+                currentUser = JSON.parse(saved);
+                initApp();
             }
         };
 
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
+        document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault();
-            const { data, error } = await _supabase.from('users').select('*, companies(*)').eq('username', document.getElementById('user').value).eq('password_hash', document.getElementById('pass').value).maybeSingle();
-            if (data) {
+            const user = document.getElementById('user').value;
+            const pass = document.getElementById('pass').value;
+            const { data, error } = await _supabase.from('users').select('*, companies(*)').eq('username', user).eq('password_hash', pass).maybeSingle();
+            
+            if(data) {
                 currentUser = data;
-                localStorage.setItem('dg_user', JSON.stringify(data)); // Guardar sesión
-                initApp(data.role);
+                localStorage.setItem('dg_session', JSON.stringify(data));
+                initApp();
             } else {
-                alert('Usuario o clave incorrectos');
+                alert("Credenciales incorrectas");
             }
-        });
+        };
 
         function logout() {
-            localStorage.removeItem('dg_user');
+            localStorage.removeItem('dg_session');
             location.reload();
         }
 
-        function initApp(role) {
+        // --- INICIALIZACIÓN ---
+        function initApp() {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
             document.getElementById('client-name-tag').innerText = currentUser.companies?.name || "STAFF";
-            
+
             const menu = document.getElementById('nav-menu');
-            const items = [
-                { id: 'caja', label: 'CAJA', icon: 'fa-cash-register' },
+            const navItems = [
+                { id: 'caja', label: 'CAJA (POS)', icon: 'fa-cash-register' },
                 { id: 'inicio', label: 'REPORTES', icon: 'fa-chart-pie' },
-                { id: 'clientes', label: 'CLIENTES', icon: 'fa-address-book' }
+                { id: 'clientes', label: 'CLIENTES', icon: 'fa-address-book' },
+                { id: 'gastos', label: 'GASTOS', icon: 'fa-wallet' },
+                { id: 'servicios', label: 'SERVICIOS', icon: 'fa-tags' }
             ];
-            
-            menu.innerHTML = items.map(i => `<div onclick="switchSec('${i.id}')" class="sidebar-item p-4 text-xs font-black flex items-center gap-3"><i class="fas ${i.icon}"></i> ${i.label}</div>`).join('');
+
+            menu.innerHTML = navItems.map(i => `
+                <div onclick="switchSec('${i.id}')" id="nav-${i.id}" class="sidebar-item p-4 text-[10px] font-black flex items-center gap-3">
+                    <i class="fas ${i.icon} w-5"></i> ${i.label}
+                </div>
+            `).join('');
+
             switchSec('caja');
         }
 
         async function switchSec(id) {
             document.querySelectorAll('.content-sec').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active-tab'));
+            
             document.getElementById('sec-' + id).classList.remove('hidden');
-            if(id === 'caja') { await loadCajaData(); }
-            if(id === 'clientes') { await loadClientesList(); }
+            document.getElementById('nav-' + id).classList.add('active-tab');
+
+            if(id === 'caja') loadCaja();
+            if(id === 'inicio') loadStats();
+            if(id === 'clientes') loadClientes();
+            if(id === 'gastos') loadGastos();
+            if(id === 'servicios') loadServicios();
         }
 
-        // --- LÓGICA DE CLIENTES (CORREGIDA) ---
-        async function loadClientesList() {
-            const { data } = await _supabase.from('clients').select('*').eq('company_id', currentUser.company_id).order('name');
-            const container = document.getElementById('list-clientes');
-            container.innerHTML = data.length ? data.map(c => `
-                <div class="glass p-5 rounded-3xl border-l-4 border-yellow-500 flex justify-between items-center">
-                    <div>
-                        <p class="font-black text-xs uppercase text-white">${c.name}</p>
-                        <p class="text-[10px] text-slate-500">${c.phone || '-'}</p>
-                    </div>
-                    <button onclick="deleteCliente('${c.id}')" class="text-red-500 p-2"><i class="fas fa-trash"></i></button>
-                </div>
-            `).join('') : '<p class="text-slate-500 text-xs">No hay clientes registrados.</p>';
-        }
-
-        function openClientModal() {
-            document.getElementById('client-form').reset();
-            document.getElementById('cl-id').value = "";
-            document.getElementById('modal-container').classList.remove('hidden');
-        }
-
-        document.getElementById('client-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const payload = {
-                company_id: currentUser.company_id,
-                name: document.getElementById('cl-name').value,
-                phone: document.getElementById('cl-phone').value
-            };
-
-            const { error } = await _supabase.from('clients').insert([payload]);
-            if (error) {
-                alert("Error al guardar: " + error.message);
-            } else {
-                closeModal();
-                loadClientesList();
-                loadCajaData(); // Actualizar el select de la caja
-            }
-        };
-
-        // --- CAJA ---
-        async function loadCajaData() {
+        // --- FUNCIONES DE CAJA (POS) ---
+        async function loadCaja() {
             const resS = await _supabase.from('services_list').select('*').eq('company_id', currentUser.company_id);
             const resC = await _supabase.from('clients').select('*').eq('company_id', currentUser.company_id);
             
             servicesList = resS.data || [];
             
-            // Llenar select de clientes
             const sel = document.getElementById('pos-client-select');
             sel.innerHTML = '<option value="">Consumidor Final</option>' + (resC.data || []).map(c => `<option value="${c.id}">${c.name}</option>`).join('');
             
@@ -209,7 +236,7 @@
             const query = document.getElementById('pos-search').value.toLowerCase();
             const grid = document.getElementById('pos-grid');
             grid.innerHTML = servicesList.filter(s => s.name.toLowerCase().includes(query)).map(s => `
-                <div onclick="addToCart('${s.id}')" class="glass p-4 rounded-2xl cursor-pointer border border-transparent hover:border-yellow-500 transition-all">
+                <div onclick="addToCart('${s.id}')" class="service-card glass p-4 rounded-2xl">
                     <p class="text-[10px] font-black text-slate-500 uppercase truncate">${s.name}</p>
                     <p class="text-yellow-500 font-bold">${Number(s.price).toLocaleString()} Gs</p>
                 </div>
@@ -223,8 +250,9 @@
         }
 
         function updateCartUI() {
-            document.getElementById('pos-cart').innerHTML = cart.map((item, i) => `
-                <div class="flex justify-between items-center bg-slate-800/40 p-3 rounded-xl">
+            const container = document.getElementById('pos-cart');
+            container.innerHTML = cart.map((item, i) => `
+                <div class="flex justify-between items-center bg-slate-800/40 p-3 rounded-xl border border-slate-700">
                     <p class="text-[9px] font-bold uppercase truncate">${item.name}</p>
                     <button onclick="cart.splice(${i},1); updateCartUI();" class="text-red-500"><i class="fas fa-times"></i></button>
                 </div>
@@ -242,11 +270,123 @@
                 client_id: document.getElementById('pos-client-select').value || null,
                 details: cart.map(i => i.name).join(', ')
             }]);
-            if(!error) { alert("Venta registrada"); cart = []; updateCartUI(); }
+            if(!error) { alert("¡Venta registrada!"); cart = []; updateCartUI(); }
+        }
+
+        // --- GESTIÓN DE MODALES Y CRUD ---
+        function openGenericModal(type) {
+            currentModalType = type;
+            const fields = document.getElementById('modal-fields');
+            const title = document.getElementById('modal-title');
+            document.getElementById('generic-form').reset();
+            document.getElementById('entry-id').value = '';
+
+            if(type === 'cliente') {
+                title.innerText = "Nuevo Cliente";
+                fields.innerHTML = `
+                    <input id="f1" placeholder="Nombre del Cliente" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">
+                    <input id="f2" placeholder="Teléfono / WhatsApp" class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">
+                `;
+            } else if(type === 'gasto') {
+                title.innerText = "Registrar Gasto";
+                fields.innerHTML = `
+                    <input id="f1" placeholder="Descripción del Gasto" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">
+                    <input id="f2" type="number" placeholder="Monto (Gs)" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">
+                `;
+            } else if(type === 'servicio') {
+                title.innerText = "Nuevo Servicio";
+                fields.innerHTML = `
+                    <input id="f1" placeholder="Nombre del Servicio" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">
+                    <input id="f2" type="number" placeholder="Precio (Gs)" required class="w-full p-4 bg-slate-900 border border-slate-800 rounded-xl text-white outline-none">
+                `;
+            }
+            document.getElementById('modal-container').classList.remove('hidden');
+        }
+
+        document.getElementById('generic-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const val1 = document.getElementById('f1').value;
+            const val2 = document.getElementById('f2').value;
+            let table = '';
+            let payload = { company_id: currentUser.company_id };
+
+            if(currentModalType === 'cliente') { table = 'clients'; payload.name = val1; payload.phone = val2; }
+            if(currentModalType === 'gasto') { table = 'gastos'; payload.descripcion = val1; payload.monto = val2; }
+            if(currentModalType === 'servicio') { table = 'services_list'; payload.name = val1; payload.price = val2; }
+
+            const { error } = await _supabase.from(table).insert([payload]);
+            if(!error) { closeModal(); switchSec(currentModalType === 'servicio' ? 'servicios' : currentModalType + 's'); }
+            else { alert("Error: " + error.message); }
+        };
+
+        // --- CARGA DE LISTADOS ---
+        async function loadClientes() {
+            const { data } = await _supabase.from('clients').select('*').eq('company_id', currentUser.company_id);
+            document.getElementById('list-clientes').innerHTML = data.map(c => `
+                <div class="glass p-5 rounded-3xl border-l-4 border-blue-500 flex justify-between items-center">
+                    <div><p class="font-black text-xs uppercase">${c.name}</p><p class="text-[10px] text-slate-500">${c.phone || '-'}</p></div>
+                    <button onclick="deleteEntry('clients', '${c.id}', 'clientes')" class="text-red-500 opacity-40 hover:opacity-100"><i class="fas fa-trash"></i></button>
+                </div>`).join('');
+        }
+
+        async function loadGastos() {
+            const { data } = await _supabase.from('gastos').select('*').eq('company_id', currentUser.company_id);
+            document.getElementById('list-gastos').innerHTML = data.map(g => `
+                <div class="glass p-5 rounded-3xl border-l-4 border-red-500 flex justify-between items-center">
+                    <div><p class="font-black text-xs uppercase">${g.descripcion}</p><p class="text-red-400 font-bold text-sm">${Number(g.monto).toLocaleString()} Gs</p></div>
+                    <button onclick="deleteEntry('gastos', '${g.id}', 'gastos')" class="text-red-500 opacity-40 hover:opacity-100"><i class="fas fa-trash"></i></button>
+                </div>`).join('');
+        }
+
+        async function loadServicios() {
+            const { data } = await _supabase.from('services_list').select('*').eq('company_id', currentUser.company_id);
+            document.getElementById('list-servicios').innerHTML = data.map(s => `
+                <div class="glass p-5 rounded-3xl border-l-4 border-yellow-500 flex justify-between items-center">
+                    <div><p class="font-black text-xs uppercase">${s.name}</p><p class="text-yellow-500 font-bold text-sm">${Number(s.price).toLocaleString()} Gs</p></div>
+                    <button onclick="deleteEntry('services_list', '${s.id}', 'servicios')" class="text-red-500 opacity-40 hover:opacity-100"><i class="fas fa-trash"></i></button>
+                </div>`).join('');
+        }
+
+        async function deleteEntry(table, id, sec) {
+            if(confirm('¿Seguro que desea eliminar?')) {
+                await _supabase.from(table).delete().eq('id', id);
+                switchSec(sec);
+            }
         }
 
         function closeModal() { document.getElementById('modal-container').classList.add('hidden'); }
-        async function deleteCliente(id) { if(confirm('¿Eliminar?')) { await _supabase.from('clients').delete().eq('id', id); loadClientesList(); } }
+
+        // --- REPORTES ---
+        async function loadStats() {
+            const { data: s } = await _supabase.from('sales').select('total_final').eq('company_id', currentUser.company_id);
+            const { data: g } = await _supabase.from('gastos').select('monto').eq('company_id', currentUser.company_id);
+            
+            const totalS = s?.reduce((a, b) => a + Number(b.total_final), 0) || 0;
+            const totalG = g?.reduce((a, b) => a + Number(b.monto), 0) || 0;
+
+            document.getElementById('stat-sales').innerText = totalS.toLocaleString() + ' Gs';
+            document.getElementById('stat-expenses').innerText = totalG.toLocaleString() + ' Gs';
+            document.getElementById('stat-net').innerText = (totalS - totalG).toLocaleString() + ' Gs';
+            
+            initChart(totalS, totalG);
+        }
+
+        function initChart(sales, expenses) {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            if(mainChart) mainChart.destroy();
+            mainChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Ingresos', 'Gastos'],
+                    datasets: [{
+                        data: [sales, expenses],
+                        backgroundColor: ['#10b981', '#ef4444'],
+                        borderRadius: 12
+                    }]
+                },
+                options: { plugins: { legend: { display: false } }, scales: { y: { display: false } } }
+            });
+        }
     </script>
 </body>
 </html>
