@@ -3,50 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DetailGest Pro - Gestión y Cobros</title>
+    <title>DetailGest Pro - Business Intelligence</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #0f172a; color: #f1f5f9; }
+        body { background: #0f172a; color: #f1f5f9; font-family: 'Inter', sans-serif; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body>
 
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
-        <div class="max-w-md w-full glass p-8 rounded-3xl shadow-2xl">
-            <h1 class="text-4xl font-black text-yellow-500 text-center mb-8 italic">DG PRO</h1>
+        <div class="max-w-md w-full glass p-8 rounded-3xl shadow-2xl border-t-4 border-yellow-500">
+            <h1 class="text-5xl font-black text-yellow-500 text-center mb-2 italic tracking-tighter">DG PRO</h1>
+            <p class="text-center text-slate-500 text-xs font-bold uppercase tracking-widest mb-8">Intelligence Suite</p>
             <form id="login-form" class="space-y-4">
-                <input type="text" id="user" placeholder="Usuario" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none">
-                <input type="password" id="pass" placeholder="Contraseña" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none">
-                <button type="submit" class="w-full bg-yellow-500 text-slate-900 font-black py-4 rounded-2xl">INGRESAR</button>
+                <input type="text" id="user" placeholder="Usuario" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-yellow-500 transition-all">
+                <input type="password" id="pass" placeholder="Contraseña" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-yellow-500 transition-all">
+                <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-black py-4 rounded-2xl shadow-lg transition-all">ENTRAR AL SISTEMA</button>
             </form>
         </div>
     </div>
 
     <div id="dashboard" class="hidden min-h-screen flex flex-col">
-        <header class="glass p-4 border-b border-slate-800 flex justify-between items-center">
-            <h2 id="panel-title" class="font-bold text-yellow-500 uppercase tracking-tighter">Panel</h2>
-            <button onclick="location.reload()" class="bg-red-500/20 text-red-500 px-4 py-2 rounded-lg text-xs font-bold">CERRAR SESIÓN</button>
-        </header>
+        <nav class="glass sticky top-0 z-50 p-4 border-b border-slate-800 flex justify-between items-center px-8">
+            <h2 class="text-xl font-black text-yellow-500 italic">DETAILGEST <span class="text-slate-500 font-light text-sm not-italic ml-2">v2.0</span></h2>
+            <button onclick="location.reload()" class="text-red-400 hover:bg-red-500/10 px-4 py-2 rounded-xl text-xs font-bold transition-all"><i class="fas fa-power-off mr-2"></i>SALIR</button>
+        </nav>
 
-        <main class="p-6 max-w-6xl mx-auto w-full">
+        <main class="p-6 max-w-7xl mx-auto w-full space-y-8">
+            
             <div id="view-superadmin" class="hidden space-y-6">
-                <div class="glass p-6 rounded-3xl">
-                    <h3 class="text-yellow-500 font-black mb-4 uppercase text-sm">Registrar Nuevo Taller</h3>
-                    <form id="auto-register-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" id="new-comp-name" placeholder="Nombre del Taller" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl">
-                        <input type="number" id="new-due-day" placeholder="Día de Cobro (1-31)" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl">
-                        <input type="text" id="new-user" placeholder="Usuario Cliente" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl">
-                        <input type="text" id="new-pass" placeholder="Clave Cliente" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl">
-                        <button type="submit" class="md:col-span-2 bg-emerald-600 font-black py-4 rounded-xl">ACTIVAR TALLER</button>
+                <div class="glass p-6 rounded-3xl border-l-4 border-emerald-500">
+                    <h3 class="text-slate-400 font-bold mb-4 uppercase text-xs tracking-widest">Registrar Nuevo Cliente SaaS</h3>
+                    <form id="auto-register-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <input type="text" id="new-comp-name" placeholder="Nombre Empresa" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl outline-none">
+                        <input type="number" id="new-due-day" placeholder="Día Cobro" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl outline-none">
+                        <input type="text" id="new-user" placeholder="User Acceso" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl outline-none">
+                        <input type="text" id="new-pass" placeholder="Pass Acceso" required class="p-3 bg-slate-900 border border-slate-700 rounded-xl outline-none">
+                        <button type="submit" class="md:col-span-4 bg-emerald-600 hover:bg-emerald-500 font-black py-4 rounded-xl transition-all shadow-lg shadow-emerald-900/20">DAR DE ALTA Y ACTIVAR</button>
                     </form>
                 </div>
                 <div class="glass rounded-3xl overflow-hidden">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-900 text-slate-500 text-[10px] uppercase">
-                            <tr><th class="p-4">Empresa</th><th class="p-4">Pago</th><th class="p-4">Estado</th><th class="p-4">Acción</th></tr>
+                        <thead class="bg-slate-900/50 text-slate-500 text-[10px] uppercase font-bold">
+                            <tr><th class="p-4">Taller</th><th class="p-4">Cobro</th><th class="p-4">Estado</th><th class="p-4 text-right">Acciones</th></tr>
                         </thead>
                         <tbody id="companies-list" class="divide-y divide-slate-800"></tbody>
                     </table>
@@ -54,38 +59,70 @@
             </div>
 
             <div id="view-client" class="hidden space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <button onclick="openModal()" class="glass p-10 rounded-3xl border-2 border-dashed border-blue-500/50 hover:bg-blue-500/10 transition-all">
-                        <i class="fas fa-plus-circle text-3xl text-blue-500 mb-2"></i>
-                        <span class="block font-bold">NUEVA ORDEN DE TRABAJO</span>
-                    </button>
-                    <div class="glass p-10 rounded-3xl border border-emerald-500/30">
-                        <span class="text-xs text-slate-500 uppercase font-bold">Ventas de Hoy</span>
-                        <h4 id="total-cash" class="text-3xl font-black text-emerald-400">0 Gs</h4>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 glass p-6 rounded-3xl">
+                        <h3 class="text-xs font-bold text-slate-500 uppercase mb-4 tracking-widest">Rendimiento Semanal (Gs)</h3>
+                        <canvas id="revenueChart" height="100"></canvas>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="glass p-6 rounded-3xl border-b-4 border-emerald-500">
+                            <p class="text-slate-500 text-[10px] font-bold uppercase mb-1">Caja del Día (Entregados)</p>
+                            <h4 id="total-cash" class="text-3xl font-black text-emerald-400">0 Gs</h4>
+                        </div>
+                        <button onclick="openModal()" class="w-full bg-blue-600 hover:bg-blue-500 p-6 rounded-3xl flex flex-col items-center justify-center transition-all shadow-xl shadow-blue-900/20 group">
+                            <i class="fas fa-car-clean text-3xl mb-2 group-hover:scale-110 transition-transform"></i>
+                            <span class="font-black text-sm uppercase">Nueva Orden</span>
+                        </button>
                     </div>
                 </div>
+
                 <div class="glass rounded-3xl overflow-hidden">
-                    <table class="w-full text-left">
-                        <thead class="bg-slate-900 text-slate-500 text-[10px] uppercase">
-                            <tr><th class="p-4">Cliente/Auto</th><th class="p-4 text-center">Monto</th><th class="p-4 text-right">Notificar</th></tr>
-                        </thead>
-                        <tbody id="sales-list" class="divide-y divide-slate-800"></tbody>
-                    </table>
+                    <div class="p-4 bg-slate-900/50 border-b border-slate-800 flex justify-between items-center">
+                        <h3 class="text-xs font-black uppercase tracking-widest text-slate-400">Flujo de Trabajo Actual</h3>
+                        <span class="text-[10px] bg-slate-800 px-2 py-1 rounded text-slate-500 italic">Hoy: <span id="current-date"></span></span>
+                    </div>
+                    <div id="sales-list" class="p-4 space-y-3 max-h-[500px] overflow-y-auto custom-scroll">
+                        </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <div id="service-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50">
-        <div class="glass p-8 rounded-3xl w-full max-w-md">
-            <h3 class="text-xl font-bold mb-6 text-yellow-500 italic">DATOS DEL TRABAJO</h3>
+    <div id="service-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 z-[100]">
+        <div class="glass p-8 rounded-[2rem] w-full max-w-lg border border-yellow-500/20 shadow-2xl">
+            <h3 class="text-2xl font-black mb-6 text-yellow-500 italic uppercase italic tracking-tighter">Nueva Orden</h3>
             <form id="service-form" class="space-y-4">
-                <input type="text" id="c-info" placeholder="Nombre y Vehículo (Ej: Juan - Hilux)" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-xl">
-                <input type="text" id="c-phone" placeholder="WhatsApp del Cliente (Ej: 0981...)" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-xl">
-                <input type="text" id="s-type" placeholder="Servicio (Ej: Lavado Full)" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-xl">
-                <input type="number" id="s-price" placeholder="Precio Gs" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-xl">
-                <button type="submit" class="w-full bg-blue-600 font-bold py-4 rounded-xl">GUARDAR E IMPRIMIR</button>
-                <button type="button" onclick="closeModal()" class="w-full mt-2 text-slate-500">Cerrar</button>
+                <div class="relative">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-2">Cliente</label>
+                    <input type="text" id="c-info" placeholder="Nombre del cliente..." required autocomplete="off" class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-blue-500 transition-all">
+                    <div id="customer-suggestions" class="absolute z-[110] w-full bg-slate-800 rounded-2xl mt-1 hidden max-h-48 overflow-y-auto border border-slate-700 shadow-2xl"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-2">WhatsApp</label>
+                        <input type="text" id="c-phone" placeholder="09xx..." required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-blue-500">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-2">Vehículo</label>
+                        <input type="text" id="v-info" placeholder="Modelo / Color" required class="w-full p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-2">Servicio y Precio</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <select id="s-type" class="p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-blue-500 text-sm">
+                            <option>Lavado Simple</option>
+                            <option>Lavado Full + Cera</option>
+                            <option>Limpieza Interior</option>
+                            <option>Pulido Pro</option>
+                        </select>
+                        <input type="number" id="s-price" placeholder="Monto Gs" required class="p-4 bg-slate-900 border border-slate-700 rounded-2xl outline-none focus:border-emerald-500 font-bold text-emerald-400">
+                    </div>
+                </div>
+                <div class="flex gap-4 pt-4">
+                    <button type="button" onclick="closeModal()" class="flex-1 text-slate-500 font-bold text-xs uppercase">Cancelar</button>
+                    <button type="submit" class="flex-[2] bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl shadow-lg transition-all">REGISTRAR TRABAJO</button>
+                </div>
             </form>
         </div>
     </div>
@@ -96,30 +133,25 @@
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         let currentUser = null;
+        let myChart = null;
 
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString();
+
+        // LOGIN CON VALIDACIÓN DE BLOQUEO
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const u = document.getElementById('user').value;
             const p = document.getElementById('pass').value;
-            
-            // Verificamos usuario y el estado de su empresa
-            const { data, error } = await _supabase
-                .from('users')
-                .select('*, companies(is_active)')
-                .eq('username', u)
-                .eq('password_hash', p)
-                .maybeSingle();
+            const { data } = await _supabase.from('users').select('*, companies(is_active)').eq('username', u).eq('password_hash', p).maybeSingle();
 
             if (data) {
                 if (data.role !== 'superadmin' && data.companies && !data.companies.is_active) {
-                    alert('🚨 CUENTA SUSPENDIDA POR FALTA DE PAGO. Contacte al administrador.');
+                    alert('CUENTA SUSPENDIDA. Contacte al administrador para habilitar el servicio.');
                     return;
                 }
                 currentUser = data;
                 showPanel(data.role);
-            } else {
-                alert('Credenciales incorrectas');
-            }
+            } else { alert('Credenciales incorrectas'); }
         });
 
         function showPanel(role) {
@@ -131,21 +163,25 @@
             } else {
                 document.getElementById('view-client').classList.remove('hidden');
                 loadSales();
+                initChart();
             }
         }
 
-        // LÓGICA SÚPER ADMIN (GESTIÓN DE TALLERES)
+        // LÓGICA SÚPER ADMIN (Cobros y Bloqueos)
         document.getElementById('auto-register-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const n = document.getElementById('new-comp-name').value;
-            const d = document.getElementById('new-due-day').value;
-            const u = document.getElementById('new-user').value;
-            const p = document.getElementById('new-pass').value;
-
-            const { data: comp } = await _supabase.from('companies').insert([{ name: n, due_day: d }]).select().single();
+            const { data: comp } = await _supabase.from('companies').insert([{ 
+                name: document.getElementById('new-comp-name').value, 
+                due_day: document.getElementById('new-due-day').value 
+            }]).select().single();
             if (comp) {
-                await _supabase.from('users').insert([{ username: u, password_hash: p, role: 'admin_empresa', company_id: comp.id }]);
-                alert('Taller creado con éxito');
+                await _supabase.from('users').insert([{ 
+                    username: document.getElementById('new-user').value, 
+                    password_hash: document.getElementById('new-pass').value, 
+                    role: 'admin_empresa', 
+                    company_id: comp.id 
+                }]);
+                alert('Taller activado correctamente.');
                 loadCompanies();
                 document.getElementById('auto-register-form').reset();
             }
@@ -154,66 +190,132 @@
         async function loadCompanies() {
             const { data } = await _supabase.from('companies').select('*').order('created_at', {ascending: false});
             document.getElementById('companies-list').innerHTML = data.map(c => `
-                <tr>
-                    <td class="p-4 font-bold text-yellow-500">${c.name}</td>
-                    <td class="p-4">Día ${c.due_day}</td>
+                <tr class="hover:bg-slate-800/30 transition-colors">
+                    <td class="p-4 font-black text-yellow-500">${c.name}</td>
+                    <td class="p-4 text-xs font-bold">DÍA ${c.due_day}</td>
                     <td class="p-4">
-                        <span class="${c.is_active ? 'text-emerald-400' : 'text-red-500'} font-bold">
-                            ${c.is_active ? 'ACTIVO' : 'SUSPENDIDO'}
+                        <span class="px-2 py-1 rounded-full text-[9px] font-black ${c.is_active ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}">
+                            ${c.is_active ? '● AL DÍA' : '○ SUSPENDIDO'}
                         </span>
                     </td>
-                    <td class="p-4">
-                        <button onclick="toggleCompany('${c.id}', ${c.is_active})" class="text-[10px] bg-slate-800 p-2 rounded border border-slate-700 uppercase font-black">
-                            ${c.is_active ? 'Bloquear' : 'Habilitar'}
+                    <td class="p-4 text-right">
+                        <button onclick="toggleCompany('${c.id}', ${c.is_active})" class="text-[10px] bg-slate-800 px-3 py-2 rounded-xl border border-slate-700 font-black hover:bg-slate-700 transition-all">
+                            ${c.is_active ? 'BLOQUEAR' : 'HABILITAR'}
                         </button>
                     </td>
                 </tr>`).join('');
         }
 
         async function toggleCompany(id, status) {
-            const { error } = await _supabase.from('companies').update({ is_active: !status }).eq('id', id);
-            if (!error) loadCompanies();
+            await _supabase.from('companies').update({ is_active: !status }).eq('id', id);
+            loadCompanies();
         }
 
-        // LÓGICA TALLER (VENTAS Y WHATSAPP)
+        // LÓGICA TALLER (Buscador y Ventas)
         function openModal() { document.getElementById('service-modal').classList.remove('hidden'); }
         function closeModal() { document.getElementById('service-modal').classList.add('hidden'); }
 
+        document.getElementById('c-info').addEventListener('input', async (e) => {
+            const search = e.target.value;
+            if (search.length < 2) { document.getElementById('customer-suggestions').classList.add('hidden'); return; }
+            const { data } = await _supabase.from('clientes').select('*').eq('company_id', currentUser.company_id).ilike('nombre', `%${search}%`).limit(5);
+            const suggestions = document.getElementById('customer-suggestions');
+            if (data && data.length > 0) {
+                suggestions.innerHTML = data.map(c => `
+                    <div onclick="selectCustomer('${c.nombre}', '${c.telefono}', '${c.vehiculo_preferido}')" class="p-4 hover:bg-slate-700 cursor-pointer border-b border-slate-700 last:border-0">
+                        <p class="font-bold text-sm text-yellow-500">${c.nombre}</p>
+                        <p class="text-[10px] text-slate-400 uppercase">${c.vehiculo_preferido} • ${c.telefono}</p>
+                    </div>`).join('');
+                suggestions.classList.remove('hidden');
+            } else { suggestions.classList.add('hidden'); }
+        });
+
+        function selectCustomer(n, t, v) {
+            document.getElementById('c-info').value = n;
+            document.getElementById('c-phone').value = t;
+            document.getElementById('v-info').value = v;
+            document.getElementById('customer-suggestions').classList.add('hidden');
+        }
+
         document.getElementById('service-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const cInfo = document.getElementById('c-info').value;
-            const cPhone = document.getElementById('c-phone').value;
-            const sType = document.getElementById('s-type').value;
-            const sPrice = document.getElementById('s-price').value;
+            const n = document.getElementById('c-info').value;
+            const t = document.getElementById('c-phone').value;
+            const v = document.getElementById('v-info').value;
+            const p = document.getElementById('s-price').value;
+            const st = document.getElementById('s-type').value;
 
-            await _supabase.from('sales').insert([{ 
-                company_id: currentUser.company_id, 
-                client_info: cInfo,
-                client_phone: cPhone,
-                service_type: sType,
-                total_final: sPrice 
-            }]);
-            closeModal(); loadSales();
+            // Upsert cliente
+            await _supabase.from('clientes').upsert({ company_id: currentUser.company_id, nombre: n, telefono: t, vehiculo_preferido: v, ultima_visita: new Date() }, { onConflict: 'company_id, nombre' });
+            
+            // Insert venta
+            await _supabase.from('sales').insert([{ company_id: currentUser.company_id, client_info: n + ' (' + v + ')', client_phone: t, service_type: st, total_final: p }]);
+            
+            closeModal(); loadSales(); updateChart();
         });
 
         async function loadSales() {
             const { data } = await _supabase.from('sales').select('*').eq('company_id', currentUser.company_id).order('created_at', {ascending: false});
             let total = 0;
+            const statusColors = { 'recibido': 'bg-slate-700 text-slate-400', 'proceso': 'bg-yellow-500 text-slate-900 font-black', 'listo': 'bg-blue-500 text-white font-black', 'completado': 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50' };
+            
             document.getElementById('sales-list').innerHTML = data.map(s => {
-                total += Number(s.total_final);
-                const msg = window.encodeURIComponent(`¡Hola! Tu vehículo (${s.client_info}) está listo en el taller. Total: ${Number(s.total_final).toLocaleString()} Gs.`);
+                if (s.estado === 'completado') total += Number(s.total_final);
+                const waMsg = window.encodeURIComponent(`¡Hola! Tu vehículo ${s.client_info} ya está listo. Total: ${Number(s.total_final).toLocaleString()} Gs.`);
                 return `
-                <tr>
-                    <td class="p-4"><b>${s.client_info}</b><br><small class="text-slate-500">${s.service_type}</small></td>
-                    <td class="p-4 text-center text-emerald-400 font-bold">${Number(s.total_final).toLocaleString()} Gs</td>
-                    <td class="p-4 text-right">
-                        <a href="https://wa.me/${s.client_phone}?text=${msg}" target="_blank" class="text-emerald-500 bg-emerald-500/10 p-2 rounded-full">
-                            <i class="fab fa-whatsapp"></i>
-                        </a>
-                    </td>
-                </tr>`;
+                <div class="glass p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div class="flex items-center gap-4 w-full">
+                        <div class="h-10 w-10 bg-slate-800 rounded-full flex items-center justify-center text-slate-500"><i class="fas fa-car"></i></div>
+                        <div>
+                            <h5 class="font-bold text-sm">${s.client_info}</h5>
+                            <p class="text-[10px] text-slate-500 uppercase">${s.service_type} • ${new Date(s.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 w-full md:w-auto justify-between">
+                        <span class="text-emerald-400 font-black text-sm">${Number(s.total_final).toLocaleString()} Gs</span>
+                        <div class="flex gap-2">
+                            <a href="https://wa.me/${s.client_phone}?text=${waMsg}" target="_blank" class="p-2 bg-emerald-500 text-slate-900 rounded-lg text-xs"><i class="fab fa-whatsapp"></i></a>
+                            <select onchange="updateStatus('${s.id}', this.value)" class="bg-slate-900 border border-slate-700 text-[10px] rounded-lg p-2 outline-none ${statusColors[s.estado] || ''}">
+                                <option value="recibido" ${s.estado === 'recibido' ? 'selected' : ''}>RECIBIDO</option>
+                                <option value="proceso" ${s.estado === 'proceso' ? 'selected' : ''}>EN PROCESO</option>
+                                <option value="listo" ${s.estado === 'listo' ? 'selected' : ''}>LISTO</option>
+                                <option value="completado" ${s.estado === 'completado' ? 'selected' : ''}>ENTREGADO</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>`;
             }).join('');
             document.getElementById('total-cash').innerText = total.toLocaleString() + ' Gs';
+        }
+
+        async function updateStatus(id, nuevo) {
+            await _supabase.from('sales').update({ estado: nuevo }).eq('id', id);
+            loadSales();
+            if (nuevo === 'completado') updateChart();
+        }
+
+        // GRÁFICO DE RENDIMIENTO
+        function initChart() {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: { labels: ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'], datasets: [{ label: 'Ventas Semanales', data: [0, 0, 0, 0, 0, 0, 0], borderColor: '#eab308', backgroundColor: 'rgba(234, 179, 8, 0.1)', fill: true, tension: 0.4 }] },
+                options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } } }
+            });
+            updateChart();
+        }
+
+        async function updateChart() {
+            if (!myChart) return;
+            const { data } = await _supabase.from('sales').select('total_final, created_at').eq('company_id', currentUser.company_id).eq('estado', 'completado');
+            const dailyTotals = [0, 0, 0, 0, 0, 0, 0];
+            data.forEach(s => {
+                const day = new Date(s.created_at).getDay();
+                const index = day === 0 ? 6 : day - 1; // Ajustar a Lun-Dom
+                dailyTotals[index] += Number(s.total_final);
+            });
+            myChart.data.datasets[0].data = dailyTotals;
+            myChart.update();
         }
     </script>
 </body>
